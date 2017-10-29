@@ -21,14 +21,15 @@ public class ClassVariable extends ClassMember {
             oomlClassVariable.isStatic(false);
         }
 
-        if (tokens.skipIfNext(TokenType.T_INITIALISE)) {
-            oomlVariable.setInitialiser(Expression.parseExpression(tokens));
-        } else {
-            oomlVariable.setInitialiser(null);
-        }
+        tokens.require(TokenType.T_INITIALISE);
+        oomlVariable.setInitialiser(Expression.parseExpression(tokens));
 
         oomlClassVariable.setVariable(oomlVariable);
         return oomlClassVariable;
+    }
+
+    public Variable getVariable() {
+        return variable.get();
     }
 
     public void setVariable(Variable variable) {

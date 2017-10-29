@@ -1,11 +1,10 @@
 package in.wilsonl.nanoscript.Syntax.Class.Member;
 
 import in.wilsonl.nanoscript.Parsing.Tokens;
-import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
+import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
 import in.wilsonl.nanoscript.Syntax.Identifier;
 import in.wilsonl.nanoscript.Syntax.Parameter;
-import in.wilsonl.nanoscript.Syntax.Reference;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
 import static in.wilsonl.nanoscript.Parsing.TokenType.*;
@@ -41,8 +40,16 @@ public class ClassMethod extends ClassMember {
         return method;
     }
 
+    public Identifier getName() {
+        return this.name.get();
+    }
+
     public void setName(Identifier name) {
         this.name.set(name);
+    }
+
+    public LambdaExpression getLambda() {
+        return lambda.get();
     }
 
     public void setLambda(LambdaExpression lambda) {

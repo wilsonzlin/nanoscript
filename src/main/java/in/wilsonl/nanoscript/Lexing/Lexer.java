@@ -72,8 +72,6 @@ public class Lexer {
         // Relation
         sequences.put("==", T_EQ);
         sequences.put("!=", T_NEQ);
-        sequences.put("~", T_MATCHES);
-        sequences.put("!~", T_NOT_MATCHES);
         sequences.put("<=", T_LEQ);
         sequences.put(">=", T_GEQ);
         sequences.put("<=>", T_SPACESHIP);

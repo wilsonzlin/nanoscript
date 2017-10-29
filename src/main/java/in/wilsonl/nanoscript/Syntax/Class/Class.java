@@ -2,6 +2,7 @@ package in.wilsonl.nanoscript.Syntax.Class;
 
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
+import in.wilsonl.nanoscript.Syntax.Class.Member.ClassConstructor;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassMethod;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassVariable;
 import in.wilsonl.nanoscript.Syntax.Identifier;
@@ -19,6 +20,7 @@ public class Class {
     private final List<ClassMethod> memberMethods = new ROList<>();
     private final List<Reference> parents = new ROList<>();
     private final SetOnce<Identifier> name = new SetOnce<>();
+    private final SetOnce<ClassConstructor> constructor = new SetOnce<>();
 
     public static Class parseClass(Tokens tokens, boolean isTopLevel) {
         Class nanoscriptClass = new Class();
@@ -40,6 +42,10 @@ public class Class {
 
         while ((nextTokenType = tokens.peekType()) != T_KEYWORD_CLASS_END) {
             switch (nextTokenType) {
+                case T_KEYWORD_CONSTRUCTOR:
+                    nanoscriptClass.setConstructor(ClassConstructor.parseConstructor(tokens));
+                    break;
+
                 case T_KEYWORD_METHOD:
                     nanoscriptClass.addMemberMethod(ClassMethod.parseClassMethod(tokens));
                     break;
@@ -76,5 +82,25 @@ public class Class {
 
     public void addMemberMethod(ClassMethod method) {
         memberMethods.add(method);
+    }
+
+    public List<Reference> getParents() {
+        return parents;
+    }
+
+    public List<ClassMethod> getMethods() {
+        return memberMethods;
+    }
+
+    public List<ClassVariable> getVariables() {
+        return memberVariables;
+    }
+
+    public ClassConstructor getConstructor() {
+        return constructor.get();
+    }
+
+    public void setConstructor(ClassConstructor constructor) {
+        this.constructor.set(constructor);
     }
 }

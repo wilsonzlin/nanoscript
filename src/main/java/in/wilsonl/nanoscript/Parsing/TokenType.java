@@ -87,8 +87,6 @@ public enum TokenType {
     T_ARROW_LEFT,
     T_ARROW_RIGHT,
 
-    T_ELLIPSIS,
-
     T_ACCESSOR,
     T_NULL_ACCESSOR,
     T_NULL_LOOKUP,
@@ -107,8 +105,6 @@ public enum TokenType {
 
     T_EQ,
     T_NEQ,
-    T_MATCHES,
-    T_NOT_MATCHES,
     T_LEQ,
     T_GEQ,
     T_SPACESHIP,

@@ -6,14 +6,18 @@ import in.wilsonl.nanoscript.Utils.SetOnce;
 
 public class Variable {
     private final SetOnce<Identifier> name = new SetOnce<>();
-    private final SetOnce<Expression> initialiser = new SetOnce<>(true); // Can be null (i.e. no initialiser)
+    private final SetOnce<Expression> initialiser = new SetOnce<>(); // Must exist
 
-    public boolean hasInitialiser() {
-        return initialiser.isSet() && initialiser.get() != null;
+    public Identifier getName() {
+        return name.get();
     }
 
     public void setName(Identifier name) {
         this.name.set(name);
+    }
+
+    public Expression getInitialiser() {
+        return initialiser.get();
     }
 
     public void setInitialiser(Expression initialiser) {

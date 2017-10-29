@@ -37,8 +37,16 @@ public class LambdaExpression extends Expression {
         return lambda;
     }
 
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
+
     public void addAllParameters(List<Parameter> params) {
         parameters.addAll(params);
+    }
+
+    public CodeBlock getBody() {
+        return body.get();
     }
 
     public void setBody(CodeBlock b) {

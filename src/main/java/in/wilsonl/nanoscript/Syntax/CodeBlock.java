@@ -7,6 +7,7 @@ import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Statement.BreakStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.CaseStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ConditionalBranchesStatement;
+import in.wilsonl.nanoscript.Syntax.Statement.ExportStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ExpressionStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ForStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.LoopStatement;
@@ -35,6 +36,7 @@ public class CodeBlock {
         map.put(T_KEYWORD_BREAK, BreakStatement::parseBreakStatement);
         map.put(T_KEYWORD_CASE, CaseStatement::parseCaseStatement);
         map.put(T_KEYWORD_IF, ConditionalBranchesStatement::parseConditionalBranchesStatement);
+        map.put(T_KEYWORD_EXPORT, ExportStatement::parseExportStatement);
         map.put(T_KEYWORD_FOR, ForStatement::parseForStatement);
         map.put(T_KEYWORD_WHILE, LoopStatement::parseWhileStatement);
         map.put(T_KEYWORD_UNTIL, LoopStatement::parseUntilStatement);
@@ -99,6 +101,10 @@ public class CodeBlock {
             body.add(last);
             return null;
         }
+    }
+
+    public List<Statement> getBody() {
+        return body;
     }
 
     public boolean isEmpty() {

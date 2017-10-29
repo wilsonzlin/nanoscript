@@ -105,6 +105,11 @@ public abstract class Expression {
                             yard.pushExpression(identifier);
                             break;
 
+                        case T_KEYWORD_SELF:
+                            SelfExpression self = SelfExpression.parseSelfExpression(tokens);
+                            yard.pushExpression(self);
+                            break;
+
                         default:
                             if (LiteralExpression.PARSERS.containsKey(nextTokenType)) {
                                 LiteralExpression literalExpression = LiteralExpression.PARSERS.get(nextTokenType).apply(tokens);

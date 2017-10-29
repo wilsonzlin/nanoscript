@@ -3,10 +3,6 @@ package in.wilsonl.nanoscript.Syntax;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Utils.MatcherTreeNode;
-import in.wilsonl.nanoscript.Utils.ROSet;
-
-import java.util.EnumSet;
-import java.util.Set;
 
 import static in.wilsonl.nanoscript.Parsing.TokenType.*;
 
@@ -37,12 +33,6 @@ public enum Operator {
     GT(7),
     GEQ(7),
     SPACESHIP(7),
-    MATCHES(7),
-    NOT_MATCHES(7),
-    IN(7),
-    NOT_IN(7),
-    IS(7),
-    IS_NOT(7),
 
     NOT(6, Associativity.RIGHT, Arity.UNARY),
 
@@ -51,8 +41,6 @@ public enum Operator {
     OR(4),
 
     NULL_COALESCING(3, Associativity.RIGHT),
-
-    ELLIPSIS(1, Associativity.RIGHT, Arity.UNARY),
 
     ASSIGNMENT(0, Associativity.RIGHT);
 
@@ -104,12 +92,6 @@ public enum Operator {
         root.addSequence(GT, T_CHEVRON_RIGHT);
         root.addSequence(GEQ, T_GEQ);
         root.addSequence(SPACESHIP, T_SPACESHIP);
-        root.addSequence(MATCHES, T_MATCHES);
-        root.addSequence(NOT_MATCHES, T_NOT_MATCHES);
-        root.addSequence(IN, T_KEYWORD_IN);
-        root.addSequence(NOT_IN, T_KEYWORD_NOT, T_KEYWORD_IN);
-        root.addSequence(IS, T_KEYWORD_IS);
-        root.addSequence(IS_NOT, T_KEYWORD_IS, T_KEYWORD_NOT);
 
         root.addSequence(NOT, T_KEYWORD_NOT);
 
@@ -118,8 +100,6 @@ public enum Operator {
         root.addSequence(OR, T_KEYWORD_OR);
 
         root.addSequence(NULL_COALESCING, T_NULL_COALESCING);
-
-        root.addSequence(ELLIPSIS, T_ELLIPSIS);
 
         root.addSequence(ASSIGNMENT, T_ASSIGNMENT);
 
