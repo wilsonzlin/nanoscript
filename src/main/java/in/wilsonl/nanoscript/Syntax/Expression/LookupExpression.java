@@ -29,11 +29,27 @@ public class LookupExpression extends Expression {
         return terms;
     }
 
+    public boolean isNullSafe() {
+        return nullSafe;
+    }
+
+    public Expression getSource() {
+        return source;
+    }
+
+    public Terms getTerms() {
+        return terms;
+    }
+
     public static class Terms {
         private final List<Expression> terms = new ROList<>();
 
         public void addTerm(Expression t) {
             terms.add(t);
+        }
+
+        public List<Expression> getTerms() {
+            return terms;
         }
     }
 }

@@ -38,8 +38,24 @@ public class CallExpression extends Expression {
         return arguments;
     }
 
+    public boolean isNullSafe() {
+        return nullSafe;
+    }
+
+    public Expression getCallee() {
+        return callee;
+    }
+
+    public Arguments getArguments() {
+        return arguments;
+    }
+
     public static class Arguments {
         private final List<Expression> positionalArguments = new ROList<>();
+
+        public List<Expression> getPositionalArguments() {
+            return positionalArguments;
+        }
 
         public void pushPositionalArgument(Expression expr) {
             positionalArguments.add(expr);

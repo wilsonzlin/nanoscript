@@ -3,6 +3,7 @@ package in.wilsonl.nanoscript.Interpreting.Data;
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.Exception.ReferenceError;
 import in.wilsonl.nanoscript.Syntax.Class.Class;
+import in.wilsonl.nanoscript.Syntax.Class.Member.ClassConstructor;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassMethod;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassVariable;
 import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
@@ -16,7 +17,7 @@ import java.util.Map;
 public class NSClass extends NSData<Object> implements Context {
     private final Context parentContext; // Can be null
     private final String name;
-    private final SetOnce<NSCallable> constructor = new SetOnce<>();
+    private final SetOnce<ClassConstructor> constructor = new SetOnce<>();
     private final List<NSClass> parents = new ROList<>();
     private final Map<String, NSCallable> staticMethods = new ROMap<>();
     private final Map<String, ClassMethod> rawInstanceMethods = new ROMap<>();
@@ -32,11 +33,11 @@ public class NSClass extends NSData<Object> implements Context {
     public static NSClass from(Context parentContext, Class st_class) {
         // Get name
         String name = st_class.getName().getName();
+        // Parent context should be the global/chunk context,
+        // as nested or variable classes are not allowed
         NSClass nsClass = new NSClass(parentContext, name);
-        LambdaExpression st_constructor = st_class.getConstructor().getLambda();
         // TODO `supers SomeParent(constructor_arg_1)`
-        NSCallable constructor = NSCallable.from(nsClass, st_constructor.getParameters(), st_constructor.getBody());
-        nsClass.constructor.set(constructor);
+        nsClass.constructor.set(st_class.getConstructor());
 
         // TODO Load parents
         List<NSClass> parents = new ROList<>();
@@ -136,12 +137,19 @@ public class NSClass extends NSData<Object> implements Context {
 
     @Override
     public NSData<?> applyCall(List<NSData<?>> arguments) {
-        return
+        NSObject newObject = NSObject.from(this);
+        LambdaExpression rawConstructor = constructor.get().getLambda();
+        NSCallable constructor = NSCallable.from(newObject, rawConstructor.getParameters(), rawConstructor.getBody());
+        constructor.applyCall(arguments);
+        return newObject;
     }
 
     @Override
     public NSData<?> applyAccess(String member) {
-        // TODO
+        if (staticVariables.containsKey(name)) {
+            return staticVariables.get(name);
+        }
+        throw new ReferenceError(String.format("The static member `%s` does not exist", member));
     }
 
     @Override
@@ -149,6 +157,7 @@ public class NSClass extends NSData<Object> implements Context {
         if (staticVariables.containsKey(name)) {
             staticVariables.put(name, value);
         }
+        throw new ReferenceError(String.format("The static member `%s` does not exist", member));
     }
 
     @Override
@@ -178,11 +187,8 @@ public class NSClass extends NSData<Object> implements Context {
             return true;
         }
 
-        if (parentContext != null) {
-            return parentContext.setContextSymbol(name, value);
-        }
+        return parentContext != null && parentContext.setContextSymbol(name, value);
 
-        return false;
     }
 
     public abstract static class Member<T> {

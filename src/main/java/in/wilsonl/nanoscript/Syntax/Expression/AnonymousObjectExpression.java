@@ -35,6 +35,10 @@ public class AnonymousObjectExpression extends Expression {
         members.add(m);
     }
 
+    public List<Member> getMembers() {
+        return members;
+    }
+
     public static class Member {
         private final Identifier key;
         private final Expression value;
@@ -42,6 +46,14 @@ public class AnonymousObjectExpression extends Expression {
         public Member(Identifier key, Expression value) {
             this.key = key;
             this.value = value;
+        }
+
+        public Identifier getKey() {
+            return key;
+        }
+
+        public Expression getValue() {
+            return value;
         }
     }
 }

@@ -35,6 +35,9 @@ public class NSCallable extends NSData<Object> implements Context {
             String name = parameters.get(i).getName().getName();
             context.setSymbol(name, arguments.get(i));
         }
+
+        ContextHelper.EvaluationResult evaluationResult = evaluateCodeBlockInContext(codeBlock);
+
         // TODO
     }
 

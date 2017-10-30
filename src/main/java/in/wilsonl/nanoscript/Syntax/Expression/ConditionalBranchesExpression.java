@@ -63,6 +63,14 @@ public class ConditionalBranchesExpression extends Expression {
         return branches;
     }
 
+    public List<Branch> getConditionalBranches() {
+        return conditionalBranches;
+    }
+
+    public Expression getFinalBranchValue() {
+        return finalBranchValue.get();
+    }
+
     public void addBranch(Expression condition, Expression value) {
         conditionalBranches.add(new Branch(condition, value));
     }
@@ -71,13 +79,21 @@ public class ConditionalBranchesExpression extends Expression {
         finalBranchValue.set(value);
     }
 
-    private static class Branch {
+    public static class Branch {
         private final Expression condition;
         private final Expression value;
 
         private Branch(Expression condition, Expression value) {
             this.condition = condition;
             this.value = value;
+        }
+
+        public Expression getCondition() {
+            return condition;
+        }
+
+        public Expression getValue() {
+            return value;
         }
     }
 

@@ -13,4 +13,16 @@ public class BinaryExpression extends Expression {
         this.operator = operator;
         this.rhs = rhs;
     }
+
+    public Expression getLhs() {
+        return lhs;
+    }
+
+    public Operator getOperator() {
+        return operator;
+    }
+
+    public Expression getRhs() {
+        return rhs;
+    }
 }

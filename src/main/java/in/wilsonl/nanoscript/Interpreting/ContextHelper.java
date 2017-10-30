@@ -3,20 +3,6 @@ package in.wilsonl.nanoscript.Interpreting;
 import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
-import in.wilsonl.nanoscript.Syntax.Expression.AnonymousObjectExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.CallExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.ConditionalBranchesExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.Expression;
-import in.wilsonl.nanoscript.Syntax.Expression.General.BinaryExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.General.UnaryExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.IdentifierExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralBooleanExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralNullExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralNumberExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralStringExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.LookupExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.SelfExpression;
 import in.wilsonl.nanoscript.Syntax.Statement.BreakStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.CaseStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ConditionalBranchesStatement;
@@ -44,10 +30,6 @@ public class ContextHelper {
 
     public ContextHelper() {
         this(null);
-    }
-
-    public static class EvaluationResult {
-        // TODO
     }
 
     public static EvaluationResult evaluateCodeBlock(Context context, CodeBlock codeBlock) {
@@ -80,38 +62,6 @@ public class ContextHelper {
         }
     }
 
-    public static NSData<?> evaluateExpression(Context context, Expression expression) {
-        if (expression instanceof LambdaExpression) {
-            // TODO
-        } else if (expression instanceof AnonymousObjectExpression) {
-            // TODO
-        } else if (expression instanceof CallExpression) {
-            // TODO
-        } else if (expression instanceof LookupExpression) {
-            // TODO
-        } else if (expression instanceof IdentifierExpression) {
-            // TODO
-        } else if (expression instanceof LiteralBooleanExpression) {
-            // TODO
-        } else if (expression instanceof LiteralStringExpression) {
-            // TODO
-        } else if (expression instanceof LiteralNullExpression) {
-            // TODO
-        } else if (expression instanceof LiteralNumberExpression) {
-            // TODO
-        } else if (expression instanceof BinaryExpression) {
-            // TODO
-        } else if (expression instanceof UnaryExpression) {
-            // TODO
-        } else if (expression instanceof SelfExpression) {
-            // TODO
-        } else if (expression instanceof ConditionalBranchesExpression) {
-            // TODO
-        } else {
-            throw new InternalStateError("Unknown expression type");
-        }
-    }
-
     public NSData<?> getSymbol(String name) {
         NSData<?> nsData = variables.get(name);
         if (nsData == null && parent != null) {
@@ -130,5 +80,9 @@ public class ContextHelper {
 
     public void clear() {
         variables.clear();
+    }
+
+    public static class EvaluationResult {
+        // TODO
     }
 }
