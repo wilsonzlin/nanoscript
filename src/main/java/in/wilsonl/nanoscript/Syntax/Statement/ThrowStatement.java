@@ -18,11 +18,11 @@ public class ThrowStatement extends Statement {
         return throwStatement;
     }
 
-    public void setValue(Expression value) {
-        this.value.set(value);
-    }
-
     public Expression getValue() {
         return value.get();
+    }
+
+    public void setValue(Expression value) {
+        this.value.set(value);
     }
 }

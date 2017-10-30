@@ -6,6 +6,7 @@ import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Statement.BreakStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.CaseStatement;
+import in.wilsonl.nanoscript.Syntax.Statement.ClassStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ConditionalBranchesStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ExportStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ExpressionStatement;
@@ -14,7 +15,9 @@ import in.wilsonl.nanoscript.Syntax.Statement.LoopStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.NextStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ReturnStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.Statement;
+import in.wilsonl.nanoscript.Syntax.Statement.SuperStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ThrowStatement;
+import in.wilsonl.nanoscript.Syntax.Statement.TryStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.VariableDeclarationStatement;
 
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ public class CodeBlock {
 
         map.put(T_KEYWORD_BREAK, BreakStatement::parseBreakStatement);
         map.put(T_KEYWORD_CASE, CaseStatement::parseCaseStatement);
+        map.put(T_KEYWORD_CLASS, ClassStatement::parseClassStatement);
         map.put(T_KEYWORD_IF, ConditionalBranchesStatement::parseConditionalBranchesStatement);
         map.put(T_KEYWORD_EXPORT, ExportStatement::parseExportStatement);
         map.put(T_KEYWORD_FOR, ForStatement::parseForStatement);
@@ -42,7 +46,9 @@ public class CodeBlock {
         map.put(T_KEYWORD_UNTIL, LoopStatement::parseUntilStatement);
         map.put(T_KEYWORD_NEXT, NextStatement::parseNextStatement);
         map.put(T_KEYWORD_RETURN, ReturnStatement::parseReturnStatement);
+        map.put(T_KEYWORD_SUPER, SuperStatement::parseSuperStatement);
         map.put(T_KEYWORD_THROW, ThrowStatement::parseThrowStatement);
+        map.put(T_KEYWORD_TRY, TryStatement::parseTryStatement);
 
         return map;
     }

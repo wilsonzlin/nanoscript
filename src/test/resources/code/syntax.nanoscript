@@ -15,5 +15,12 @@ lambda := fn (arg1)
     print(arg1)
 endfn
 
+class : Test begin
+endclass
+
+throw 1
+
 lambda(3.14)
+print(`a is `, obj.a)
+print(obj.c)
 print(arg1) "This should throw an error"

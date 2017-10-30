@@ -20,9 +20,10 @@ public class Class {
     private final List<ClassMethod> memberMethods = new ROList<>();
     private final List<Reference> parents = new ROList<>();
     private final SetOnce<Identifier> name = new SetOnce<>();
-    private final SetOnce<ClassConstructor> constructor = new SetOnce<>();
+    private final SetOnce<ClassConstructor> constructor = new SetOnce<>(true); // Can be null if using default constructor
+    // TODO final, sealed, static
 
-    public static Class parseClass(Tokens tokens, boolean isTopLevel) {
+    public static Class parseClass(Tokens tokens) {
         Class nanoscriptClass = new Class();
 
         tokens.require(T_KEYWORD_CLASS);
@@ -43,6 +44,9 @@ public class Class {
         while ((nextTokenType = tokens.peekType()) != T_KEYWORD_CLASS_END) {
             switch (nextTokenType) {
                 case T_KEYWORD_CONSTRUCTOR:
+                    if (nanoscriptClass.constructor.isSet()) {
+                        throw tokens.constructMalformedSyntaxException("A constructor already exists");
+                    }
                     nanoscriptClass.setConstructor(ClassConstructor.parseConstructor(tokens));
                     break;
 
@@ -57,6 +61,10 @@ public class Class {
                 default:
                     throw tokens.constructMalformedSyntaxException("Expected a class body unit, got " + nextTokenType);
             }
+        }
+
+        if (!nanoscriptClass.constructor.isSet()) {
+            nanoscriptClass.constructor.set(null);
         }
 
         tokens.require(T_KEYWORD_CLASS_END);

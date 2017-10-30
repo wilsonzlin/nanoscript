@@ -2,8 +2,6 @@ package in.wilsonl.nanoscript.Interpreting.Data;
 
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.VMError.ReferenceError;
-import in.wilsonl.nanoscript.Syntax.Class.Member.ClassMethod;
-import in.wilsonl.nanoscript.Syntax.Class.Member.ClassVariable;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -27,7 +25,11 @@ public class NSObject extends NSData<Object> implements Context {
         return new NSObject(type);
     }
 
-    public NSData<?> getOwnOrInheritedMember(String member) {
+    public NSClass getConstructor() {
+        return type;
+    }
+
+    private NSData<?> getOwnOrInheritedMember(String member) {
         // Get cached or own member
         if (memberVariables.containsKey(member)) {
             return memberVariables.get(member);
@@ -39,22 +41,18 @@ public class NSObject extends NSData<Object> implements Context {
 
         // Get instance method
         if (type != null) {
-            NSClass.RawInstanceMethodMember methodMember = type.getOwnOrAncestorRawInstanceMethod(member);
+            NSCallable methodMember = type.buildInstanceMethod(member, this);
             if (methodMember != null) {
-                ClassMethod rawMethod = methodMember.getMember();
-                NSCallable method = NSCallable.from(this, rawMethod.getLambda().getParameters(), rawMethod.getLambda().getBody());
                 // Cache
-                memberMethods.put(member, method);
-                return method;
+                memberMethods.put(member, methodMember);
+                return methodMember;
             }
 
             // Get instance variable
-            NSClass.RawInstanceVariableMember varMember = type.getOwnOrAncestorRawInstanceVariable(member);
+            NSData<?> varMember = type.buildInstanceVariable(member, this);
             if (varMember != null) {
-                ClassVariable rawVar = varMember.getMember();
-                NSData<?> value = evaluateExpressionInContext(rawVar.getVariable().getInitialiser());
-                memberVariables.put(member, value);
-                return value;
+                memberVariables.put(member, varMember);
+                return varMember;
             }
         }
 

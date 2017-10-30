@@ -3,19 +3,23 @@ package in.wilsonl.nanoscript.Interpreting.Evaluator;
 import in.wilsonl.nanoscript.Exception.InternalError;
 import in.wilsonl.nanoscript.Interpreting.BlockScope;
 import in.wilsonl.nanoscript.Interpreting.Context;
+import in.wilsonl.nanoscript.Interpreting.Data.NSClass;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
 import in.wilsonl.nanoscript.Interpreting.Data.NSIterator;
 import in.wilsonl.nanoscript.Interpreting.Data.NSNull;
 import in.wilsonl.nanoscript.Interpreting.GlobalScope;
 import in.wilsonl.nanoscript.Interpreting.VMError.EndOfIterationError;
 import in.wilsonl.nanoscript.Interpreting.VMError.ExplicitlyThrownError;
+import in.wilsonl.nanoscript.Interpreting.VMError.RuntimeError;
 import in.wilsonl.nanoscript.Interpreting.VMError.SyntaxError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Syntax.Operator;
+import in.wilsonl.nanoscript.Syntax.Reference;
 import in.wilsonl.nanoscript.Syntax.Statement.BreakStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.CaseStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.CaseStatement.Option;
+import in.wilsonl.nanoscript.Syntax.Statement.ClassStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ConditionalBranchesStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ConditionalBranchesStatement.Branch;
 import in.wilsonl.nanoscript.Syntax.Statement.ExportStatement;
@@ -26,9 +30,11 @@ import in.wilsonl.nanoscript.Syntax.Statement.NextStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ReturnStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.Statement;
 import in.wilsonl.nanoscript.Syntax.Statement.ThrowStatement;
+import in.wilsonl.nanoscript.Syntax.Statement.TryStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.VariableDeclarationStatement;
 
 import java.util.List;
+import java.util.Set;
 
 import static in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator.evaluateExpression;
 
@@ -43,6 +49,9 @@ public class CodeBlockEvaluator {
 
             } else if (statement instanceof CaseStatement) {
                 result = evaluateCaseStatement(context, (CaseStatement) statement);
+
+            } else if (statement instanceof ClassStatement) {
+                result = evaluateClassStatement(context, (ClassStatement) statement);
 
             } else if (statement instanceof ConditionalBranchesStatement) {
                 result = evaluateConditionalBranchesStatement(context, (ConditionalBranchesStatement) statement);
@@ -68,6 +77,9 @@ public class CodeBlockEvaluator {
             } else if (statement instanceof ThrowStatement) {
                 result = evaluateThrowStatement(context, (ThrowStatement) statement);
 
+            } else if (statement instanceof TryStatement) {
+                result = evaluateTryStatement(context, statement);
+
             } else if (statement instanceof VariableDeclarationStatement) {
                 result = evaluateVariableDeclarationStatement(context, (VariableDeclarationStatement) statement);
 
@@ -79,6 +91,36 @@ public class CodeBlockEvaluator {
                 return result;
             }
         }
+
+        return null;
+    }
+
+    private static EvaluationResult evaluateTryStatement(Context context, TryStatement statement) {
+        CodeBlock st_tryBody = statement.getTryBody();
+        BlockScope scope = new BlockScope(context, BlockScope.Type.TRY);
+        try {
+            evaluateCodeBlock(scope, st_tryBody);
+        } catch (RuntimeError error) {
+            scope.clearSymbols();
+            for (TryStatement.Catch c : statement.getCatchBlocks()) {
+                Set<Reference> types = c.getTypes();
+                CodeBlock st_catchBody = c.getBody();
+                String paramName = c.getParameterName().getName();
+
+                if (types == null) {
+                    // TODO instanceof
+                }
+            }
+        }
+    }
+
+    private static EvaluationResult evaluateClassStatement(Context context, ClassStatement statement) {
+        if (!(context instanceof GlobalScope)) {
+            throw new SyntaxError("Classes must be declared at the top level");
+        }
+
+        NSClass nsClass = NSClass.from(context, statement.getNSClass());
+        context.createContextSymbol(nsClass.getName(), nsClass);
 
         return null;
     }

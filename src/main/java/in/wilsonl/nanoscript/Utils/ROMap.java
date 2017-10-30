@@ -1,9 +1,28 @@
 package in.wilsonl.nanoscript.Utils;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 public class ROMap<K, V> extends HashMap<K, V> {
+    @Override
+    public V put(K k, V v) {
+        if (containsKey(k)) {
+            throw new UnsupportedOperationException("The key already exists");
+        }
+        return super.put(k, v);
+    }
+
+    @Override
+    public void putAll(Map<? extends K, ? extends V> map) {
+        for (K k : map.keySet()) {
+            if (containsKey(k)) {
+                throw new UnsupportedOperationException("The key already exists");
+            }
+        }
+        super.putAll(map);
+    }
+
     @Override
     public V remove(Object o) {
         throw new UnsupportedOperationException("This operation is not supported on a ROMap");

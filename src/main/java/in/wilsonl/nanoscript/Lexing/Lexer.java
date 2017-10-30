@@ -112,6 +112,8 @@ public class Lexer {
 
         map.put("self", T_KEYWORD_SELF);
         map.put("static", T_KEYWORD_STATIC);
+        map.put("final", T_KEYWORD_FINAL);
+        map.put("sealed", T_KEYWORD_SEALED);
 
         map.put("throw", T_KEYWORD_THROW);
 
@@ -157,6 +159,7 @@ public class Lexer {
 
         map.put("try", T_KEYWORD_TRY);
         map.put("catch", T_KEYWORD_CATCH);
+        map.put("endtry", T_KEYWORD_TRY_END);
 
         return map;
     }

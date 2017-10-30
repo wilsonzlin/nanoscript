@@ -19,6 +19,9 @@ public enum TokenType {
 
     T_KEYWORD_SELF,
     T_KEYWORD_STATIC,
+    T_KEYWORD_SUPER,
+    T_KEYWORD_FINAL,
+    T_KEYWORD_SEALED,
 
     T_KEYWORD_THROW,
 
@@ -69,6 +72,7 @@ public enum TokenType {
 
     T_KEYWORD_TRY,
     T_KEYWORD_CATCH,
+    T_KEYWORD_TRY_END,
 
     T_HASH,
 

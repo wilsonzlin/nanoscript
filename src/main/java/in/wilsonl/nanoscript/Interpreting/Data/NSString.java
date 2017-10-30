@@ -4,6 +4,8 @@ import in.wilsonl.nanoscript.Exception.InternalError;
 import in.wilsonl.nanoscript.Syntax.Operator;
 
 public class NSString extends NSData<String> {
+    public static final NSString EMPTY = NSString.from("");
+
     private NSString(String value) {
         super(Type.STRING, value);
     }

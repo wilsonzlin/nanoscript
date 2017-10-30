@@ -9,6 +9,10 @@ public class ROSet<T> extends HashSet<T> {
         super(collection);
     }
 
+    public ROSet() {
+        super();
+    }
+
     @Override
     public boolean remove(Object o) {
         throw new UnsupportedOperationException("This operation is not supported on a ROSet");

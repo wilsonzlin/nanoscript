@@ -1,8 +1,10 @@
 package in.wilsonl.nanoscript.Interpreting;
 
-import in.wilsonl.nanoscript.Interpreting.Builtin.print;
-import in.wilsonl.nanoscript.Interpreting.Builtin.range;
+import in.wilsonl.nanoscript.Interpreting.Builtin.Class;
+import in.wilsonl.nanoscript.Interpreting.Builtin.Function;
 import in.wilsonl.nanoscript.Syntax.Chunk;
+
+import java.util.EnumSet;
 
 public class Interpreter {
     private final Chunk chunk;
@@ -16,8 +18,12 @@ public class Interpreter {
 
         // TODO imports
 
-        globalScope.createContextSymbol("print", print.print);
-        globalScope.createContextSymbol("range", range.range);
+        for (Function f : EnumSet.allOf(Function.class)) {
+            globalScope.createContextSymbol(f.name(), f.getFunction());
+        }
+        for (Class f : EnumSet.allOf(Class.class)) {
+            globalScope.createContextSymbol(f.name(), f.getNativeClass());
+        }
 
         globalScope.evaluateCodeBlockInContext(chunk.getCodeBlock());
     }

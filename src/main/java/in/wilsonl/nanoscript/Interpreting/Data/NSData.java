@@ -1,6 +1,5 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-import in.wilsonl.nanoscript.Interpreting.Evaluator.EvaluationResult;
 import in.wilsonl.nanoscript.Interpreting.VMError.UnsupportedOperationError;
 import in.wilsonl.nanoscript.Syntax.Operator;
 
@@ -64,6 +63,6 @@ public abstract class NSData<T> {
     }
 
     public enum Type {
-        BOOLEAN, NULL, NUMBER, STRING, CALLABLE, OBJECT, CLASS, ITERATOR, NATIVE_FUNCTION, LIST
+        BOOLEAN, NULL, NUMBER, STRING, CALLABLE, OBJECT, CLASS, ITERATOR, LIST
     }
 }
