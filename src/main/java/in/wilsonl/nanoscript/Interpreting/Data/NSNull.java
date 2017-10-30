@@ -1,8 +1,5 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-import in.wilsonl.nanoscript.Syntax.Expression.CallExpression;
-import in.wilsonl.nanoscript.Syntax.Expression.LookupExpression;
-import in.wilsonl.nanoscript.Syntax.Identifier;
 import in.wilsonl.nanoscript.Syntax.Operator;
 
 public class NSNull extends NSData<Object> {
@@ -27,6 +24,7 @@ public class NSNull extends NSData<Object> {
         switch (operator) {
             case EQ:
                 return NSBoolean.from(equals(other));
+
             case NEQ:
                 return NSBoolean.from(!equals(other));
 

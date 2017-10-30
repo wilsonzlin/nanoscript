@@ -2,7 +2,7 @@ package in.wilsonl.nanoscript.Interpreting.Data;
 
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.ContextHelper;
-import in.wilsonl.nanoscript.Interpreting.Exception.ArgumentsError;
+import in.wilsonl.nanoscript.Interpreting.VMError.ArgumentsError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Parameter;
 

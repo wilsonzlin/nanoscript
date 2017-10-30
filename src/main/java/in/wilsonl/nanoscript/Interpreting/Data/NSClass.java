@@ -1,7 +1,7 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
 import in.wilsonl.nanoscript.Interpreting.Context;
-import in.wilsonl.nanoscript.Interpreting.Exception.ReferenceError;
+import in.wilsonl.nanoscript.Interpreting.VMError.ReferenceError;
 import in.wilsonl.nanoscript.Syntax.Class.Class;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassConstructor;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassMethod;

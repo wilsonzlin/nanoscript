@@ -14,7 +14,7 @@ public class BinaryExpression extends Expression {
         this.rhs = rhs;
     }
 
-    public Expression getLhs() {
+    public Expression getLHS() {
         return lhs;
     }
 
@@ -22,7 +22,7 @@ public class BinaryExpression extends Expression {
         return operator;
     }
 
-    public Expression getRhs() {
+    public Expression getRHS() {
         return rhs;
     }
 }

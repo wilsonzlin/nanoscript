@@ -32,7 +32,7 @@ public class CallExpression extends Expression {
 
             Expression arg = parseExpression(tokens, new AcceptableTokenTypes(T_COMMA, T_PARENTHESIS_RIGHT));
 
-            arguments.pushPositionalArgument(arg);
+            arguments.pushArgument(arg);
         } while (tokens.skipIfNext(T_COMMA));
 
         return arguments;
@@ -51,14 +51,14 @@ public class CallExpression extends Expression {
     }
 
     public static class Arguments {
-        private final List<Expression> positionalArguments = new ROList<>();
+        private final List<Expression> arguments = new ROList<>();
 
-        public List<Expression> getPositionalArguments() {
-            return positionalArguments;
+        public List<Expression> getArguments() {
+            return arguments;
         }
 
-        public void pushPositionalArgument(Expression expr) {
-            positionalArguments.add(expr);
+        public void pushArgument(Expression expr) {
+            arguments.add(expr);
         }
     }
 }

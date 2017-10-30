@@ -9,7 +9,8 @@ import in.wilsonl.nanoscript.Interpreting.Data.NSNull;
 import in.wilsonl.nanoscript.Interpreting.Data.NSNumber;
 import in.wilsonl.nanoscript.Interpreting.Data.NSObject;
 import in.wilsonl.nanoscript.Interpreting.Data.NSString;
-import in.wilsonl.nanoscript.Interpreting.Exception.ReferenceError;
+import in.wilsonl.nanoscript.Interpreting.VMError.ReferenceError;
+import in.wilsonl.nanoscript.Interpreting.VMError.SyntaxError;
 import in.wilsonl.nanoscript.Syntax.Expression.AnonymousObjectExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.AnonymousObjectExpression.Member;
 import in.wilsonl.nanoscript.Syntax.Expression.CallExpression;
@@ -26,11 +27,23 @@ import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralNumberExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralStringExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.LookupExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.SelfExpression;
+import in.wilsonl.nanoscript.Syntax.Operator;
 import in.wilsonl.nanoscript.Utils.ROList;
 
 import java.util.List;
 
 public class ExpressionEvaluator {
+    // Helper function
+    private static List<NSData<?>> evaluateListOfExpressions(Context context, List<Expression> expressions) {
+        List<NSData<?>> evaluated = new ROList<>();
+
+        for (Expression a : expressions) {
+            evaluated.add(evaluateExpression(context, a));
+        }
+
+        return evaluated;
+    }
+
     public static NSData<?> evaluateExpression(Context context, Expression expression) {
         if (expression instanceof LambdaExpression) {
             return evaluateLambdaExpression(context, (LambdaExpression) expression);
@@ -60,7 +73,12 @@ public class ExpressionEvaluator {
             return evaluateLiteralNumberExpression((LiteralNumberExpression) expression);
 
         } else if (expression instanceof BinaryExpression) {
-            return evaluateBinaryExpression(context, (BinaryExpression) expression);
+            BinaryExpression binaryExpression = (BinaryExpression) expression;
+            if (binaryExpression.getOperator() == Operator.ASSIGNMENT) {
+                return evaluateAssignmentOrUpdateExpression(context, binaryExpression);
+            } else {
+                return evaluateBinaryExpression(context, binaryExpression);
+            }
 
         } else if (expression instanceof UnaryExpression) {
             return evaluateUnaryExpression(context, (UnaryExpression) expression);
@@ -74,6 +92,40 @@ public class ExpressionEvaluator {
         } else {
             throw new InternalStateError("Unknown expression type");
         }
+    }
+
+    private static NSData<?> evaluateAssignmentOrUpdateExpression(Context context, BinaryExpression binaryExpression) {
+        Expression st_lhs = binaryExpression.getLHS();
+        Expression st_rhs = binaryExpression.getRHS();
+        NSData<?> value;
+
+        if (st_lhs instanceof LookupExpression) {
+            LookupExpression st_source = (LookupExpression) st_lhs;
+            NSData<?> source = evaluateExpression(context, st_source.getSource());
+            value = evaluateExpression(context, st_rhs);
+            List<NSData<?>> terms = evaluateListOfExpressions(context, st_source.getTerms().getTerms());
+            source.applyUpdate(terms, value);
+        } else if (st_lhs instanceof BinaryExpression && ((BinaryExpression) st_lhs).getOperator() == Operator.ACCESSOR) {
+            Expression st_source = ((BinaryExpression) st_lhs).getLHS();
+            Expression st_member = ((BinaryExpression) st_lhs).getRHS();
+            if (!(st_member instanceof IdentifierExpression)) {
+                throw new SyntaxError("Invalid member assignment");
+            }
+            NSData<?> source = evaluateExpression(context, st_source);
+            String member = ((IdentifierExpression) st_member).getIdentifier().getName();
+            value = evaluateExpression(context, st_rhs);
+            source.applyAssignment(member, value);
+        } else if (st_lhs instanceof IdentifierExpression) {
+            String symbol = ((IdentifierExpression) st_lhs).getIdentifier().getName();
+            value = evaluateExpression(context, st_rhs);
+            if (!context.setContextSymbol(symbol, value)) {
+                throw new ReferenceError(String.format("The variable `%s` does not exist", symbol));
+            }
+        } else {
+            throw new SyntaxError("Invalid assignment LHS");
+        }
+
+        return value;
     }
 
     private static NSData<?> evaluateConditionalBranchesExpression(Context context, ConditionalBranchesExpression expression) {
@@ -101,9 +153,29 @@ public class ExpressionEvaluator {
     }
 
     private static NSData<?> evaluateBinaryExpression(Context context, BinaryExpression expression) {
-        NSData<?> lhs = evaluateExpression(context, expression.getLhs());
-        NSData<?> rhs = evaluateExpression(context, expression.getRhs());
-        return lhs.applyBinaryOperator(expression.getOperator(), rhs);
+        Expression st_lhs = expression.getLHS();
+        Expression st_rhs = expression.getRHS();
+        Operator operator = expression.getOperator();
+
+        NSData<?> lhs = evaluateExpression(context, st_lhs);
+
+        switch (operator) {
+            case NULL_ACCESSOR:
+                if (NSNull.NULL.equals(lhs)) {
+                    return lhs;
+                }
+                // Fall
+            case ACCESSOR:
+                if (!(st_rhs instanceof IdentifierExpression)) {
+                    throw new SyntaxError("Invalid member access");
+                }
+                String member = ((IdentifierExpression) st_rhs).getIdentifier().getName();
+                return lhs.applyAccess(member);
+
+            default:
+                NSData<?> rhs = evaluateExpression(context, expression.getRHS());
+                return lhs.applyBinaryOperator(expression.getOperator(), rhs);
+        }
     }
 
     private static NSData<?> evaluateLiteralNumberExpression(LiteralNumberExpression expression) {
@@ -136,11 +208,8 @@ public class ExpressionEvaluator {
         if (expression.isNullSafe() && NSNull.NULL.equals(source)) {
             return NSNull.NULL;
         }
-        List<NSData<?>> terms = new ROList<>();
-        for (Expression a : expression.getTerms().getTerms()) {
-            terms.add(evaluateExpression(context, a));
-        }
-        return source.applyLookup(terms);
+
+        return source.applyLookup(evaluateListOfExpressions(context, expression.getTerms().getTerms()));
     }
 
     private static NSData<?> evaluateCallExpression(Context context, CallExpression expression) {
@@ -148,11 +217,7 @@ public class ExpressionEvaluator {
         if (expression.isNullSafe() && NSNull.NULL.equals(callee)) {
             return NSNull.NULL;
         }
-        List<NSData<?>> arguments = new ROList<>();
-        for (Expression a : expression.getArguments().getPositionalArguments()) {
-            arguments.add(evaluateExpression(context, a));
-        }
-        return callee.applyCall(arguments);
+        return callee.applyCall(evaluateListOfExpressions(context, expression.getArguments().getArguments()));
     }
 
     public static NSData<?> evaluateLambdaExpression(Context context, LambdaExpression expression) {

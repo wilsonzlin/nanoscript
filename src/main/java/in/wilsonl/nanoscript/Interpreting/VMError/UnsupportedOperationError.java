@@ -1,4 +1,4 @@
-package in.wilsonl.nanoscript.Interpreting.Exception;
+package in.wilsonl.nanoscript.Interpreting.VMError;
 
 public class UnsupportedOperationError extends RuntimeError {
     public UnsupportedOperationError(String message) {
