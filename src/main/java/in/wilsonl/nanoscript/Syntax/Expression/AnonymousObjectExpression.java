@@ -23,10 +23,13 @@ public class AnonymousObjectExpression extends Expression {
             }
 
             Identifier key = Identifier.requireIdentifier(tokens);
+            tokens.require(TokenType.T_ASSIGNMENT);
             Expression value = Expression.parseExpression(tokens, new AcceptableTokenTypes(TokenType.T_COMMA, TokenType.T_BRACE_RIGHT));
 
             anon.addMember(new Member(key, value));
         } while (tokens.skipIfNext(TokenType.T_COMMA));
+
+        tokens.require(TokenType.T_BRACE_RIGHT);
 
         return anon;
     }

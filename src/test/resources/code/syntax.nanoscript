@@ -5,3 +5,15 @@ for i in range(0, 4) do
 endfor
 
 print(five, 4, 3, `two`)
+
+obj := {
+    a = 1,
+    b = 2,
+}
+
+lambda := fn (arg1)
+    print(arg1)
+endfn
+
+lambda(3.14)
+print(arg1) "This should throw an error"

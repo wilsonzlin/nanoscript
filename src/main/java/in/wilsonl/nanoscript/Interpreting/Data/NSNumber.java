@@ -127,6 +127,10 @@ public class NSNumber extends NSData<Double> {
 
     @Override
     public NSString toNSString() {
-        return NSString.from(String.valueOf(getRawValue()));
+        Double rawValue = getRawValue();
+        if (rawValue == Math.floor(rawValue) && !Double.isInfinite(rawValue)) {
+            return NSString.from(String.valueOf(toInt()));
+        }
+        return NSString.from(String.valueOf(rawValue));
     }
 }
