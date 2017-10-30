@@ -5,10 +5,6 @@ import java.util.HashSet;
 import java.util.function.Predicate;
 
 public class ROSet<T> extends HashSet<T> {
-    public ROSet() {
-        super();
-    }
-
     public ROSet(Collection<? extends T> collection) {
         super(collection);
     }

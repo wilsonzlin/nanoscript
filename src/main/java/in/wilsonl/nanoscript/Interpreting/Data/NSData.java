@@ -43,7 +43,7 @@ public abstract class NSData<T> {
         throw new UnsupportedOperationError(String.format("%s values cannot be looked up", type));
     }
 
-    public NSData<?> applyUpdate(List<NSData<?>> terms, NSData<?> value) {
+    public void applyUpdate(List<NSData<?>> terms, NSData<?> value) {
         throw new UnsupportedOperationError(String.format("%s values cannot be updated", type));
     }
 
@@ -51,7 +51,7 @@ public abstract class NSData<T> {
         throw new UnsupportedOperationError(String.format("%s values do not have any members", type));
     }
 
-    public NSData<?> applyAssignment(String member, NSData<?> value) {
+    public void applyAssignment(String member, NSData<?> value) {
         throw new UnsupportedOperationError(String.format("%s values do not have any members", type));
     }
 

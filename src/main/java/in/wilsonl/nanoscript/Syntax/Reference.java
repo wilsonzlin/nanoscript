@@ -39,6 +39,10 @@ public class Reference {
         startsWithSelf.set(s);
     }
 
+    public List<Identifier> getParts() {
+        return parts;
+    }
+
     public void pushPart(Identifier part) {
         parts.add(part);
     }
@@ -46,6 +50,23 @@ public class Reference {
     @Override
     public String toString() {
         return Utils.join(".", parts);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Reference that = (Reference) o;
+
+        return startsWithSelf() == that.startsWithSelf() && getParts().equals(that.getParts());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Boolean.hashCode(startsWithSelf());
+        result = 31 * result + getParts().hashCode();
+        return result;
     }
 
 }

@@ -11,10 +11,6 @@ public class Acceptable<T> {
         set = new ROSet<>(Arrays.asList(t));
     }
 
-    protected Acceptable(Set<T> set) {
-        this.set = set;
-    }
-
     public boolean has(T t) {
         return set.contains(t);
     }

@@ -32,8 +32,8 @@ public class ShuntingYard {
         operatorStack.add(op);
     }
 
-    public OperatorContainer popOperator() {
-        return operatorStack.removeLast();
+    public void removeLastOperator() {
+        operatorStack.removeLast();
     }
 
     public boolean hasOperator() {
@@ -92,7 +92,7 @@ public class ShuntingYard {
             Operator.Arity lastOperatorArity = lastOperator.getArity();
 
             if (!operatorInProcessingProvided || (operatorAssociativity == LEFT && operatorPrecedence <= lastOperatorPrecedence || operatorAssociativity == RIGHT && operatorPrecedence < lastOperatorPrecedence)) {
-                popOperator();
+                removeLastOperator();
 
                 Expression result;
 

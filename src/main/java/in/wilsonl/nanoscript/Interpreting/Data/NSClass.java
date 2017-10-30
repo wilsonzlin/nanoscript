@@ -158,7 +158,7 @@ public class NSClass extends NSData<Object> implements Context {
     }
 
     @Override
-    public NSData<?> applyAssignment(String member, NSData<?> value) {
+    public void applyAssignment(String member, NSData<?> value) {
         if (staticVariables.containsKey(name)) {
             staticVariables.put(name, value);
         }

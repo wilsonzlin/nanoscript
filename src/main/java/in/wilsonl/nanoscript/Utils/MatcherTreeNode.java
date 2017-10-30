@@ -36,15 +36,6 @@ public class MatcherTreeNode<M, R> {
         addSequence(sequence, 0, result);
     }
 
-    public R match(M[] toMatch, int offset) {
-        M currentUnit = toMatch[offset];
-        MatcherTreeNode<M, R> child = children.get(currentUnit);
-        if (child == null) {
-            return tail;
-        }
-        return child.match(toMatch, offset + 1);
-    }
-
     public R match(Matchable<M> toMatch) {
         M currentUnit = toMatch.matcherConsume();
         MatcherTreeNode<M, R> child = children.get(currentUnit);

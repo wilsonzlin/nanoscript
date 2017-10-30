@@ -72,9 +72,8 @@ public class NSObject extends NSData<Object> implements Context {
     }
 
     @Override
-    public NSData<?> applyAssignment(String member, NSData<?> value) {
+    public void applyAssignment(String member, NSData<?> value) {
         memberVariables.put(member, value);
-        return value;
     }
 
     @Override
