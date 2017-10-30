@@ -26,4 +26,8 @@ public class ReturnStatement extends Statement {
 
         return new ReturnStatement(value);
     }
+
+    public Expression getValue() {
+        return value;
+    }
 }

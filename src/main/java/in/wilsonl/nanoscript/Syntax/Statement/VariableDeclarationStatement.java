@@ -24,4 +24,8 @@ public class VariableDeclarationStatement extends Statement {
 
         return new VariableDeclarationStatement(variable);
     }
+
+    public Variable getVariable() {
+        return variable;
+    }
 }

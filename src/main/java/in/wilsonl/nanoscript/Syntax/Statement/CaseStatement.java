@@ -1,6 +1,6 @@
 package in.wilsonl.nanoscript.Syntax.Statement;
 
-import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Exception.InternalError;
 import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
@@ -14,10 +14,9 @@ import java.util.List;
 import static in.wilsonl.nanoscript.Parsing.TokenType.*;
 
 public class CaseStatement extends Statement {
-    // `break` and `put` are not delimiters, as they can occur multiple times and in different contexts
-    // (the same applies to `throw`, `dispatch`, `return`, etc.)
     private static final AcceptableTokenTypes OPTION_DELIMITER = new AcceptableTokenTypes(T_KEYWORD_WHEN, T_KEYWORD_OTHERWISE, T_KEYWORD_CASE_END);
     private static final AcceptableTokenTypes OPTION_TYPE = new AcceptableTokenTypes(T_KEYWORD_WHEN, T_KEYWORD_OTHERWISE);
+
     // Options are ordered
     private final List<Option> options = new ROList<>();
     private final SetOnce<Expression> target = new SetOnce<>();
@@ -46,7 +45,7 @@ public class CaseStatement extends Statement {
                     break;
 
                 default:
-                    throw new InternalStateError("Unknown case expression option type: " + optionType);
+                    throw new InternalError("Unknown case expression option type: " + optionType);
             }
 
             CodeBlock body = CodeBlock.parseCodeBlock(tokens, OPTION_DELIMITER);
@@ -64,10 +63,6 @@ public class CaseStatement extends Statement {
         return caseStatement;
     }
 
-    public void setTarget(Expression target) {
-        this.target.set(target);
-    }
-
     public void pushOption(Option option) {
         if (option.isCatchAll()) {
             if (hasCatchAll) {
@@ -76,6 +71,18 @@ public class CaseStatement extends Statement {
             hasCatchAll = true;
         }
         options.add(option);
+    }
+
+    public List<Option> getOptions() {
+        return options;
+    }
+
+    public Expression getTarget() {
+        return target.get();
+    }
+
+    public void setTarget(Expression target) {
+        this.target.set(target);
     }
 
     public static class Option {
@@ -89,6 +96,14 @@ public class CaseStatement extends Statement {
 
         public boolean isCatchAll() {
             return this.condition == null;
+        }
+
+        public Expression getCondition() {
+            return condition;
+        }
+
+        public CodeBlock getBody() {
+            return body;
         }
     }
 }

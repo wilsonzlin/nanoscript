@@ -21,4 +21,8 @@ public class ThrowStatement extends Statement {
     public void setValue(Expression value) {
         this.value.set(value);
     }
+
+    public Expression getValue() {
+        return value.get();
+    }
 }

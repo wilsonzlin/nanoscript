@@ -13,4 +13,8 @@ public class ExpressionStatement extends Statement {
     public static ExpressionStatement parseExpressionStatement(Tokens tokens) {
         return new ExpressionStatement(Expression.parseExpression(tokens));
     }
+
+    public Expression getExpression() {
+        return expression;
+    }
 }

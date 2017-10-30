@@ -1,6 +1,6 @@
 package in.wilsonl.nanoscript.Syntax.Statement;
 
-import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Exception.InternalError;
 import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
@@ -35,7 +35,7 @@ public class LoopStatement extends Statement {
                 break;
 
             default:
-                throw new InternalStateError("Unknown loop statement initial token: " + initialToken);
+                throw new InternalError("Unknown loop statement initial token: " + initialToken);
         }
         tokens.require(initialToken);
         Expression condition = Expression.parseExpression(tokens, new AcceptableTokenTypes(TokenType.T_KEYWORD_BEFORE, TokenType.T_KEYWORD_AFTER));
@@ -64,6 +64,22 @@ public class LoopStatement extends Statement {
 
     public static LoopStatement parseUntilStatement(Tokens tokens) {
         return parseWhileOrUntilStatement(tokens, TokenType.T_KEYWORD_UNTIL);
+    }
+
+    public Expression getCondition() {
+        return condition;
+    }
+
+    public CodeBlock getBody() {
+        return body;
+    }
+
+    public TestStage getTestStage() {
+        return testStage;
+    }
+
+    public TestType getTestType() {
+        return testType;
     }
 
     public enum TestStage {

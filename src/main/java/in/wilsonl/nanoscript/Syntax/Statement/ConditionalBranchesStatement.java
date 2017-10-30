@@ -1,13 +1,12 @@
 package in.wilsonl.nanoscript.Syntax.Statement;
 
-import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Exception.InternalError;
 import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Utils.ROList;
-import in.wilsonl.nanoscript.Utils.SetOnce;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class ConditionalBranchesStatement extends Statement {
             T_KEYWORD_ENDIF
     );
     private final List<Branch> conditionalBranches = new ROList<>();
-    private final SetOnce<CodeBlock> finalBranchBody = new SetOnce<>(true); // Can be null
+    private boolean hasFinalBranch = false;
 
     public static ConditionalBranchesStatement parseConditionalBranchesStatement(Tokens tokens) {
         ConditionalBranchesStatement branches = new ConditionalBranchesStatement();
@@ -48,7 +47,7 @@ public class ConditionalBranchesStatement extends Statement {
                     break;
 
                 default:
-                    throw new InternalStateError("Unknown token type after parsing conditional branch body: " + nextToken);
+                    throw new InternalError("Unknown token type after parsing conditional branch body: " + nextToken);
             }
         } while (!done);
 
@@ -56,8 +55,6 @@ public class ConditionalBranchesStatement extends Statement {
             CodeBlock body = CodeBlock.parseCodeBlock(tokens, T_KEYWORD_ENDIF);
 
             branches.setFinalBranch(body);
-        } else {
-            branches.setFinalBranch(null);
         }
 
         tokens.require(T_KEYWORD_ENDIF);
@@ -70,16 +67,35 @@ public class ConditionalBranchesStatement extends Statement {
     }
 
     public void setFinalBranch(CodeBlock body) {
-        finalBranchBody.set(body);
+        if (hasFinalBranch) {
+            throw new InternalError("Final branch already set");
+        }
+        if (body == null) {
+            throw new InternalError("<body> is null");
+        }
+        hasFinalBranch = true;
+        conditionalBranches.add(new Branch(null, body));
     }
 
-    private static class Branch {
-        private final Expression condition;
+    public List<Branch> getConditionalBranches() {
+        return conditionalBranches;
+    }
+
+    public static class Branch {
+        private final Expression condition; // Can be null
         private final CodeBlock body;
 
         private Branch(Expression condition, CodeBlock body) {
             this.condition = condition;
             this.body = body;
+        }
+
+        public Expression getCondition() {
+            return condition;
+        }
+
+        public CodeBlock getBody() {
+            return body;
         }
     }
 

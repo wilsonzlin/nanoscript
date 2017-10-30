@@ -1,6 +1,6 @@
 package in.wilsonl.nanoscript.Utils;
 
-import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Exception.InternalError;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,7 +24,7 @@ public class MatcherTreeNode<M, R> {
 
         if (start == sequence.length - 1) {
             if (child.hasTail()) {
-                throw new InternalStateError("Duplicate matcher sequence");
+                throw new InternalError("Duplicate matcher sequence");
             }
             child.tail = result;
         } else {

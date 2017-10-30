@@ -1,6 +1,6 @@
 package in.wilsonl.nanoscript.Interpreting.Evaluator;
 
-import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Exception.InternalError;
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.Data.NSBoolean;
 import in.wilsonl.nanoscript.Interpreting.Data.NSCallable;
@@ -90,7 +90,7 @@ public class ExpressionEvaluator {
             return evaluateConditionalBranchesExpression(context, (ConditionalBranchesExpression) expression);
 
         } else {
-            throw new InternalStateError("Unknown expression type");
+            throw new InternalError("Unknown expression type");
         }
     }
 
@@ -220,11 +220,11 @@ public class ExpressionEvaluator {
         return callee.applyCall(evaluateListOfExpressions(context, expression.getArguments().getArguments()));
     }
 
-    public static NSData<?> evaluateLambdaExpression(Context context, LambdaExpression expression) {
+    private static NSData<?> evaluateLambdaExpression(Context context, LambdaExpression expression) {
         return NSCallable.from(context, expression.getParameters(), expression.getBody());
     }
 
-    public static NSData<?> evaluateAnonymousObjectExpression(Context context, AnonymousObjectExpression expression) {
+    private static NSData<?> evaluateAnonymousObjectExpression(Context context, AnonymousObjectExpression expression) {
         NSObject newObj = NSObject.from(null);
         for (Member m : expression.getMembers()) {
             newObj.applyAssignment(m.getKey().getName(), evaluateExpression(context, m.getValue()));

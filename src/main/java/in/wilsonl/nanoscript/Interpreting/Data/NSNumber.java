@@ -1,6 +1,6 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Exception.InternalError;
 import in.wilsonl.nanoscript.Syntax.Operator;
 
 public class NSNumber extends NSData<Double> {
@@ -40,7 +40,7 @@ public class NSNumber extends NSData<Double> {
                 break;
 
             default:
-                throw new InternalStateError("Invalid arithmetic operator on number");
+                throw new InternalError("Invalid arithmetic operator on number");
         }
 
         return result;
@@ -62,7 +62,7 @@ public class NSNumber extends NSData<Double> {
             case GEQ:
                 return compare >= 0;
             default:
-                throw new InternalStateError("Invalid relation operator on number");
+                throw new InternalError("Invalid relation operator on number");
         }
     }
 

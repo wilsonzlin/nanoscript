@@ -117,11 +117,8 @@ public class ImportStatement extends Statement {
 
         public Pattern(Identifier left, boolean hasWildcard, Identifier right) {
             if (!hasWildcard) {
-                if (left == null && right == null) {
-                    throw new IllegalArgumentException("Invalid pattern");
-                }
-
-                if (right != null) {
+                // Can only be <left>, not none, not both, not <right>
+                if (left == null || right != null) {
                     throw new IllegalArgumentException("Invalid pattern");
                 }
             }

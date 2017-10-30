@@ -1,6 +1,6 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Exception.InternalError;
 import in.wilsonl.nanoscript.Syntax.Operator;
 
 public class NSString extends NSData<String> {
@@ -28,7 +28,7 @@ public class NSString extends NSData<String> {
             case GEQ:
                 return compare >= 0;
             default:
-                throw new InternalStateError("Invalid relation operator on string");
+                throw new InternalError("Invalid relation operator on string");
         }
     }
 

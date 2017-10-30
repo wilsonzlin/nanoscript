@@ -2,6 +2,7 @@ package in.wilsonl.nanoscript.Interpreting.Data;
 
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.ContextHelper;
+import in.wilsonl.nanoscript.Interpreting.Evaluator.CodeBlockEvaluator;
 import in.wilsonl.nanoscript.Interpreting.VMError.ArgumentsError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Parameter;
@@ -36,7 +37,7 @@ public class NSCallable extends NSData<Object> implements Context {
             context.setSymbol(name, arguments.get(i));
         }
 
-        ContextHelper.EvaluationResult evaluationResult = evaluateCodeBlockInContext(codeBlock);
+        CodeBlockEvaluator.EvaluationResult evaluationResult = evaluateCodeBlockInContext(codeBlock);
 
         // TODO
     }
@@ -49,5 +50,10 @@ public class NSCallable extends NSData<Object> implements Context {
     @Override
     public boolean setContextSymbol(String name, NSData<?> value) {
         return context.setSymbol(name, value);
+    }
+
+    @Override
+    public void createContextSymbol(String name, NSData<?> initialValue) {
+        context.createSymbol(name, initialValue);
     }
 }
