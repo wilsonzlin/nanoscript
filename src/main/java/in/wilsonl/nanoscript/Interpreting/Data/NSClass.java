@@ -2,6 +2,7 @@ package in.wilsonl.nanoscript.Interpreting.Data;
 
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.VMError.ReferenceError;
+import in.wilsonl.nanoscript.Interpreting.VMError.SyntaxError;
 import in.wilsonl.nanoscript.Syntax.Class.Class;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassConstructor;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassMethod;
@@ -140,7 +141,11 @@ public class NSClass extends NSData<Object> implements Context {
         NSObject newObject = NSObject.from(this);
         LambdaExpression rawConstructor = constructor.get().getLambda();
         NSCallable constructor = NSCallable.from(newObject, rawConstructor.getParameters(), rawConstructor.getBody());
-        constructor.applyCall(arguments);
+        NSData<?> evaluationResult = constructor.applyCall(arguments);
+        if (evaluationResult != NSNull.NULL) {
+            throw new SyntaxError("Can't return from a constructor");
+        }
+
         return newObject;
     }
 

@@ -1,1 +1,7 @@
-hello()
+five := 1 + 1
+
+for i in range(0, 4) do
+    print(i)
+endfor
+
+print(five, 4, 3, `two`)

@@ -30,11 +30,15 @@ public class Chunk {
         return imports;
     }
 
-    public void addImport(ImportStatement importStatement) {
-        imports.add(importStatement);
+    public CodeBlock getCodeBlock() {
+        return codeBlock.get();
     }
 
     public void setCodeBlock(CodeBlock codeBlock) {
         this.codeBlock.set(codeBlock);
+    }
+
+    public void addImport(ImportStatement importStatement) {
+        imports.add(importStatement);
     }
 }

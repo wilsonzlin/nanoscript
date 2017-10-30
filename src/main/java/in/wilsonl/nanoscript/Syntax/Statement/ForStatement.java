@@ -6,26 +6,19 @@ import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Syntax.Identifier;
-import in.wilsonl.nanoscript.Utils.ROSet;
+import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
-import java.util.Set;
+import java.util.List;
 
 import static in.wilsonl.nanoscript.Parsing.TokenType.*;
 
 public class ForStatement extends Statement {
     private static final AcceptableTokenTypes INIT_ITER_EXP_END_DELIMITER = new AcceptableTokenTypes(T_COMMA, T_KEYWORD_DO);
-    private final Set<Iterable> iterables = new ROSet<>();
+
+    private final List<Iterable> iterables = new ROList<>();
     private final SetOnce<CodeBlock> body = new SetOnce<>();
 
-    /*
-     *   for-loops are not usually expressions; in almost all cases, they can only be used
-     *   as expressions if they have a `put` statement.
-     *
-     *   The only special time for-loop bodies don't have to be delimited with `do` and
-     *   `endfor` is when it only has one statement, and that statement is a `put`
-     *   statement. This is to simplify syntax when the for-loop is used as an expression.
-     */
     public static ForStatement parseForStatement(Tokens tokens) {
         ForStatement forExpression = new ForStatement();
         CodeBlock body;
@@ -49,6 +42,14 @@ public class ForStatement extends Statement {
         return forExpression;
     }
 
+    public List<Iterable> getIterables() {
+        return iterables;
+    }
+
+    public CodeBlock getBody() {
+        return body.get();
+    }
+
     public void setBody(CodeBlock body) {
         this.body.set(body);
     }
@@ -65,6 +66,14 @@ public class ForStatement extends Statement {
         public Iterable(Identifier formalParameterName, Expression expression) {
             this.formalParameterName = formalParameterName;
             this.expression = expression;
+        }
+
+        public Identifier getFormalParameterName() {
+            return formalParameterName;
+        }
+
+        public Expression getExpression() {
+            return expression;
         }
     }
 }

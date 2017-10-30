@@ -4,7 +4,12 @@ import in.wilsonl.nanoscript.Exception.InternalError;
 import in.wilsonl.nanoscript.Interpreting.BlockScope;
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
+import in.wilsonl.nanoscript.Interpreting.Data.NSIterator;
 import in.wilsonl.nanoscript.Interpreting.Data.NSNull;
+import in.wilsonl.nanoscript.Interpreting.GlobalScope;
+import in.wilsonl.nanoscript.Interpreting.VMError.EndOfIterationError;
+import in.wilsonl.nanoscript.Interpreting.VMError.ExplicitlyThrownError;
+import in.wilsonl.nanoscript.Interpreting.VMError.SyntaxError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Syntax.Operator;
@@ -43,13 +48,13 @@ public class CodeBlockEvaluator {
                 result = evaluateConditionalBranchesStatement(context, (ConditionalBranchesStatement) statement);
 
             } else if (statement instanceof ExportStatement) {
-                // TODO
+                result = evaluateExportStatement(context, (ExportStatement) statement);
 
             } else if (statement instanceof ExpressionStatement) {
                 result = evaluateExpressionStatement(context, (ExpressionStatement) statement);
 
             } else if (statement instanceof ForStatement) {
-                // TODO
+                result = evaluateForStatement(context, (ForStatement) statement);
 
             } else if (statement instanceof LoopStatement) {
                 result = evaluateLoopStatement(context, (LoopStatement) statement);
@@ -74,11 +79,76 @@ public class CodeBlockEvaluator {
                 return result;
             }
         }
+
+        return null;
+    }
+
+    private static EvaluationResult evaluateExportStatement(Context context, ExportStatement statement) {
+        if (!(context instanceof GlobalScope)) {
+            throw new SyntaxError("Exports must be declared at the top level");
+        }
+
+        String name = statement.getName().getName();
+        NSData<?> value = evaluateExpression(context, statement.getValue());
+
+        ((GlobalScope) context).addExport(name, value);
+
+        return null;
+    }
+
+    private static EvaluationResult evaluateForStatement(Context context, ForStatement statement) {
+        List<ForStatement.Iterable> st_iterables = statement.getIterables();
+        CodeBlock st_body = statement.getBody();
+
+        int iterablesCount = st_iterables.size();
+        String[] names = new String[iterablesCount];
+        NSIterator[] iters = new NSIterator[iterablesCount];
+
+        for (int i = 0; i < iterablesCount; i++) {
+            ForStatement.Iterable st_iter = st_iterables.get(i);
+            names[i] = st_iter.getFormalParameterName().getName();
+            iters[i] = evaluateExpression(context, st_iter.getExpression()).iterate();
+        }
+
+        BlockScope scope = new BlockScope(context, BlockScope.Type.FOR);
+
+        while (true) {
+            scope.clearSymbols();
+
+            for (int i = 0; i < iterablesCount; i++) {
+                String name = names[i];
+                NSData<?> value;
+                try {
+                    value = iters[i].next();
+                } catch (EndOfIterationError eoie) {
+                    return null;
+                }
+                scope.createContextSymbol(name, value);
+            }
+
+            EvaluationResult evaluationResult = evaluateCodeBlock(scope, st_body);
+            //noinspection Duplicates
+            if (evaluationResult != null) {
+                switch (evaluationResult.getMode()) {
+                    case BREAK:
+                        return null;
+
+                    case CONTINUE:
+                        break;
+
+                    case RETURN:
+                        return evaluationResult;
+
+                    default:
+                        throw new InternalError("Unknown evaluation result mode");
+                }
+            }
+        }
     }
 
     private static EvaluationResult evaluateThrowStatement(Context context, ThrowStatement statement) {
         NSData<?> value = evaluateExpression(context, statement.getValue());
-        return new EvaluationResult(EvaluationResult.Mode.THROW, value);
+        throw new ExplicitlyThrownError(value);
     }
 
     private static EvaluationResult evaluateReturnStatement(Context context, ReturnStatement statement) {
@@ -136,7 +206,6 @@ public class CodeBlockEvaluator {
 
                         case CONTINUE:
                         case RETURN:
-                        case THROW:
                             return evaluationResult;
 
                         default:
@@ -166,6 +235,9 @@ public class CodeBlockEvaluator {
         BlockScope loopScope = new BlockScope(context, BlockScope.Type.LOOP);
 
         while (true) {
+            // Clear before evaluating condition expression
+            loopScope.clearSymbols();
+
             if (testBefore) {
                 boolean shouldStart = evaluateExpression(loopScope, st_condition).toNSBoolean().getRawValue();
                 if (invertResult) {
@@ -176,27 +248,22 @@ public class CodeBlockEvaluator {
                 }
             }
 
-            boolean broken = false;
             EvaluationResult evaluationResult = evaluateCodeBlock(loopScope, st_body);
+            //noinspection Duplicates
             if (evaluationResult != null) {
                 switch (evaluationResult.getMode()) {
                     case BREAK:
-                        broken = true;
-                        break;
+                        return null;
+
                     case CONTINUE:
                         break;
 
                     case RETURN:
-                    case THROW:
                         return evaluationResult;
 
                     default:
                         throw new InternalError("Unknown evaluation result mode");
                 }
-            }
-
-            if (broken) {
-                break;
             }
 
             if (!testBefore) {
@@ -213,29 +280,4 @@ public class CodeBlockEvaluator {
         return null;
     }
 
-    public static class EvaluationResult {
-        private final Mode mode;
-        private final NSData<?> value; // Can be null; if returning without a value, <value> should be NSNull.NULL
-
-        public EvaluationResult(Mode mode, NSData<?> value) {
-            this.mode = mode;
-            this.value = value;
-        }
-
-        public EvaluationResult(Mode mode) {
-            this(mode, null);
-        }
-
-        public Mode getMode() {
-            return mode;
-        }
-
-        public NSData<?> getValue() {
-            return value;
-        }
-
-        public enum Mode {
-            BREAK, CONTINUE, RETURN, THROW
-        }
-    }
 }

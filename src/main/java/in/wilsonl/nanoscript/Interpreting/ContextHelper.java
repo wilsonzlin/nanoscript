@@ -42,7 +42,7 @@ public class ContextHelper {
         variables.put(name, initialValue);
     }
 
-    public void clear() {
+    public void clearSymbols() {
         variables.clear();
     }
 }

@@ -66,6 +66,10 @@ public class NSNumber extends NSData<Double> {
         }
     }
 
+    public int toInt() {
+        return getRawValue().intValue();
+    }
+
     @Override
     public int hashCode() {
         return getRawValue().hashCode();
@@ -113,10 +117,16 @@ public class NSNumber extends NSData<Double> {
     @Override
     public NSData<?> applyAccess(String member) {
         // TODO
+        throw new UnsupportedOperationException("Invalid operation on a number");
     }
 
     @Override
     public NSBoolean toNSBoolean() {
         throw new UnsupportedOperationException("Invalid operation on a number");
+    }
+
+    @Override
+    public NSString toNSString() {
+        return NSString.from(String.valueOf(getRawValue()));
     }
 }

@@ -30,7 +30,11 @@ public class BlockScope implements Context {
         contextHelper.createSymbol(name, initialValue);
     }
 
+    public void clearSymbols() {
+        contextHelper.clearSymbols();
+    }
+
     public enum Type {
-        CONDITIONAL_BRANCH, LOOP, FOR, TRY, CATCH
+        CONDITIONAL_BRANCH, LOOP, FOR, TRY, CATCH, GLOBAL
     }
 }

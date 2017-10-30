@@ -4,6 +4,7 @@ import in.wilsonl.nanoscript.Exception.MalformedSyntaxException;
 import in.wilsonl.nanoscript.Exception.RequiredSyntaxNotFoundException;
 import in.wilsonl.nanoscript.Lexing.Lexer;
 import in.wilsonl.nanoscript.Utils.Matchable;
+import in.wilsonl.nanoscript.Utils.Position;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -48,12 +49,20 @@ public class Tokens implements Matchable<TokenType>, Iterable<Token> {
         lastAcceptedPos--;
     }
 
+    private Position getPosition() {
+        if (lastAcceptedPos < 0) {
+            return new Position(1, 0);
+        } else {
+            return tokens.get(lastAcceptedPos).getPosition();
+        }
+    }
+
     public MalformedSyntaxException constructMalformedSyntaxException(String message) {
-        return new MalformedSyntaxException(message, tokens.get(lastAcceptedPos).getPosition());
+        return new MalformedSyntaxException(message, getPosition());
     }
 
     public RequiredSyntaxNotFoundException constructRequiredSyntaxNotFoundException(String message) {
-        return new RequiredSyntaxNotFoundException(message, tokens.get(lastAcceptedPos).getPosition());
+        return new RequiredSyntaxNotFoundException(message, getPosition());
     }
 
     public Token require(TokenType type) {

@@ -85,6 +85,7 @@ public class NSString extends NSData<String> {
     @Override
     public NSData<?> applyAccess(String member) {
         // TODO
+        throw new UnsupportedOperationException("Invalid operation on a number");
     }
 
     @Override

@@ -93,141 +93,68 @@ public class Code implements Matchable<Character> {
         returnBuffer.addFirst(ret);
     }
 
-    private String consumeUsingStrategy(Object acceptable, ConsumeStrategy strategy, boolean beforeEnd, boolean returnConsumedAsString) {
-        AcceptableChars acceptableChars = null;
-        char acceptChar = '\0';
-        int acceptCount = 0;
-        StringBuilder buffer = new StringBuilder();
-
-        if (acceptable instanceof AcceptableChars) {
-            if (strategy == ConsumeStrategy.COUNT) {
-                throw new IllegalArgumentException("Passed AcceptableChars as acceptable but COUNT as strategy");
-            }
-            acceptableChars = (AcceptableChars) acceptable;
-
-        } else if (acceptable instanceof Character) {
-            if (strategy == ConsumeStrategy.COUNT) {
-                throw new IllegalArgumentException("Passed character as acceptable but COUNT as strategy");
-            }
-            acceptChar = (char) acceptable;
-
-        } else if (acceptable instanceof Integer) {
-            if (strategy != ConsumeStrategy.COUNT) {
-                throw new IllegalArgumentException("Passed integer as acceptable but not COUNT as strategy");
-            }
-            acceptCount = (int) acceptable;
-            if (acceptCount < 1) {
-                throw new IllegalArgumentException("Invalid count");
-            }
-
-        } else {
-            throw new IllegalArgumentException("Invalid acceptable object");
-        }
-
-        int i = 0;
-        while (true) {
-            char nextChar;
-            try {
-                nextChar = readChar();
-            } catch (UnexpectedEndOfCodeException ueoce) {
-                if (beforeEnd) {
-                    break;
-                } else {
-                    throw ueoce;
-                }
-            }
-            buffer.append(nextChar);
-            i++;
-
-            if (strategy == ConsumeStrategy.SINGLE && i == 1) {
-                break;
-            }
-
-            // This still needs to be inside the loop as beforeEnd may be true
-            if (strategy == ConsumeStrategy.COUNT) {
-                if (i != acceptCount) {
-                    continue;
-                } else {
-                    break;
-                }
-            }
-
-            boolean has;
-            if (acceptableChars != null) {
-                has = acceptableChars.has(nextChar);
-            } else {
-                has = acceptChar == nextChar;
-            }
-
-            if (strategy == ConsumeStrategy.UNTIL && has || (strategy == ConsumeStrategy.GREEDY || strategy == ConsumeStrategy.SINGLE) && !has) {
-                backUp();
-                buffer.deleteCharAt(buffer.length() - 1);
-                break;
-            }
-        }
-
-        if (i == 0) {
+    public String acceptOptional(char c) {
+        char next = accept();
+        if (c != next) {
+            backUp();
             return "";
         }
-
-        String accepted = null;
-        if (returnConsumedAsString) {
-            accepted = buffer.toString();
-        }
-
-        return accepted;
-    }
-
-    public String accept(int count) {
-        return consumeUsingStrategy(count, ConsumeStrategy.COUNT, false, true);
-    }
-
-    public String acceptOptional(char c) {
-        return consumeUsingStrategy(c, ConsumeStrategy.SINGLE, false, true);
+        return "" + next;
     }
 
     public String acceptOptional(AcceptableChars chars) {
-        return consumeUsingStrategy(chars, ConsumeStrategy.SINGLE, false, true);
+        char next = accept();
+        if (!chars.has(next)) {
+            backUp();
+            return "";
+        }
+        return "" + next;
     }
 
     public String acceptGreedy(AcceptableChars chars) {
-        return consumeUsingStrategy(chars, ConsumeStrategy.GREEDY, false, true);
+        StringBuilder res = new StringBuilder();
+        while (true) {
+            char next = accept();
+            if (!chars.has(next)) {
+                backUp();
+                break;
+            }
+            res.append(next);
+        }
+        return res.toString();
     }
 
     public String acceptUntil(AcceptableChars chars) {
-        return consumeUsingStrategy(chars, ConsumeStrategy.UNTIL, false, true);
-    }
-
-    public String acceptUntilBeforeEnd(AcceptableChars chars) {
-        return consumeUsingStrategy(chars, ConsumeStrategy.UNTIL, true, true);
-    }
-
-    public String acceptUntil(char c) {
-        return consumeUsingStrategy(c, ConsumeStrategy.UNTIL, false, true);
-    }
-
-    public String acceptUntilBeforeEnd(char c) {
-        return consumeUsingStrategy(c, ConsumeStrategy.UNTIL, true, true);
-    }
-
-    public void skip(int count) {
-        consumeUsingStrategy(count, ConsumeStrategy.COUNT, false, false);
-    }
-
-    public void skipGreedy(AcceptableChars chars) {
-        consumeUsingStrategy(chars, ConsumeStrategy.GREEDY, false, false);
+        StringBuilder res = new StringBuilder();
+        while (true) {
+            char next = accept();
+            if (chars.has(next)) {
+                backUp();
+                break;
+            }
+            res.append(next);
+        }
+        return res.toString();
     }
 
     public void skipGreedyBeforeEnd(AcceptableChars chars) {
-        consumeUsingStrategy(chars, ConsumeStrategy.GREEDY, true, false);
-    }
-
-    public void skipUntil(AcceptableChars chars) {
-        consumeUsingStrategy(chars, ConsumeStrategy.UNTIL, false, false);
+        while (true) {
+            char next = accept();
+            if (!chars.has(next)) {
+                backUp();
+                break;
+            }
+        }
     }
 
     public void skipUntil(char c) {
-        consumeUsingStrategy(c, ConsumeStrategy.UNTIL, false, false);
+        while (true) {
+            char next = accept();
+            if (c == next) {
+                backUp();
+                break;
+            }
+        }
     }
 
     public char accept() {
@@ -284,10 +211,6 @@ public class Code implements Matchable<Character> {
     @Override
     public void matcherReverse() {
         backUp();
-    }
-
-    private enum ConsumeStrategy {
-        COUNT, SINGLE, GREEDY, UNTIL
     }
 
 }

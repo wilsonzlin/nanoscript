@@ -50,7 +50,6 @@ public class Lexer {
 
         sequences.put("<-", T_ARROW_LEFT);
         sequences.put("->", T_ARROW_RIGHT);
-        sequences.put("...", T_ELLIPSIS);
         sequences.put(".", T_ACCESSOR);
         sequences.put("?.", T_NULL_ACCESSOR);
         sequences.put("?[", T_NULL_LOOKUP);

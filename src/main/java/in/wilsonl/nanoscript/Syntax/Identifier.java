@@ -32,4 +32,14 @@ public class Identifier {
     public String toString() {
         return getName();
     }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Identifier && getName().equals(((Identifier) o).getName());
+    }
 }

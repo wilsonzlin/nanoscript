@@ -15,6 +15,8 @@ public class ImportStatement extends Statement {
     private final List<Import> imports = new ROList<>();
     private final SetOnce<LiteralStringExpression> from = new SetOnce<>();
 
+    // TODO Fix import statement syntax where asterisk on end of line means that next identifier is incorrectly parsed
+
     public static ImportStatement parseImportStatement(Tokens tokens) {
         ImportStatement statement = new ImportStatement();
 

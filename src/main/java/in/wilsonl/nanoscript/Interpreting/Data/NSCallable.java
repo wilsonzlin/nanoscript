@@ -1,9 +1,11 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
+import in.wilsonl.nanoscript.Exception.InternalError;
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.ContextHelper;
-import in.wilsonl.nanoscript.Interpreting.Evaluator.CodeBlockEvaluator;
+import in.wilsonl.nanoscript.Interpreting.Evaluator.EvaluationResult;
 import in.wilsonl.nanoscript.Interpreting.VMError.ArgumentsError;
+import in.wilsonl.nanoscript.Interpreting.VMError.SyntaxError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Parameter;
 
@@ -31,15 +33,29 @@ public class NSCallable extends NSData<Object> implements Context {
             throw new ArgumentsError(String.format("Function has %d parameters but %d arguments provided", parameters.size(), arguments.size()));
         }
 
-        context.clear();
+        context.clearSymbols();
         for (int i = 0; i < parameters.size(); i++) {
             String name = parameters.get(i).getName().getName();
-            context.setSymbol(name, arguments.get(i));
+            context.createSymbol(name, arguments.get(i));
         }
 
-        CodeBlockEvaluator.EvaluationResult evaluationResult = evaluateCodeBlockInContext(codeBlock);
+        EvaluationResult evaluationResult = evaluateCodeBlockInContext(codeBlock);
 
-        // TODO
+        if (evaluationResult != null) {
+            switch (evaluationResult.getMode()) {
+                case BREAK:
+                case CONTINUE:
+                    throw new SyntaxError("Invalid break or next statement");
+
+                case RETURN:
+                    return evaluationResult.getValue();
+
+                default:
+                    throw new InternalError("Unknown evaluation result mode");
+            }
+        } else {
+            return NSNull.NULL;
+        }
     }
 
     @Override
