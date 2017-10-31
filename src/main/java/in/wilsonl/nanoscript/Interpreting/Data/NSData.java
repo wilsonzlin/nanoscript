@@ -1,5 +1,6 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
+import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.VMError;
 
 import java.util.List;
@@ -63,11 +64,20 @@ public abstract class NSData<T> {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be moduloed", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsApplyHashOperator(NSData<?> other) {
+    public NSData<?> nsApplyHashOperator() {
         throw VMError.from(UnsupportedOperationError, String.format("The hash operator cannot be applied to %s values", getFriendlyTypeName()));
     }
 
     public NSBoolean nsTestEquality(NSData<?> other) {
+        if (getType() == Type.NULL) {
+            return NSBoolean.from(equals(other));
+        }
+        if (other.getType() == Type.NULL) {
+            return NSBoolean.from(other.equals(this));
+        }
+        if (other.getType() != getType()) {
+            throw VMError.from(BuiltinClass.TypeError, String.format("Attempted to test equality between types %s and %s", other.getFriendlyTypeName(), getFriendlyTypeName()));
+        }
         return NSBoolean.from(equals(other));
     }
 
@@ -95,9 +105,7 @@ public abstract class NSData<T> {
         throw VMError.from(UnsupportedOperationError, String.format("%s values do not have any members", getFriendlyTypeName(true)));
     }
 
-    public NSBoolean nsToBoolean() {
-        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be converted to a boolean", getFriendlyTypeName(true)));
-    }
+    public abstract NSBoolean nsToBoolean();
 
     public NSString nsToString() {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be stringified", getFriendlyTypeName(true)));

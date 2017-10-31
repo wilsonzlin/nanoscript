@@ -7,6 +7,7 @@ import in.wilsonl.nanoscript.Interpreting.Data.NSBoolean;
 import in.wilsonl.nanoscript.Interpreting.Data.NSCallable;
 import in.wilsonl.nanoscript.Interpreting.Data.NSClass;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
+import in.wilsonl.nanoscript.Interpreting.Data.NSList;
 import in.wilsonl.nanoscript.Interpreting.Data.NSNull;
 import in.wilsonl.nanoscript.Interpreting.Data.NSNumber;
 import in.wilsonl.nanoscript.Interpreting.Data.NSObject;
@@ -22,6 +23,7 @@ import in.wilsonl.nanoscript.Syntax.Expression.General.BinaryExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.General.UnaryExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.IdentifierExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
+import in.wilsonl.nanoscript.Syntax.Expression.ListExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralBooleanExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralNullExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralNumberExpression;
@@ -99,6 +101,9 @@ public class ExpressionEvaluator {
         } else if (expression instanceof LookupExpression) {
             return evaluateLookupExpression(context, (LookupExpression) expression);
 
+        } else if (expression instanceof ListExpression) {
+            return evaluateListExpression(context, (ListExpression) expression);
+
         } else if (expression instanceof IdentifierExpression) {
             return evaluateIdentifierExpression(context, (IdentifierExpression) expression);
 
@@ -129,6 +134,14 @@ public class ExpressionEvaluator {
         } else {
             throw new InternalStateError("Unknown expression type");
         }
+    }
+
+    private static NSData<?> evaluateListExpression(Context context, ListExpression expression) {
+        List<NSData<?>> values = new ROList<>(expression.getValues().size());
+        for (Expression st_expr : expression.getValues()) {
+            values.add(evaluateExpression(context, st_expr));
+        }
+        return NSList.from(values);
     }
 
     private static NSData<?> evaluateAssignmentOrUpdateExpression(Context context, BinaryExpression binaryExpression) {
@@ -192,6 +205,9 @@ public class ExpressionEvaluator {
             case NOT:
                 return operand.nsToBoolean().invert();
 
+            case HASH:
+                return operand.nsApplyHashOperator();
+
             default:
                 throw new InternalStateError("Unimplemented unary operator");
         }
@@ -202,13 +218,16 @@ public class ExpressionEvaluator {
         Expression st_rhs = expression.getRHS();
         Operator operator = expression.getOperator();
 
+        if (operator == Operator.ASSIGNMENT) {
+            return evaluateAssignmentOrUpdateExpression(context, expression);
+        }
+
+        // For ASSIGNMENT, <lhs> may not be evaluated,
+        // so check before
         NSData<?> lhs = evaluateExpression(context, st_lhs);
         NSData<?> rhs;
 
         switch (operator) {
-            case ASSIGNMENT:
-                return evaluateAssignmentOrUpdateExpression(context, expression);
-
             case NULL_ACCESSOR:
                 if (NSNull.NULL.equals(lhs)) {
                     return lhs;

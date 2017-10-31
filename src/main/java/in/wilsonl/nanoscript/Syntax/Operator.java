@@ -71,9 +71,9 @@ public enum Operator {
 
         root.addSequence(ACCESSOR, T_ACCESSOR);
         root.addSequence(NULL_ACCESSOR, T_NULL_ACCESSOR);
-        root.addSequence(LOOKUP, T_SQUARE_BRACKET_LEFT);
+        root.addSequence(LOOKUP, T_LOOKUP);
         root.addSequence(NULL_LOOKUP, T_NULL_LOOKUP);
-        root.addSequence(CALL, T_PARENTHESIS_LEFT);
+        root.addSequence(CALL, T_CALL);
         root.addSequence(NULL_CALL, T_NULL_CALL);
 
         root.addSequence(HASH, T_HASH);

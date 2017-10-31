@@ -73,6 +73,11 @@ public class NSCallable extends NSData<Object> implements Context {
     }
 
     @Override
+    public NSBoolean nsToBoolean() {
+        return NSBoolean.TRUE;
+    }
+
+    @Override
     public NSData<?> getContextSymbol(String name) {
         if (closure == null) {
             throw new InternalStateError("Non-native callable has null internal state");

@@ -6,4 +6,9 @@ public abstract class NSIterator extends NSData<Object> {
     }
 
     public abstract NSData<?> next();
+
+    @Override
+    public NSBoolean nsToBoolean() {
+        return NSBoolean.TRUE;
+    }
 }

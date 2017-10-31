@@ -4,6 +4,7 @@ import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.VMError;
 
 import static in.wilsonl.nanoscript.Utils.Utils.compare;
+import static in.wilsonl.nanoscript.Utils.Utils.isInt;
 
 public class NSNumber extends NSData<Double> {
     private NSNumber(Double value) {
@@ -35,7 +36,7 @@ public class NSNumber extends NSData<Double> {
     @Override
     public NSNumber nsCompare(NSData<?> other) {
         if (other.getType() != Type.NUMBER) {
-            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to compare non-number to number");
+            throw VMError.from(BuiltinClass.TypeError, "Attempted to compare non-number to number");
         }
 
         double thisNumber = getRawValue();
@@ -47,7 +48,7 @@ public class NSNumber extends NSData<Double> {
     @Override
     public NSData<?> nsAdd(NSData<?> other) {
         if (other.getType() != Type.NUMBER) {
-            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to add non-number to number");
+            throw VMError.from(BuiltinClass.TypeError, "Attempted to add non-number to number");
         }
 
         return NSNumber.from(getRawValue() + ((NSNumber) other).getRawValue());
@@ -56,7 +57,7 @@ public class NSNumber extends NSData<Double> {
     @Override
     public NSData<?> nsSubtract(NSData<?> other) {
         if (other.getType() != Type.NUMBER) {
-            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to subtract non-number to number");
+            throw VMError.from(BuiltinClass.TypeError, "Attempted to subtract non-number to number");
         }
 
         return NSNumber.from(getRawValue() - ((NSNumber) other).getRawValue());
@@ -65,7 +66,7 @@ public class NSNumber extends NSData<Double> {
     @Override
     public NSData<?> nsMultiply(NSData<?> other) {
         if (other.getType() != Type.NUMBER) {
-            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to multiply non-number to number");
+            throw VMError.from(BuiltinClass.TypeError, "Attempted to multiply non-number to number");
         }
 
         return NSNumber.from(getRawValue() * ((NSNumber) other).getRawValue());
@@ -74,7 +75,7 @@ public class NSNumber extends NSData<Double> {
     @Override
     public NSData<?> nsDivide(NSData<?> other) {
         if (other.getType() != Type.NUMBER) {
-            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to divide non-number to number");
+            throw VMError.from(BuiltinClass.TypeError, "Attempted to divide non-number to number");
         }
 
         return NSNumber.from(getRawValue() / ((NSNumber) other).getRawValue());
@@ -83,7 +84,7 @@ public class NSNumber extends NSData<Double> {
     @Override
     public NSData<?> nsExponentiate(NSData<?> other) {
         if (other.getType() != Type.NUMBER) {
-            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to exponentiate non-number to number");
+            throw VMError.from(BuiltinClass.TypeError, "Attempted to exponentiate non-number to number");
         }
 
         return NSNumber.from(Math.pow(getRawValue(), ((NSNumber) other).getRawValue()));
@@ -92,7 +93,7 @@ public class NSNumber extends NSData<Double> {
     @Override
     public NSData<?> nsModulo(NSData<?> other) {
         if (other.getType() != Type.NUMBER) {
-            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to modulo non-number to number");
+            throw VMError.from(BuiltinClass.TypeError, "Attempted to modulo non-number to number");
         }
 
         return NSNumber.from(getRawValue() % ((NSNumber) other).getRawValue());
@@ -105,9 +106,14 @@ public class NSNumber extends NSData<Double> {
     }
 
     @Override
+    public NSBoolean nsToBoolean() {
+        return NSBoolean.TRUE;
+    }
+
+    @Override
     public NSString nsToString() {
         Double rawValue = getRawValue();
-        if (rawValue == Math.floor(rawValue) && !Double.isInfinite(rawValue)) {
+        if (isInt(rawValue)) {
             return NSString.from(String.valueOf(toInt()));
         }
         return NSString.from(String.valueOf(rawValue));

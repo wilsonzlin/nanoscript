@@ -80,6 +80,11 @@ public class NSObject extends NSData<Object> implements Context {
     }
 
     @Override
+    public NSBoolean nsToBoolean() {
+        return NSBoolean.TRUE;
+    }
+
+    @Override
     public NSData<?> getContextSymbol(String name) {
         if (name.equals("self")) {
             return this;

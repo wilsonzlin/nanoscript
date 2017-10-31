@@ -2,6 +2,9 @@ package in.wilsonl.nanoscript.Parsing;
 
 public enum TokenType {
 
+    T_CALL,
+    T_LOOKUP,
+
     T_KEYWORD_FROM,
     T_KEYWORD_IMPORT,
     T_KEYWORD_EXPORT,

@@ -4,6 +4,8 @@ import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Parsing.Token;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +32,8 @@ public class Lexer {
     private static final OperatorTreeNode OPERATOR_TREE_ROOT_NODE = _createOperatorTreeRootNode();
 
     private final Code code;
+
+    private final Deque<Token> preemptivelyLexedTokens = new ArrayDeque<>();
 
     public Lexer(Code code) {
         this.code = code;
@@ -183,29 +187,62 @@ public class Lexer {
     }
 
     public Token lex() {
+        if (!preemptivelyLexedTokens.isEmpty()) {
+            return preemptivelyLexedTokens.removeFirst();
+        }
+
         char nextChar = code.peek();
+
+        Token t;
 
         if (nextChar == COMMENT_DELIMITER) {
             lexComment();
-            return null;
+            t = null;
         } else if (LITERAL_NUMBER_DECIMAL.has(nextChar) || nextChar == '-' && LITERAL_NUMBER_DECIMAL.has(code.peek(2))) {
-            return lexLiteralNumber();
+            t = lexLiteralNumber();
         } else if (OPERATOR_TREE_ROOT_NODE.hasChild(nextChar)) {
             TokenType tokenType = OPERATOR_TREE_ROOT_NODE.match(code);
             if (tokenType == null) {
                 throw code.constructMalformedSyntaxException("Invalid syntax");
             }
-            return constructToken(tokenType);
+            t = constructToken(tokenType);
         } else if (nextChar == '`') {
-            return lexLiteralString();
+            t = lexLiteralString();
         } else if (IDENTIFIER_STARTER.has(nextChar)) {
-            return lexIdentifier();
+            t = lexIdentifier();
         } else if (WHITESPACE.has(nextChar)) {
             code.skipGreedyBeforeEnd(WHITESPACE);
-            return null;
+            t = null;
         } else {
             throw code.constructMalformedSyntaxException("Unknown syntax");
         }
+
+        if (t != null) {
+            switch (t.getType()) {
+                case T_SQUARE_BRACKET_RIGHT:
+                case T_LITERAL_STRING:
+                case T_PARENTHESIS_RIGHT:
+                case T_IDENTIFIER:
+                    // Note that it's not the next token type, but rather the direct
+                    // character adjacent to the current character, including whitespace
+                    switch (code.peek()) {
+                        case '(':
+                            if (t.getType() != T_LITERAL_STRING) {
+                                code.skip();
+                                preemptivelyLexedTokens.addLast(constructToken(T_CALL));
+                            }
+                            break;
+
+                        case '[':
+                            code.skip();
+                            preemptivelyLexedTokens.addLast(constructToken(T_LOOKUP));
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        return t;
     }
 
     // Called when next char is '-' or a digit

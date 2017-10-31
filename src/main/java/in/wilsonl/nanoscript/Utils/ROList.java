@@ -7,6 +7,14 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 public class ROList<T> extends ArrayList<T> {
+    public ROList(int size) {
+        super(size);
+    }
+
+    public ROList() {
+        super();
+    }
+
     @Override
     public void trimToSize() {
         throw new UnsupportedOperationException("This operation is not supported on a ROList");

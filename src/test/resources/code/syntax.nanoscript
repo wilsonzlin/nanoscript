@@ -31,4 +31,101 @@ catch err : ReferenceError
     endif
 endtry
 
+print([1, 2, 3])
+
+some_list := [`a`, `b`, `c`]
+print(some_list[0])
+
 print(`abc` <=> `abcd`)
+
+print()
+print()
+print()
+
+graph := [
+    [18,34,42],
+    [13,21,44],
+    [7,17],
+    [28,37,41],
+    [25,29,39],
+    [29],
+    [11,16,20,23,29],
+    [11,15,33,43],
+    [4,5,25,26],
+    [23,33],
+    [2,9,15,33,43],
+    [16,20,23,32],
+    [0,18],
+    [1],
+    [12,15,24,42],
+    [2,9,20],
+    [19,31,36],
+    [9,21,30],
+    [0,24,37,42],
+    [6,32],
+    [6,16,36],
+    [44],
+    [27,33],
+    [8,11],
+    [14],
+    [4,5,26],
+    [4,5,38],
+    [3,28,37],
+    [22,34,40],
+    [4,5,26,39],
+    [7,15,17,33,43],
+    [4,13,23,36],
+    [16,20,36],
+    [7,10,15],
+    [3,41],
+    [26],
+    [6,35],
+    [3,28,34,40,41],
+    [4,8,29],
+    [35,38],
+    [3,37],
+    [3,22,27,28,40],
+    [14,18,24],
+    [2,16,33],
+    [1,21],
+]
+
+nodes := []
+for i in range(#graph) do
+    nodes[] = true
+endfor
+
+auto_increment := 0
+
+dfs := fn (start_node)
+    stack := [start_node]
+    while #stack > 0 before
+        top := stack[-1]
+        white_neighbour := null
+        for neighbour in graph[top] do
+            is_gray := false
+            for n in stack do
+                if n == neighbour then
+                    print(n)
+                    is_gray = true
+                    break
+                endif
+            endfor
+            is_black := nodes[neighbour]
+            if is_gray or is_black then
+                white_neighbour = neighbour
+                break
+            endif
+        endfor
+        if white_neighbour == null then
+            print(auto_increment, stack.pop())
+            auto_increment = auto_increment + 1
+            nodes[top] = false
+        otherwise
+            stack[] = white_neighbour
+        endif
+    loop
+    print()
+endfn
+
+dfs(0)

@@ -61,6 +61,16 @@ public enum BuiltinClass {
             .matchParentConstructor()
     ),
 
+    OutOfBoundsError(new ClassBuilder()
+            .addParent(RuntimeError)
+            .matchParentConstructor()
+    ),
+
+    KeyError(new ClassBuilder()
+            .addParent(RuntimeError)
+            .matchParentConstructor()
+    ),
+
     ValueError(new ClassBuilder()
             .addParent(RuntimeError)
             .matchParentConstructor()

@@ -36,9 +36,6 @@ public abstract class Expression {
             // Last pushed unit type could also be null
             ShuntingYard.UnitType lastPushedUnitType = yard.getLastPushedUnitType();
             Operator lastPushedAsOperator = lastPushedUnitType == OPERATOR ? yard.peekTopOperator().getOperator() : null;
-            if (nextTokenAsOperator == Operator.CALL && lastPushedUnitType != EXPRESSION) {
-                nextTokenAsOperator = null;
-            }
 
             /*
              *
@@ -88,6 +85,12 @@ public abstract class Expression {
                             Expression nested = parseExpression(tokens, new AcceptableTokenTypes(T_PARENTHESIS_RIGHT));
                             tokens.require(T_PARENTHESIS_RIGHT);
                             yard.pushExpression(nested);
+                            break;
+
+                        case T_SQUARE_BRACKET_LEFT:
+                            // List
+                            Expression list = ListExpression.parseListExpression(tokens);
+                            yard.pushExpression(list);
                             break;
 
                         case T_KEYWORD_FUNCTION:

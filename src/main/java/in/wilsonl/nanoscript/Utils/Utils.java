@@ -25,6 +25,10 @@ public class Utils {
         return Integer.compare(a, b);
     }
 
+    public static boolean isInt(double v) {
+        return v == Math.floor(v) && !Double.isInfinite(v);
+    }
+
     public static String join(String delimiter, Collection<?> collection) {
         StringBuilder str = new StringBuilder();
         Iterator<?> it = collection.iterator();

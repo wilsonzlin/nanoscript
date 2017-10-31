@@ -22,6 +22,9 @@ public class LookupExpression extends Expression {
         Terms terms = new Terms();
 
         do {
+            if (tokens.isNext(TokenType.T_SQUARE_BRACKET_RIGHT)) {
+                break;
+            }
             Expression termExpr = parseExpression(tokens, new AcceptableTokenTypes(TokenType.T_COMMA, TokenType.T_SQUARE_BRACKET_RIGHT));
             terms.addTerm(termExpr);
         } while (tokens.skipIfNext(TokenType.T_COMMA));
