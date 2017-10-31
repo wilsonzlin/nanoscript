@@ -1,7 +1,7 @@
 package in.wilsonl.nanoscript.Interpreting;
 
+import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
-import in.wilsonl.nanoscript.Interpreting.VMError.ReferenceError;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -37,7 +37,7 @@ public class ContextHelper {
 
     public void createSymbol(String name, NSData<?> initialValue) {
         if (variables.containsKey(name)) {
-            throw new ReferenceError(String.format("Variable `%s` already exists", name));
+            throw VMError.from(BuiltinClass.ReferenceError, String.format("Variable `%s` already exists", name));
         }
         variables.put(name, initialValue);
     }

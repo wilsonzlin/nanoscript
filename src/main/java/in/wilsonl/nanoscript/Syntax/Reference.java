@@ -1,10 +1,15 @@
 package in.wilsonl.nanoscript.Syntax;
 
 import in.wilsonl.nanoscript.Parsing.Tokens;
+import in.wilsonl.nanoscript.Syntax.Expression.Expression;
+import in.wilsonl.nanoscript.Syntax.Expression.General.BinaryExpression;
+import in.wilsonl.nanoscript.Syntax.Expression.IdentifierExpression;
+import in.wilsonl.nanoscript.Syntax.Expression.SelfExpression;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 import in.wilsonl.nanoscript.Utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static in.wilsonl.nanoscript.Parsing.TokenType.T_ACCESSOR;
@@ -45,6 +50,24 @@ public class Reference {
 
     public void pushPart(Identifier part) {
         parts.add(part);
+    }
+
+    public Expression toExpression() {
+        // Reference may just be one identifier and not involve any accessing
+        List<Identifier> toProcess = new ArrayList<>(getParts());
+        Expression result;
+        if (startsWithSelf()) {
+            result = new SelfExpression();
+        } else {
+            result = new IdentifierExpression(toProcess.remove(0));
+        }
+
+        while (!toProcess.isEmpty()) {
+            Identifier rhs = toProcess.remove(0);
+            result = new BinaryExpression(result, Operator.ACCESSOR, new IdentifierExpression(rhs));
+        }
+
+        return result;
     }
 
     @Override

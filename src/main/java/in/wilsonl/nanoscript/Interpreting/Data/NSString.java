@@ -1,6 +1,8 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-import in.wilsonl.nanoscript.Exception.InternalError;
+import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
+import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Syntax.Operator;
 
 public class NSString extends NSData<String> {
@@ -30,7 +32,7 @@ public class NSString extends NSData<String> {
             case GEQ:
                 return compare >= 0;
             default:
-                throw new InternalError("Invalid relation operator on string");
+                throw new InternalStateError("Invalid relation operator on string");
         }
     }
 
@@ -45,9 +47,9 @@ public class NSString extends NSData<String> {
     }
 
     @Override
-    public NSData<?> applyBinaryOperator(Operator operator, NSData<?> other) {
+    public NSData<?> nsApplyBinaryOperator(Operator operator, NSData<?> other) {
         if (other.getType() != Type.STRING) {
-            throw new UnsupportedOperationException("Attempted to operate non-string to string");
+            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to operate non-string to string");
         }
 
         String thisString = getRawValue();
@@ -69,29 +71,29 @@ public class NSString extends NSData<String> {
                 return NSNumber.from(thisString.compareTo(otherString));
 
             default:
-                throw new UnsupportedOperationException("Invalid operation on a string");
+                throw VMError.from(BuiltinClass.UnsupportedOperationError, "Invalid operation on a string");
         }
     }
 
     @Override
-    public NSData<?> applyUnaryOperator(Operator operator) {
+    public NSData<?> nsApplyUnaryOperator(Operator operator) {
         switch (operator) {
             case HASH:
                 return NSNumber.from(getRawValue().length());
 
             default:
-                throw new UnsupportedOperationException("Invalid operation on a string");
+                throw VMError.from(BuiltinClass.UnsupportedOperationError, "Invalid operation on a string");
         }
     }
 
     @Override
-    public NSData<?> applyAccess(String member) {
+    public NSData<?> nsAccess(String member) {
         // TODO
-        throw new UnsupportedOperationException("Invalid operation on a number");
+        throw VMError.from(BuiltinClass.UnsupportedOperationError, "Invalid operation on a number");
     }
 
     @Override
-    public NSString toNSString() {
+    public NSString nsToString() {
         return this;
     }
 }

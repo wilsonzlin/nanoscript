@@ -33,6 +33,8 @@ public enum Operator {
     GT(7),
     GEQ(7),
     SPACESHIP(7),
+    INSTANCE_OF(7),
+    NOT_INSTANCE_OF(7),
 
     NOT(6, Associativity.RIGHT, Arity.UNARY),
 
@@ -92,6 +94,8 @@ public enum Operator {
         root.addSequence(GT, T_CHEVRON_RIGHT);
         root.addSequence(GEQ, T_GEQ);
         root.addSequence(SPACESHIP, T_SPACESHIP);
+        root.addSequence(INSTANCE_OF, T_KEYWORD_INSTANCE, T_KEYWORD_OF);
+        root.addSequence(NOT_INSTANCE_OF, T_KEYWORD_NOT, T_KEYWORD_INSTANCE, T_KEYWORD_OF);
 
         root.addSequence(NOT, T_KEYWORD_NOT);
 

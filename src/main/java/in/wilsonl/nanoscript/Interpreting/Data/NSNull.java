@@ -1,7 +1,5 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-import in.wilsonl.nanoscript.Syntax.Operator;
-
 public class NSNull extends NSData<Object> {
     public static final NSNull NULL = new NSNull();
 
@@ -9,32 +7,11 @@ public class NSNull extends NSData<Object> {
         super(Type.NULL, null);
     }
 
-    @Override
-    public int hashCode() {
-        return 0;
-    }
+    // Don't need hashCode or equals, as the default implements are correct as long
+    // as only <NULL> is used
 
     @Override
-    public boolean equals(Object o) {
-        return o instanceof NSNull && o == NULL;
-    }
-
-    @Override
-    public NSData<?> applyBinaryOperator(Operator operator, NSData<?> other) {
-        switch (operator) {
-            case EQ:
-                return NSBoolean.from(equals(other));
-
-            case NEQ:
-                return NSBoolean.from(!equals(other));
-
-            default:
-                throw new UnsupportedOperationException("Invalid operation on null");
-        }
-    }
-
-    @Override
-    public NSBoolean toNSBoolean() {
+    public NSBoolean nsToBoolean() {
         return NSBoolean.FALSE;
     }
 }

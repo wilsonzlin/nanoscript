@@ -1,7 +1,7 @@
 package in.wilsonl.nanoscript.Utils;
 
 
-import in.wilsonl.nanoscript.Exception.InternalError;
+import in.wilsonl.nanoscript.Exception.InternalStateError;
 
 public class SetOnce<T> {
     private final boolean isNullable;
@@ -18,17 +18,17 @@ public class SetOnce<T> {
 
     public T get() {
         if (!hasBeenSet) {
-            throw new InternalError("Value has not been set");
+            throw new InternalStateError("Value has not been set");
         }
         return value;
     }
 
     public void set(T value) {
         if (hasBeenSet) {
-            throw new InternalError("Value has already been set");
+            throw new InternalStateError("Value has already been set");
         }
         if (!isNullable && value == null) {
-            throw new InternalError("Value is not nullable");
+            throw new InternalStateError("Value is not nullable");
         }
         this.value = value;
         hasBeenSet = true;

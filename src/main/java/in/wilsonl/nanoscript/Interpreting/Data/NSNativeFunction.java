@@ -21,7 +21,7 @@ public class NSNativeFunction extends NSCallable {
     }
 
     @Override
-    public NSData<?> applyCall(List<NSData<?>> arguments) {
+    public NSData<?> nsCall(List<NSData<?>> arguments) {
         return body.run(selfValue, arguments);
     }
 }

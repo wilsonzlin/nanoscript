@@ -1,6 +1,6 @@
 package in.wilsonl.nanoscript.Syntax.Expression;
 
-import in.wilsonl.nanoscript.Exception.InternalError;
+import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
@@ -48,7 +48,7 @@ public class ConditionalBranchesExpression extends Expression {
                     break;
 
                 default:
-                    throw new InternalError("Unknown token type after parsing conditional branch expression body: " + nextToken);
+                    throw new InternalStateError("Unknown token type after parsing conditional branch expression body: " + nextToken);
             }
         } while (!done);
 

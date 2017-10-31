@@ -1,6 +1,6 @@
 package in.wilsonl.nanoscript.Syntax.Statement;
 
-import in.wilsonl.nanoscript.Exception.InternalError;
+import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
@@ -47,7 +47,7 @@ public class ConditionalBranchesStatement extends Statement {
                     break;
 
                 default:
-                    throw new InternalError("Unknown token type after parsing conditional branch body: " + nextToken);
+                    throw new InternalStateError("Unknown token type after parsing conditional branch body: " + nextToken);
             }
         } while (!done);
 
@@ -68,10 +68,10 @@ public class ConditionalBranchesStatement extends Statement {
 
     public void setFinalBranch(CodeBlock body) {
         if (hasFinalBranch) {
-            throw new InternalError("Final branch already set");
+            throw new InternalStateError("Final branch already set");
         }
         if (body == null) {
-            throw new InternalError("<body> is null");
+            throw new InternalStateError("<body> is null");
         }
         hasFinalBranch = true;
         conditionalBranches.add(new Branch(null, body));

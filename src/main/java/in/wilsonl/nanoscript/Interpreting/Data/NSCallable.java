@@ -1,11 +1,12 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-import in.wilsonl.nanoscript.Exception.InternalError;
+import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Interpreting.ArgumentsValidator;
+import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.ContextHelper;
 import in.wilsonl.nanoscript.Interpreting.Evaluator.EvaluationResult;
-import in.wilsonl.nanoscript.Interpreting.VMError.ArgumentsError;
-import in.wilsonl.nanoscript.Interpreting.VMError.SyntaxError;
+import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Parameter;
 
@@ -37,13 +38,13 @@ public class NSCallable extends NSData<Object> implements Context {
     }
 
     @Override
-    public NSData<?> applyCall(List<NSData<?>> arguments) {
+    public NSData<?> nsCall(List<NSData<?>> arguments) {
         if (closure == null || parameters == null || codeBlock == null) {
-            throw new InternalError("Non-native callable has null internal state");
+            throw new InternalStateError("Non-native callable has null internal state");
         }
 
         int paramsCount = parameters.size();
-        ArgumentsError.assertArgumentsMatch(paramsCount, arguments);
+        ArgumentsValidator.assertArgumentsMatch(paramsCount, arguments);
 
 
         closure.clearSymbols();
@@ -58,13 +59,13 @@ public class NSCallable extends NSData<Object> implements Context {
             switch (evaluationResult.getMode()) {
                 case BREAK:
                 case CONTINUE:
-                    throw new SyntaxError("Invalid break or next statement");
+                    throw VMError.from(BuiltinClass.SyntaxError, "Invalid break or next statement");
 
                 case RETURN:
                     return evaluationResult.getValue();
 
                 default:
-                    throw new InternalError("Unknown evaluation result mode");
+                    throw new InternalStateError("Unknown evaluation result mode");
             }
         } else {
             return NSNull.NULL;
@@ -74,7 +75,7 @@ public class NSCallable extends NSData<Object> implements Context {
     @Override
     public NSData<?> getContextSymbol(String name) {
         if (closure == null) {
-            throw new InternalError("Non-native callable has null internal state");
+            throw new InternalStateError("Non-native callable has null internal state");
         }
 
         return closure.getSymbol(name);
@@ -83,7 +84,7 @@ public class NSCallable extends NSData<Object> implements Context {
     @Override
     public boolean setContextSymbol(String name, NSData<?> value) {
         if (closure == null) {
-            throw new InternalError("Non-native callable has null internal state");
+            throw new InternalStateError("Non-native callable has null internal state");
         }
 
         return closure.setSymbol(name, value);
@@ -92,7 +93,7 @@ public class NSCallable extends NSData<Object> implements Context {
     @Override
     public void createContextSymbol(String name, NSData<?> initialValue) {
         if (closure == null) {
-            throw new InternalError("Non-native callable has null internal state");
+            throw new InternalStateError("Non-native callable has null internal state");
         }
 
         closure.createSymbol(name, initialValue);

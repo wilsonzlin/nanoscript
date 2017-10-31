@@ -44,6 +44,8 @@ public class TryStatement extends Statement {
             tryStatement.addCatchBlock(new Catch(types, paramName, catchBody));
         }
 
+        tokens.require(T_KEYWORD_TRY_END);
+
         return tryStatement;
     }
 

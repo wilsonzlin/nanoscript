@@ -1,6 +1,8 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-import in.wilsonl.nanoscript.Exception.InternalError;
+import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
+import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Syntax.Operator;
 
 public class NSNumber extends NSData<Double> {
@@ -10,6 +12,10 @@ public class NSNumber extends NSData<Double> {
 
     public static NSNumber from(double value) {
         return new NSNumber(value);
+    }
+
+    public static NSNumber from(Number value) {
+        return new NSNumber(value.doubleValue());
     }
 
     private static double applyArithmetic(double o1, Operator operator, double o2) {
@@ -40,30 +46,10 @@ public class NSNumber extends NSData<Double> {
                 break;
 
             default:
-                throw new InternalError("Invalid arithmetic operator on number");
+                throw new InternalStateError("Invalid arithmetic operator on number");
         }
 
         return result;
-    }
-
-    private static boolean applyRelation(double o1, Operator operator, double o2) {
-        int compare = Double.compare(o1, o2);
-        switch (operator) {
-            case EQ:
-                return compare == 0;
-            case NEQ:
-                return compare != 0;
-            case LT:
-                return compare < 0;
-            case LEQ:
-                return compare <= 0;
-            case GT:
-                return compare > 0;
-            case GEQ:
-                return compare >= 0;
-            default:
-                throw new InternalError("Invalid relation operator on number");
-        }
     }
 
     public int toInt() {
@@ -81,9 +67,26 @@ public class NSNumber extends NSData<Double> {
     }
 
     @Override
-    public NSData<?> applyBinaryOperator(Operator operator, NSData<?> other) {
+    public NSBoolean nsTestEquality(NSData<?> other) {
+        return NSBoolean.from(nsCompare(other).getRawValue() == 0);
+    }
+
+    @Override
+    public NSNumber nsCompare(NSData<?> other) {
         if (other.getType() != Type.NUMBER) {
-            throw new UnsupportedOperationException("Attempted to operate non-number to number");
+            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to compare non-number to number");
+        }
+
+        double thisNumber = getRawValue();
+        double otherNumber = (Double) other.getRawValue();
+
+        return NSNumber.from(Double.compare(thisNumber, otherNumber));
+    }
+
+    @Override
+    public NSData<?> nsApplyBinaryOperator(Operator operator, NSData<?> other) {
+        if (other.getType() != Type.NUMBER) {
+            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to operate non-number to number");
         }
 
         double thisNumber = getRawValue();
@@ -98,35 +101,19 @@ public class NSNumber extends NSData<Double> {
             case MODULO:
                 return NSNumber.from(applyArithmetic(thisNumber, operator, otherNumber));
 
-            case EQ:
-            case NEQ:
-            case LT:
-            case LEQ:
-            case GT:
-            case GEQ:
-                return NSBoolean.from(applyRelation(thisNumber, operator, otherNumber));
-
-            case SPACESHIP:
-                return NSNumber.from(Double.compare(thisNumber, otherNumber));
-
             default:
-                throw new UnsupportedOperationException("Invalid operation on a number");
+                throw VMError.from(BuiltinClass.UnsupportedOperationError, "Invalid operation on a number");
         }
     }
 
     @Override
-    public NSData<?> applyAccess(String member) {
+    public NSData<?> nsAccess(String member) {
         // TODO
-        throw new UnsupportedOperationException("Invalid operation on a number");
+        throw VMError.from(BuiltinClass.UnsupportedOperationError, "Invalid operation on a number");
     }
 
     @Override
-    public NSBoolean toNSBoolean() {
-        throw new UnsupportedOperationException("Invalid operation on a number");
-    }
-
-    @Override
-    public NSString toNSString() {
+    public NSString nsToString() {
         Double rawValue = getRawValue();
         if (rawValue == Math.floor(rawValue) && !Double.isInfinite(rawValue)) {
             return NSString.from(String.valueOf(toInt()));

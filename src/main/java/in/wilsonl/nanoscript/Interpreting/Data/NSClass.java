@@ -1,15 +1,17 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
+import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator;
-import in.wilsonl.nanoscript.Interpreting.VMError.ArgumentsError;
-import in.wilsonl.nanoscript.Interpreting.VMError.ReferenceError;
-import in.wilsonl.nanoscript.Interpreting.VMError.SyntaxError;
+import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Syntax.Class.Class;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassConstructor;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassMethod;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassVariable;
+import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
+import in.wilsonl.nanoscript.Syntax.Reference;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.ROMap;
 import in.wilsonl.nanoscript.Utils.ROSet;
@@ -23,7 +25,7 @@ public class NSClass extends NSData<Object> implements Context {
     private final Context parentContext; // Can be null if NSNativeClass
     private final SetOnce<String> name = new SetOnce<>();
     private final List<NSClass> parents = new ROList<>();
-    private final SetOnce<NSConstructorSource> constructor = new SetOnce<>(true); // Can be null if using default constructor
+    private final SetOnce<NSConstructorSource> constructor = new SetOnce<>(true); // Can be null if using default constructor (whether native or not)
     private final Map<String, NSCallable> staticMethods = new ROMap<>();
     private final Map<String, NSInstanceMethodSource> rawInstanceMethods = new ROMap<>();
     private final Map<String, NSData<?>> staticVariables = new ROMap<>();
@@ -59,9 +61,17 @@ public class NSClass extends NSData<Object> implements Context {
         String name = st_class.getName().getName();
         nsClass.name.set(name);
 
-        // TODO Load parents
+        // Load parents
         List<NSClass> parents = new ROList<>();
-        for (NSClass p : parents) {
+        for (Reference st_parent_ref : st_class.getParents()) {
+            Expression st_deref_expr = st_parent_ref.toExpression();
+            // If reference is invalid, an exception will be thrown
+            NSData<?> result = parentContext.evaluateExpressionInContext(st_deref_expr);
+            if (result.getType() != Type.CLASS) {
+                throw VMError.from(BuiltinClass.TypeError, String.format("Parent `%s` is not a class", st_deref_expr.toString()));
+            }
+            NSClass p = (NSClass) result;
+            parents.add(p);
             nsClass.ancestors.addAll(p.ancestors);
             nsClass.ancestors.add(p);
         }
@@ -104,9 +114,8 @@ public class NSClass extends NSData<Object> implements Context {
         return nsClass;
     }
 
-    public boolean isInstance(NSObject q) {
-        NSClass constructor = q.getConstructor();
-        return constructor == this || ancestors.contains(constructor);
+    public boolean matchesType(NSClass type) {
+        return type == this || ancestors.contains(type);
     }
 
     public String getName() {
@@ -131,35 +140,35 @@ public class NSClass extends NSData<Object> implements Context {
 
     private NSData<?> getOwnStaticVariable(String name) {
         if (!hasOwnStaticVariable(name)) {
-            throw new ReferenceError(String.format("The class static variable `%s` does not exist", name));
+            throw VMError.from(BuiltinClass.ReferenceError, String.format("The class static variable `%s` does not exist", name));
         }
         return staticVariables.get(name);
     }
 
     private NSInstanceVariableSource getOwnRawInstanceVariable(String name) {
         if (!hasOwnRawInstanceVariable(name)) {
-            throw new ReferenceError(String.format("The class instance variable `%s` does not exist", name));
+            throw VMError.from(BuiltinClass.ReferenceError, String.format("The class instance variable `%s` does not exist", name));
         }
         return rawInstanceVariables.get(name);
     }
 
     private NSCallable getOwnStaticMethod(String name) {
         if (!hasOwnStaticMethod(name)) {
-            throw new ReferenceError(String.format("The class static method `%s` does not exist", name));
+            throw VMError.from(BuiltinClass.ReferenceError, String.format("The class static method `%s` does not exist", name));
         }
         return staticMethods.get(name);
     }
 
     private NSInstanceMethodSource getOwnRawInstanceMethod(String name) {
         if (!hasOwnRawInstanceMethod(name)) {
-            throw new ReferenceError(String.format("The class instance method `%s` does not exist", name));
+            throw VMError.from(BuiltinClass.ReferenceError, String.format("The class instance method `%s` does not exist", name));
         }
         return rawInstanceMethods.get(name);
     }
 
     private void setOwnStaticVariable(String name, NSData<?> value) {
         if (!hasOwnStaticVariable(name)) {
-            throw new ReferenceError(String.format("The class static variable `%s` does not exist", name));
+            throw VMError.from(BuiltinClass.ReferenceError, String.format("The class static variable `%s` does not exist", name));
         }
         staticVariables.put(name, value);
     }
@@ -176,7 +185,7 @@ public class NSClass extends NSData<Object> implements Context {
             LambdaExpression lambda = ((ClassMethod) rawMethod).getLambda();
             return NSCallable.from(target, lambda.getParameters(), lambda.getBody());
         } else {
-            throw new InternalError("Unknown instance method source type");
+            throw new InternalStateError("Unknown instance method source type");
         }
     }
 
@@ -191,7 +200,7 @@ public class NSClass extends NSData<Object> implements Context {
         } else if (rawVar instanceof ClassVariable) {
             return ExpressionEvaluator.evaluateExpression(target, ((ClassVariable) rawVar).getVariable().getInitialiser());
         } else {
-            throw new InternalError("Unknown instance variable source type");
+            throw new InternalStateError("Unknown instance variable source type");
         }
     }
 
@@ -251,10 +260,10 @@ public class NSClass extends NSData<Object> implements Context {
         return null;
     }
 
-    private void applyConstructor(NSObject target, List<NSData<?>> arguments) {
+    public void applyConstructor(NSObject target, List<NSData<?>> arguments) {
         if (constructor.get() == null) {
             if (arguments != null && arguments.size() != 0) {
-                throw new ArgumentsError("Default constructor does not take arguments");
+                throw VMError.from(BuiltinClass.ArgumentsError, "Default constructor does not take arguments");
             }
             for (NSClass p : parents) {
                 p.applyConstructor(target, null);
@@ -267,35 +276,35 @@ public class NSClass extends NSData<Object> implements Context {
             }
             if (rawConstructor instanceof NSNativeFunctionBody) {
                 NSNativeFunction constructor = new NSNativeFunction(target, (NSNativeFunctionBody) rawConstructor);
-                evaluationResult = constructor.applyCall(arguments);
+                evaluationResult = constructor.nsCall(arguments);
             } else if (rawConstructor instanceof ClassConstructor) {
                 LambdaExpression lambda = ((ClassConstructor) rawConstructor).getLambda();
                 NSCallable constructor = NSCallable.from(target, lambda.getParameters(), lambda.getBody());
-                evaluationResult = constructor.applyCall(arguments);
+                evaluationResult = constructor.nsCall(arguments);
             } else {
-                throw new InternalError("Unrecognised constructor source type");
+                throw new InternalStateError("Unrecognised constructor source type");
             }
             if (evaluationResult != NSNull.NULL) {
-                throw new SyntaxError("Can't return from a constructor");
+                throw VMError.from(BuiltinClass.SyntaxError, "Can't return from a constructor");
             }
         }
     }
 
     @Override
-    public NSData<?> applyCall(List<NSData<?>> arguments) {
+    public NSData<?> nsCall(List<NSData<?>> arguments) {
         NSObject newObject = NSObject.from(this);
         applyConstructor(newObject, arguments);
         return newObject;
     }
 
     @Override
-    public NSData<?> applyAccess(String member) {
+    public NSData<?> nsAccess(String member) {
         // This will throw exception if it doesn't exist
         return getOwnStaticVariable(member);
     }
 
     @Override
-    public void applyAssignment(String member, NSData<?> value) {
+    public void nsAssign(String member, NSData<?> value) {
         // This will throw exception if it doesn't exist
         setOwnStaticVariable(member, value);
     }

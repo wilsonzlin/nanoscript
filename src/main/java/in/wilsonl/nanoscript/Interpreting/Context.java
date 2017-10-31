@@ -1,8 +1,8 @@
 package in.wilsonl.nanoscript.Interpreting;
 
+import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
 import in.wilsonl.nanoscript.Interpreting.Evaluator.EvaluationResult;
-import in.wilsonl.nanoscript.Interpreting.VMError.UnsupportedOperationError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 
@@ -15,7 +15,7 @@ public interface Context {
     boolean setContextSymbol(String name, NSData<?> value);
 
     default void createContextSymbol(String name, NSData<?> initialValue) {
-        throw new UnsupportedOperationError("Variables can't be declared here");
+        throw VMError.from(BuiltinClass.UnsupportedOperationError, "Variables can't be declared here");
     }
 
     default EvaluationResult evaluateCodeBlockInContext(CodeBlock codeBlock) {

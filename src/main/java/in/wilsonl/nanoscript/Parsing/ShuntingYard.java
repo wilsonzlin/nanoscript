@@ -1,7 +1,7 @@
 package in.wilsonl.nanoscript.Parsing;
 
 import in.wilsonl.nanoscript.Exception.ImbalancedShuntingYardException;
-import in.wilsonl.nanoscript.Exception.InternalError;
+import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Syntax.Expression.CallExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Syntax.Expression.General.BinaryExpression;
@@ -104,14 +104,14 @@ public class ShuntingYard {
                         if (lastOperatorData instanceof LookupExpression.Terms) {
                             result = new LookupExpression(isNullSafe, source, (LookupExpression.Terms) lastOperatorData);
                         } else {
-                            throw new InternalError("Operator data is not Terms or Slices");
+                            throw new InternalStateError("Operator data is not Terms or Slices");
                         }
                         break;
 
                     case CALL:
                     case NULL_CALL:
                         if (!(lastOperatorData instanceof CallExpression.Arguments)) {
-                            throw new InternalError("Operator data is not Arguments");
+                            throw new InternalStateError("Operator data is not Arguments");
                         }
                         Expression callee = popExpressionForOperator(__);
                         result = new CallExpression(lastOperator == Operator.NULL_CALL, callee, (CallExpression.Arguments) lastOperatorData);
@@ -128,7 +128,7 @@ public class ShuntingYard {
                             result = new BinaryExpression(lhs, lastOperator, rhs);
 
                         } else {
-                            throw new InternalError(String.format("Unhandled operator %s with arity %s", lastOperator, lastOperatorArity));
+                            throw new InternalStateError(String.format("Unhandled operator %s with arity %s", lastOperator, lastOperatorArity));
                         }
                 }
 

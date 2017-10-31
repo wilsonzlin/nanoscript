@@ -1,6 +1,6 @@
 package in.wilsonl.nanoscript.Lexing;
 
-import in.wilsonl.nanoscript.Exception.InternalError;
+import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Parsing.Token;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 
@@ -161,6 +161,9 @@ public class Lexer {
         map.put("catch", T_KEYWORD_CATCH);
         map.put("endtry", T_KEYWORD_TRY_END);
 
+        map.put("instance", T_KEYWORD_INSTANCE);
+        map.put("of", T_KEYWORD_OF);
+
         return map;
     }
 
@@ -231,7 +234,7 @@ public class Lexer {
                     break;
 
                 default:
-                    throw new InternalError("Unknown number literal base");
+                    throw new InternalStateError("Unknown number literal base");
             }
 
             try {
@@ -304,7 +307,7 @@ public class Lexer {
                     return constructToken(T_LITERAL_STRING, value.toString());
 
                 default:
-                    throw new InternalError(String.format("Unrecognised literal string character: %#x", (int) c1));
+                    throw new InternalStateError(String.format("Unrecognised literal string character: %#x", (int) c1));
             }
         }
 

@@ -12,23 +12,20 @@ public class NSBoolean extends NSData<Boolean> {
         return b ? TRUE : FALSE;
     }
 
-    @Override
-    public int hashCode() {
-        return getRawValue().hashCode();
+    public NSBoolean invert() {
+        return from(!getRawValue());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof NSBoolean && this == o;
-    }
+    // Don't need hashCode or equals, as the default implements are correct as long
+    // as only <TRUE> and <FALSE> are used
 
     @Override
-    public NSBoolean toNSBoolean() {
+    public NSBoolean nsToBoolean() {
         return this;
     }
 
     @Override
-    public NSString toNSString() {
+    public NSString nsToString() {
         return NSString.from(getRawValue().toString());
     }
 }

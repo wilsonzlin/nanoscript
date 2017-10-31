@@ -1,7 +1,8 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
+import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.Context;
-import in.wilsonl.nanoscript.Interpreting.VMError.ReferenceError;
+import in.wilsonl.nanoscript.Interpreting.VMError;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -27,6 +28,10 @@ public class NSObject extends NSData<Object> implements Context {
 
     public NSClass getConstructor() {
         return type;
+    }
+
+    public NSBoolean isInstanceOf(NSClass type) {
+        return NSBoolean.from(this.type.matchesType(type));
     }
 
     private NSData<?> getOwnOrInheritedMember(String member) {
@@ -60,17 +65,17 @@ public class NSObject extends NSData<Object> implements Context {
     }
 
     @Override
-    public NSData<?> applyAccess(String member) {
+    public NSData<?> nsAccess(String member) {
         // Ancestor static members cannot be accessed from an object
         NSData<?> value = getOwnOrInheritedMember(member);
         if (value == null) {
-            throw new ReferenceError(String.format("The member `%s` does not exist", member));
+            throw VMError.from(BuiltinClass.ReferenceError, String.format("The member `%s` does not exist", member));
         }
         return value;
     }
 
     @Override
-    public void applyAssignment(String member, NSData<?> value) {
+    public void nsAssign(String member, NSData<?> value) {
         memberVariables.put(member, value);
     }
 

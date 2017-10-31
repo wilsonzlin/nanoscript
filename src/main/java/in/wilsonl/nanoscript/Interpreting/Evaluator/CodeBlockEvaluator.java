@@ -1,17 +1,15 @@
 package in.wilsonl.nanoscript.Interpreting.Evaluator;
 
-import in.wilsonl.nanoscript.Exception.InternalError;
+import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Interpreting.BlockScope;
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.Data.NSClass;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
 import in.wilsonl.nanoscript.Interpreting.Data.NSIterator;
 import in.wilsonl.nanoscript.Interpreting.Data.NSNull;
+import in.wilsonl.nanoscript.Interpreting.Data.NSObject;
 import in.wilsonl.nanoscript.Interpreting.GlobalScope;
-import in.wilsonl.nanoscript.Interpreting.VMError.EndOfIterationError;
-import in.wilsonl.nanoscript.Interpreting.VMError.ExplicitlyThrownError;
-import in.wilsonl.nanoscript.Interpreting.VMError.RuntimeError;
-import in.wilsonl.nanoscript.Interpreting.VMError.SyntaxError;
+import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Syntax.Operator;
@@ -36,7 +34,10 @@ import in.wilsonl.nanoscript.Syntax.Statement.VariableDeclarationStatement;
 import java.util.List;
 import java.util.Set;
 
+import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.EndOfIterationError;
+import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.SyntaxError;
 import static in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator.evaluateExpression;
+import static in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator.evaluateInstanceOfExpression;
 
 public class CodeBlockEvaluator {
     public static EvaluationResult evaluateCodeBlock(Context context, CodeBlock codeBlock) {
@@ -78,13 +79,13 @@ public class CodeBlockEvaluator {
                 result = evaluateThrowStatement(context, (ThrowStatement) statement);
 
             } else if (statement instanceof TryStatement) {
-                result = evaluateTryStatement(context, statement);
+                result = evaluateTryStatement(context, (TryStatement) statement);
 
             } else if (statement instanceof VariableDeclarationStatement) {
                 result = evaluateVariableDeclarationStatement(context, (VariableDeclarationStatement) statement);
 
             } else {
-                throw new InternalError("Unknown statement type");
+                throw new InternalStateError("Unknown statement type");
             }
 
             if (result != null) {
@@ -100,23 +101,43 @@ public class CodeBlockEvaluator {
         BlockScope scope = new BlockScope(context, BlockScope.Type.TRY);
         try {
             evaluateCodeBlock(scope, st_tryBody);
-        } catch (RuntimeError error) {
+        } catch (VMError vme) {
+            NSData<?> error = vme.getValue();
             scope.clearSymbols();
             for (TryStatement.Catch c : statement.getCatchBlocks()) {
                 Set<Reference> types = c.getTypes();
                 CodeBlock st_catchBody = c.getBody();
                 String paramName = c.getParameterName().getName();
 
-                if (types == null) {
-                    // TODO instanceof
+                boolean thisBlockMatches = false;
+
+                if (types != null) {
+                    for (Reference st_type : types) {
+                        if (evaluateInstanceOfExpression(context, error, st_type.toExpression())) {
+                            thisBlockMatches = true;
+                            break;
+                        }
+                    }
+                } else {
+                    thisBlockMatches = true;
+                }
+
+                if (thisBlockMatches) {
+                    scope.createContextSymbol(paramName, error);
+                    evaluateCodeBlock(scope, st_catchBody);
+                    return null;
                 }
             }
+
+            throw vme;
         }
+
+        return null;
     }
 
     private static EvaluationResult evaluateClassStatement(Context context, ClassStatement statement) {
         if (!(context instanceof GlobalScope)) {
-            throw new SyntaxError("Classes must be declared at the top level");
+            throw VMError.from(SyntaxError, "Classes must be declared at the top level");
         }
 
         NSClass nsClass = NSClass.from(context, statement.getNSClass());
@@ -127,7 +148,7 @@ public class CodeBlockEvaluator {
 
     private static EvaluationResult evaluateExportStatement(Context context, ExportStatement statement) {
         if (!(context instanceof GlobalScope)) {
-            throw new SyntaxError("Exports must be declared at the top level");
+            throw VMError.from(SyntaxError, "Exports must be declared at the top level");
         }
 
         String name = statement.getName().getName();
@@ -149,7 +170,7 @@ public class CodeBlockEvaluator {
         for (int i = 0; i < iterablesCount; i++) {
             ForStatement.Iterable st_iter = st_iterables.get(i);
             names[i] = st_iter.getFormalParameterName().getName();
-            iters[i] = evaluateExpression(context, st_iter.getExpression()).iterate();
+            iters[i] = evaluateExpression(context, st_iter.getExpression()).nsIterate();
         }
 
         BlockScope scope = new BlockScope(context, BlockScope.Type.FOR);
@@ -162,8 +183,13 @@ public class CodeBlockEvaluator {
                 NSData<?> value;
                 try {
                     value = iters[i].next();
-                } catch (EndOfIterationError eoie) {
-                    return null;
+                } catch (VMError err) {
+                    NSData<?> vmerrobj = err.getValue();
+                    if (vmerrobj instanceof NSObject && ((NSObject) vmerrobj).isInstanceOf(EndOfIterationError.getNSClass()).getRawValue()) {
+                        return null;
+                    } else {
+                        throw err;
+                    }
                 }
                 scope.createContextSymbol(name, value);
             }
@@ -182,7 +208,7 @@ public class CodeBlockEvaluator {
                         return evaluationResult;
 
                     default:
-                        throw new InternalError("Unknown evaluation result mode");
+                        throw new InternalStateError("Unknown evaluation result mode");
                 }
             }
         }
@@ -190,7 +216,7 @@ public class CodeBlockEvaluator {
 
     private static EvaluationResult evaluateThrowStatement(Context context, ThrowStatement statement) {
         NSData<?> value = evaluateExpression(context, statement.getValue());
-        throw new ExplicitlyThrownError(value);
+        throw new VMError(value);
     }
 
     private static EvaluationResult evaluateReturnStatement(Context context, ReturnStatement statement) {
@@ -215,7 +241,7 @@ public class CodeBlockEvaluator {
     private static EvaluationResult evaluateConditionalBranchesStatement(Context context, ConditionalBranchesStatement statement) {
         for (Branch b : statement.getConditionalBranches()) {
             Expression st_cond = b.getCondition();
-            boolean passed = st_cond == null || evaluateExpression(context, st_cond).toNSBoolean().getRawValue();
+            boolean passed = st_cond == null || evaluateExpression(context, st_cond).nsToBoolean().getRawValue();
             if (passed) {
                 BlockScope scope = new BlockScope(context, BlockScope.Type.CONDITIONAL_BRANCH);
                 return evaluateCodeBlock(scope, b.getBody());
@@ -237,7 +263,7 @@ public class CodeBlockEvaluator {
             Expression st_cond = o.getCondition();
             CodeBlock st_body = o.getBody();
 
-            boolean passed = st_cond == null || target.applyBinaryOperator(Operator.EQ, evaluateExpression(context, st_cond)).toNSBoolean().getRawValue();
+            boolean passed = st_cond == null || target.nsApplyBinaryOperator(Operator.EQ, evaluateExpression(context, st_cond)).nsToBoolean().getRawValue();
 
             if (passed) {
                 EvaluationResult evaluationResult = evaluateCodeBlock(context, st_body);
@@ -251,7 +277,7 @@ public class CodeBlockEvaluator {
                             return evaluationResult;
 
                         default:
-                            throw new InternalError("Unknown evaluation result mode");
+                            throw new InternalStateError("Unknown evaluation result mode");
                     }
                 }
             }
@@ -281,7 +307,7 @@ public class CodeBlockEvaluator {
             loopScope.clearSymbols();
 
             if (testBefore) {
-                boolean shouldStart = evaluateExpression(loopScope, st_condition).toNSBoolean().getRawValue();
+                boolean shouldStart = evaluateExpression(loopScope, st_condition).nsToBoolean().getRawValue();
                 if (invertResult) {
                     shouldStart = !shouldStart;
                 }
@@ -304,12 +330,12 @@ public class CodeBlockEvaluator {
                         return evaluationResult;
 
                     default:
-                        throw new InternalError("Unknown evaluation result mode");
+                        throw new InternalStateError("Unknown evaluation result mode");
                 }
             }
 
             if (!testBefore) {
-                boolean shouldEnd = !evaluateExpression(loopScope, st_condition).toNSBoolean().getRawValue();
+                boolean shouldEnd = !evaluateExpression(loopScope, st_condition).nsToBoolean().getRawValue();
                 if (invertResult) {
                     shouldEnd = !shouldEnd;
                 }

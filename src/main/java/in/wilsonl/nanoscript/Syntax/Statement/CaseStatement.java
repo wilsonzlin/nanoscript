@@ -1,6 +1,6 @@
 package in.wilsonl.nanoscript.Syntax.Statement;
 
-import in.wilsonl.nanoscript.Exception.InternalError;
+import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
@@ -45,7 +45,7 @@ public class CaseStatement extends Statement {
                     break;
 
                 default:
-                    throw new InternalError("Unknown case expression option type: " + optionType);
+                    throw new InternalStateError("Unknown case expression option type: " + optionType);
             }
 
             CodeBlock body = CodeBlock.parseCodeBlock(tokens, OPTION_DELIMITER);
