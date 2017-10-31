@@ -2,7 +2,7 @@ package in.wilsonl.nanoscript.Interpreting;
 
 import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
-import in.wilsonl.nanoscript.Syntax.Operator;
+import in.wilsonl.nanoscript.Interpreting.Data.NSNumber;
 import in.wilsonl.nanoscript.Utils.ROSet;
 
 import java.util.List;
@@ -70,8 +70,8 @@ public class ArgumentsValidator {
             }
             if (param.getRelations() != null) {
                 for (Parameter.Relation r : param.getRelations()) {
-                    NSData<?> result = arg.nsApplyBinaryOperator(r.getOperator(), r.getValue());
-                    if (!result.nsToBoolean().getRawValue()) {
+                    NSData<?> result = arg.nsCompare(r.getValue());
+                    if (r.getResult() != ((NSNumber) result).getRawValue()) {
                         throw VMError.from(BuiltinClass.ValueError, format("Argument %d is invalid", current));
                     }
                 }
@@ -138,16 +138,16 @@ public class ArgumentsValidator {
         }
 
         public static class Relation {
-            private final Operator operator;
+            private final int result;
             private final NSData<?> value;
 
-            private Relation(Operator operator, NSData<?> value) {
-                this.operator = operator;
+            private Relation(int result, NSData<?> value) {
+                this.result = result;
                 this.value = value;
             }
 
-            public Operator getOperator() {
-                return operator;
+            public int getResult() {
+                return result;
             }
 
             public NSData<?> getValue() {

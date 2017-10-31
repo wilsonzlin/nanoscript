@@ -115,12 +115,7 @@ public class ExpressionEvaluator {
             return evaluateLiteralNumberExpression((LiteralNumberExpression) expression);
 
         } else if (expression instanceof BinaryExpression) {
-            BinaryExpression binaryExpression = (BinaryExpression) expression;
-            if (binaryExpression.getOperator() == Operator.ASSIGNMENT) {
-                return evaluateAssignmentOrUpdateExpression(context, binaryExpression);
-            } else {
-                return evaluateBinaryExpression(context, binaryExpression);
-            }
+            return evaluateBinaryExpression(context, (BinaryExpression) expression);
 
         } else if (expression instanceof UnaryExpression) {
             return evaluateUnaryExpression(context, (UnaryExpression) expression);
@@ -198,7 +193,7 @@ public class ExpressionEvaluator {
                 return operand.nsToBoolean().invert();
 
             default:
-                return operand.nsApplyUnaryOperator(expression.getOperator());
+                throw new InternalStateError("Unimplemented unary operator");
         }
     }
 
@@ -211,6 +206,9 @@ public class ExpressionEvaluator {
         NSData<?> rhs;
 
         switch (operator) {
+            case ASSIGNMENT:
+                return evaluateAssignmentOrUpdateExpression(context, expression);
+
             case NULL_ACCESSOR:
                 if (NSNull.NULL.equals(lhs)) {
                     return lhs;
@@ -244,6 +242,30 @@ public class ExpressionEvaluator {
                     return lhs;
                 }
 
+            case EXPONENTIATE:
+            case MULTIPLY:
+            case DIVIDE:
+            case MODULO:
+            case PLUS:
+            case MINUS:
+                rhs = evaluateExpression(context, st_rhs);
+                switch (operator) {
+                    case EXPONENTIATE:
+                        return lhs.nsExponentiate(rhs);
+                    case MULTIPLY:
+                        return lhs.nsMultiply(rhs);
+                    case DIVIDE:
+                        return lhs.nsDivide(rhs);
+                    case MODULO:
+                        return lhs.nsModulo(rhs);
+                    case PLUS:
+                        return lhs.nsAdd(rhs);
+                    case MINUS:
+                        return lhs.nsSubtract(rhs);
+                    default:
+                        throw new InternalStateError("Unrecognised arithmetic operator");
+                }
+
             case EQ:
             case NEQ:
                 rhs = evaluateExpression(context, st_rhs);
@@ -260,31 +282,28 @@ public class ExpressionEvaluator {
                 switch (operator) {
                     case SPACESHIP:
                         return result;
-
                     case LT:
                         return NSBoolean.from(rawResult < 0);
-
                     case LEQ:
                         return NSBoolean.from(rawResult <= 0);
-
                     case GT:
                         return NSBoolean.from(rawResult > 0);
-
                     case GEQ:
                         return NSBoolean.from(rawResult >= 0);
-
                     default:
                         throw new InternalStateError("Unknown relation operator");
                 }
 
-            case INSTANCE_OF:
-            case NOT_INSTANCE_OF:
+            case INSTANCEOF:
+            case NOT_INSTANCEOF:
                 boolean isInstance = evaluateInstanceOfExpression(context, lhs, st_rhs);
-                return NSBoolean.from(operator == Operator.INSTANCE_OF && isInstance);
+                if (operator == Operator.NOT_INSTANCEOF) {
+                    isInstance = !isInstance;
+                }
+                return NSBoolean.from(isInstance);
 
             default:
-                rhs = evaluateExpression(context, st_rhs);
-                return lhs.nsApplyBinaryOperator(expression.getOperator(), rhs);
+                throw new InternalStateError("Unimplemented binary operator");
         }
     }
 

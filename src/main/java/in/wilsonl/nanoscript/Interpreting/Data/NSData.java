@@ -1,7 +1,6 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
 import in.wilsonl.nanoscript.Interpreting.VMError;
-import in.wilsonl.nanoscript.Syntax.Operator;
 
 import java.util.List;
 
@@ -20,22 +19,52 @@ public abstract class NSData<T> {
         return type;
     }
 
+    private String getFriendlyTypeName(boolean capitalise) {
+        String friendly = getType().name().toLowerCase();
+        if (capitalise) {
+            friendly = friendly.substring(0, 1).toUpperCase() + friendly.substring(1);
+        }
+        return friendly;
+    }
+
+    private String getFriendlyTypeName() {
+        return getFriendlyTypeName(false);
+    }
+
     public final T getRawValue() {
         return rawValue;
     }
 
     public NSIterator nsIterate() {
-        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be iterated", type));
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be iterated", getFriendlyTypeName(true)));
     }
 
-    // This method is **not** called when the operator is LOOKUP, NULL_LOOKUP, CALL, NULL_CALL, NOT
-    public NSData<?> nsApplyUnaryOperator(Operator operator) {
-        throw VMError.from(UnsupportedOperationError, String.format("The operator %s cannot be applied to %s values", operator, type));
+    public NSData<?> nsAdd(NSData<?> other) {
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be added", getFriendlyTypeName(true)));
     }
 
-    // This method is **not** called when the operator is ACCESSOR, NULL_ACCESSOR, EQ, NEQ, LT, LEQ, GT, GEQ, SPACESHIP, INSTANCE_OF, NOT_INSTANCE_OF, AND, OR, NULL_COALESCING, ASSIGNMENT
-    public NSData<?> nsApplyBinaryOperator(Operator operator, NSData<?> other) {
-        throw VMError.from(UnsupportedOperationError, String.format("The operator %s cannot be applied to %s values", operator, type));
+    public NSData<?> nsSubtract(NSData<?> other) {
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be subtracted", getFriendlyTypeName(true)));
+    }
+
+    public NSData<?> nsMultiply(NSData<?> other) {
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be multiplied", getFriendlyTypeName(true)));
+    }
+
+    public NSData<?> nsDivide(NSData<?> other) {
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be divided", getFriendlyTypeName(true)));
+    }
+
+    public NSData<?> nsExponentiate(NSData<?> other) {
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be exponentiated", getFriendlyTypeName(true)));
+    }
+
+    public NSData<?> nsModulo(NSData<?> other) {
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be moduloed", getFriendlyTypeName(true)));
+    }
+
+    public NSData<?> nsApplyHashOperator(NSData<?> other) {
+        throw VMError.from(UnsupportedOperationError, String.format("The hash operator cannot be applied to %s values", getFriendlyTypeName()));
     }
 
     public NSBoolean nsTestEquality(NSData<?> other) {
@@ -43,35 +72,35 @@ public abstract class NSData<T> {
     }
 
     public NSNumber nsCompare(NSData<?> other) {
-        throw VMError.from(UnsupportedOperationError, String.format(" %s values cannot be compared", type));
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be compared", getFriendlyTypeName(true)));
     }
 
     public NSData<?> nsCall(List<NSData<?>> arguments) {
-        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be called", type));
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be called", getFriendlyTypeName(true)));
     }
 
     public NSData<?> nsLookup(List<NSData<?>> terms) {
-        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be looked up", type));
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be looked up", getFriendlyTypeName(true)));
     }
 
     public void nsUpdate(List<NSData<?>> terms, NSData<?> value) {
-        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be updated", type));
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be updated", getFriendlyTypeName(true)));
     }
 
     public NSData<?> nsAccess(String member) {
-        throw VMError.from(UnsupportedOperationError, String.format("%s values do not have any members", type));
+        throw VMError.from(UnsupportedOperationError, String.format("%s values do not have any members", getFriendlyTypeName(true)));
     }
 
     public void nsAssign(String member, NSData<?> value) {
-        throw VMError.from(UnsupportedOperationError, String.format("%s values do not have any members", type));
+        throw VMError.from(UnsupportedOperationError, String.format("%s values do not have any members", getFriendlyTypeName(true)));
     }
 
     public NSBoolean nsToBoolean() {
-        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be converted to a boolean", type));
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be converted to a boolean", getFriendlyTypeName(true)));
     }
 
     public NSString nsToString() {
-        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be stringified", type));
+        throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be stringified", getFriendlyTypeName(true)));
     }
 
     public enum Type {

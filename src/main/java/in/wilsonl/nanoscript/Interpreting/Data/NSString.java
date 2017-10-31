@@ -4,6 +4,7 @@ import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Syntax.Operator;
+import in.wilsonl.nanoscript.Utils.Utils;
 
 public class NSString extends NSData<String> {
     public static final NSString EMPTY = NSString.from("");
@@ -47,43 +48,25 @@ public class NSString extends NSData<String> {
     }
 
     @Override
-    public NSData<?> nsApplyBinaryOperator(Operator operator, NSData<?> other) {
+    public NSData<?> nsAdd(NSData<?> other) {
         if (other.getType() != Type.STRING) {
-            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to operate non-string to string");
+            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to add non-string to string");
         }
 
-        String thisString = getRawValue();
-        String otherString = (String) other.getRawValue();
-
-        switch (operator) {
-            case PLUS:
-                return NSString.from(thisString + otherString);
-
-            case EQ:
-            case NEQ:
-            case LT:
-            case LEQ:
-            case GT:
-            case GEQ:
-                return NSBoolean.from(applyRelation(thisString, operator, otherString));
-
-            case SPACESHIP:
-                return NSNumber.from(thisString.compareTo(otherString));
-
-            default:
-                throw VMError.from(BuiltinClass.UnsupportedOperationError, "Invalid operation on a string");
-        }
+        return NSString.from(getRawValue() + ((NSString) other).getRawValue());
     }
 
     @Override
-    public NSData<?> nsApplyUnaryOperator(Operator operator) {
-        switch (operator) {
-            case HASH:
-                return NSNumber.from(getRawValue().length());
-
-            default:
-                throw VMError.from(BuiltinClass.UnsupportedOperationError, "Invalid operation on a string");
+    public NSNumber nsCompare(NSData<?> other) {
+        if (other.getType() != Type.STRING) {
+            throw VMError.from(BuiltinClass.UnsupportedOperationError, "Attempted to compare non-string to string");
         }
+        return NSNumber.from(Utils.compare(getRawValue(), ((NSString) other).getRawValue()));
+    }
+
+    @Override
+    public NSData<?> nsApplyHashOperator(NSData<?> other) {
+        return NSNumber.from(getRawValue().length());
     }
 
     @Override

@@ -161,8 +161,7 @@ public class Lexer {
         map.put("catch", T_KEYWORD_CATCH);
         map.put("endtry", T_KEYWORD_TRY_END);
 
-        map.put("instance", T_KEYWORD_INSTANCE);
-        map.put("of", T_KEYWORD_OF);
+        map.put("instanceof", T_KEYWORD_INSTANCEOF);
 
         return map;
     }

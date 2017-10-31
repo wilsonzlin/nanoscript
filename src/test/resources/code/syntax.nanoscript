@@ -26,6 +26,9 @@ print(`a is `, obj.a)
 try
     print(obj.c)
 catch err : ReferenceError
-    print(`Caught`)
+    if err instanceof ReferenceError then
+        print(`Caught`)
+    endif
 endtry
-print(arg1) "This should throw an error"
+
+print(`abc` <=> `abcd`)

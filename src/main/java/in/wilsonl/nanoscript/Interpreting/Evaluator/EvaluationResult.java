@@ -24,6 +24,6 @@ public class EvaluationResult {
     }
 
     public enum Mode {
-        BREAK, CONTINUE, RETURN
+        BREAK, NEXT, RETURN
     }
 }

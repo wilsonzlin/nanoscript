@@ -12,7 +12,6 @@ import in.wilsonl.nanoscript.Interpreting.GlobalScope;
 import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
-import in.wilsonl.nanoscript.Syntax.Operator;
 import in.wilsonl.nanoscript.Syntax.Reference;
 import in.wilsonl.nanoscript.Syntax.Statement.BreakStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.CaseStatement;
@@ -201,7 +200,7 @@ public class CodeBlockEvaluator {
                     case BREAK:
                         return null;
 
-                    case CONTINUE:
+                    case NEXT:
                         break;
 
                     case RETURN:
@@ -231,7 +230,7 @@ public class CodeBlockEvaluator {
     }
 
     private static EvaluationResult evaluateNextStatement() {
-        return new EvaluationResult(EvaluationResult.Mode.CONTINUE);
+        return new EvaluationResult(EvaluationResult.Mode.NEXT);
     }
 
     private static EvaluationResult evaluateBreakStatement() {
@@ -263,7 +262,7 @@ public class CodeBlockEvaluator {
             Expression st_cond = o.getCondition();
             CodeBlock st_body = o.getBody();
 
-            boolean passed = st_cond == null || target.nsApplyBinaryOperator(Operator.EQ, evaluateExpression(context, st_cond)).nsToBoolean().getRawValue();
+            boolean passed = st_cond == null || target.nsTestEquality(evaluateExpression(context, st_cond)).getRawValue();
 
             if (passed) {
                 EvaluationResult evaluationResult = evaluateCodeBlock(context, st_body);
@@ -272,7 +271,7 @@ public class CodeBlockEvaluator {
                         case BREAK:
                             return null;
 
-                        case CONTINUE:
+                        case NEXT:
                         case RETURN:
                             return evaluationResult;
 
@@ -323,7 +322,7 @@ public class CodeBlockEvaluator {
                     case BREAK:
                         return null;
 
-                    case CONTINUE:
+                    case NEXT:
                         break;
 
                     case RETURN:

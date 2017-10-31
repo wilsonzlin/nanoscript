@@ -58,7 +58,7 @@ public class NSCallable extends NSData<Object> implements Context {
         if (evaluationResult != null) {
             switch (evaluationResult.getMode()) {
                 case BREAK:
-                case CONTINUE:
+                case NEXT:
                     throw VMError.from(BuiltinClass.SyntaxError, "Invalid break or next statement");
 
                 case RETURN:

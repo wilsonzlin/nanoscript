@@ -9,6 +9,22 @@ public class Utils {
     private Utils() {
     }
 
+    private static int normaliseComparisonResult(int res) {
+        return Integer.compare(res, 0);
+    }
+
+    public static int compare(String a, String b) {
+        return normaliseComparisonResult(a.compareTo(b));
+    }
+
+    public static int compare(double a, double b) {
+        return normaliseComparisonResult(Double.compare(a, b));
+    }
+
+    public static int compare(int a, int b) {
+        return Integer.compare(a, b);
+    }
+
     public static String join(String delimiter, Collection<?> collection) {
         StringBuilder str = new StringBuilder();
         Iterator<?> it = collection.iterator();
