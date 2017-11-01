@@ -2,6 +2,7 @@ package in.wilsonl.nanoscript.Interpreting.Arguments;
 
 import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
+import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Utils.ROSet;
 
 import java.util.Set;
@@ -12,9 +13,10 @@ public class NSParameter {
     private final String name; // Can't be null
     private final Set<NSData.Type> types = new ROSet<>(); // Can be empty
     private final String typesStringRep;
+    private final Expression rawDefaultValue; // Can be null
 
     // <types> can be null
-    public NSParameter(boolean optional, boolean variableLength, String name, NSData.Type[] types) {
+    public NSParameter(boolean optional, boolean variableLength, String name, NSData.Type[] types, Expression rawDefaultValue) {
         if (name == null) {
             throw new InternalStateError("Parameter name is null");
         }
@@ -22,6 +24,7 @@ public class NSParameter {
         this.optional = optional;
         this.variableLength = variableLength;
         this.name = name;
+        this.rawDefaultValue = rawDefaultValue;
 
         if (types != null && types.length > 0) {
             StringBuilder typesStringRep = new StringBuilder();
@@ -48,23 +51,23 @@ public class NSParameter {
     }
 
     public NSParameter(boolean optional, boolean variableLength, String name) {
-        this(optional, variableLength, name, null);
+        this(optional, variableLength, name, null, null);
     }
 
     public NSParameter(String name, NSData.Type[] types) {
-        this(false, false, name, types);
+        this(false, false, name, types, null);
     }
 
     public NSParameter(String name, NSData.Type type) {
-        this(false, false, name, new NSData.Type[]{type});
+        this(false, false, name, new NSData.Type[]{type}, null);
     }
 
     public NSParameter(String name) {
-        this(false, false, name, null);
+        this(false, false, name, null, null);
     }
 
     public NSParameter(boolean optional, String name, NSData.Type type) {
-        this(optional, false, name, new NSData.Type[]{type});
+        this(optional, false, name, new NSData.Type[]{type}, null);
     }
 
     public String getFriendlyTypesName() {
@@ -73,6 +76,10 @@ public class NSParameter {
 
     public String getName() {
         return name;
+    }
+
+    public Expression getRawDefaultValue() {
+        return rawDefaultValue;
     }
 
     public boolean canAcceptType(NSData.Type type) {

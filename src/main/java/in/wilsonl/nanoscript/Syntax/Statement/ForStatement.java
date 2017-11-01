@@ -6,6 +6,7 @@ import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Syntax.Identifier;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
@@ -19,11 +20,15 @@ public class ForStatement extends Statement {
     private final List<Iterable> iterables = new ROList<>();
     private final SetOnce<CodeBlock> body = new SetOnce<>();
 
+    public ForStatement(Position position) {
+        super(position);
+    }
+
     public static ForStatement parseForStatement(Tokens tokens) {
-        ForStatement forExpression = new ForStatement();
+        Position position = tokens.require(T_KEYWORD_FOR).getPosition();
+        ForStatement forExpression = new ForStatement(position);
         CodeBlock body;
 
-        tokens.require(T_KEYWORD_FOR);
         do {
             Identifier formalParameterName = Identifier.requireIdentifier(tokens);
 

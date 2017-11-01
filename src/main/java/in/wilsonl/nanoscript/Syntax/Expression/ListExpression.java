@@ -3,6 +3,7 @@ package in.wilsonl.nanoscript.Syntax.Expression;
 import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 
 import java.util.List;
@@ -10,10 +11,13 @@ import java.util.List;
 public class ListExpression extends Expression {
     private final List<Expression> values = new ROList<>();
 
-    public static ListExpression parseListExpression(Tokens tokens) {
-        ListExpression list = new ListExpression();
+    public ListExpression(Position position) {
+        super(position);
+    }
 
-        tokens.require(TokenType.T_SQUARE_BRACKET_LEFT);
+    public static ListExpression parseListExpression(Tokens tokens) {
+        Position position = tokens.require(TokenType.T_SQUARE_BRACKET_LEFT).getPosition();
+        ListExpression list = new ListExpression(position);
 
         do {
             if (tokens.isNext(TokenType.T_SQUARE_BRACKET_RIGHT)) {

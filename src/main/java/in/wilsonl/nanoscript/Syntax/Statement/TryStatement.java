@@ -5,6 +5,7 @@ import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Identifier;
 import in.wilsonl.nanoscript.Syntax.Reference;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.ROSet;
 import in.wilsonl.nanoscript.Utils.SetOnce;
@@ -18,10 +19,13 @@ public class TryStatement extends Statement {
     private final SetOnce<CodeBlock> tryBody = new SetOnce<>();
     private final List<Catch> catchBlocks = new ROList<>();
 
-    public static TryStatement parseTryStatement(Tokens tokens) {
-        TryStatement tryStatement = new TryStatement();
+    public TryStatement(Position position) {
+        super(position);
+    }
 
-        tokens.require(T_KEYWORD_TRY);
+    public static TryStatement parseTryStatement(Tokens tokens) {
+        Position position = tokens.require(T_KEYWORD_TRY).getPosition();
+        TryStatement tryStatement = new TryStatement(position);
 
         tryStatement.setTryBody(CodeBlock.parseCodeBlock(tokens, new AcceptableTokenTypes(T_KEYWORD_CATCH, T_KEYWORD_TRY_END)));
 

@@ -4,6 +4,7 @@ import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Identifier;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 
 import java.util.List;
@@ -12,10 +13,13 @@ public class AnonymousObjectExpression extends Expression {
     // Order matters
     private final List<Member> members = new ROList<>();
 
-    public static AnonymousObjectExpression parseAnonymousObjectExpression(Tokens tokens) {
-        AnonymousObjectExpression anon = new AnonymousObjectExpression();
+    public AnonymousObjectExpression(Position position) {
+        super(position);
+    }
 
-        tokens.require(TokenType.T_BRACE_LEFT);
+    public static AnonymousObjectExpression parseAnonymousObjectExpression(Tokens tokens) {
+        Position position = tokens.require(TokenType.T_BRACE_LEFT).getPosition();
+        AnonymousObjectExpression anon = new AnonymousObjectExpression(position);
 
         do {
             if (tokens.isNext(TokenType.T_BRACE_RIGHT)) {

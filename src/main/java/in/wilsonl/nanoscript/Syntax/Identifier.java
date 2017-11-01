@@ -3,17 +3,20 @@ package in.wilsonl.nanoscript.Syntax;
 import in.wilsonl.nanoscript.Parsing.Token;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
+import in.wilsonl.nanoscript.Utils.Position;
 
 public class Identifier {
     private final String name;
+    private final Position position;
 
-    public Identifier(String name) {
+    public Identifier(Position position, String name) {
+        this.position = position;
         this.name = name;
     }
 
     public static Identifier requireIdentifier(Tokens tokens) {
-        String value = tokens.require(TokenType.T_IDENTIFIER).getValue();
-        return new Identifier(value);
+        Token value = tokens.require(TokenType.T_IDENTIFIER);
+        return new Identifier(value.getPosition(), value.getValue());
     }
 
     public static Identifier acceptIdentifier(Tokens tokens) {
@@ -21,7 +24,7 @@ public class Identifier {
         if (token == null) {
             return null;
         }
-        return new Identifier(token.getValue());
+        return new Identifier(token.getPosition(), token.getValue());
     }
 
     public String getName() {
@@ -41,5 +44,9 @@ public class Identifier {
     @Override
     public boolean equals(Object o) {
         return o instanceof Identifier && getName().equals(((Identifier) o).getName());
+    }
+
+    public Position getPosition() {
+        return position;
     }
 }

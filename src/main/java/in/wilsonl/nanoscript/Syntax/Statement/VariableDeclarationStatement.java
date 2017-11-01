@@ -10,13 +10,15 @@ public class VariableDeclarationStatement extends Statement {
     private final Variable variable;
 
     public VariableDeclarationStatement(Variable variable) {
+        super(variable.getName().getPosition());
         this.variable = variable;
     }
 
     public static VariableDeclarationStatement parseVariableDeclarationStatement(Tokens tokens) {
         Variable variable = new Variable();
 
-        variable.setName(Identifier.requireIdentifier(tokens));
+        Identifier identifier = Identifier.requireIdentifier(tokens);
+        variable.setName(identifier);
 
         tokens.require(TokenType.T_INITIALISE);
 

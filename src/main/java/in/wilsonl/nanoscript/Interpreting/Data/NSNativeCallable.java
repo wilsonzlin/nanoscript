@@ -1,8 +1,7 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
 import in.wilsonl.nanoscript.Interpreting.Arguments.ArgumentsValidator;
-
-import java.util.Map;
+import in.wilsonl.nanoscript.Interpreting.Arguments.NSValidatedArguments;
 
 // A native function takes arguments and does something using Java code
 // It's not a closure and it doesn't care about context (as everything
@@ -21,7 +20,7 @@ public class NSNativeCallable extends NSCallable {
     }
 
     @Override
-    protected NSData applyBody(Map<String, NSData> arguments) {
+    protected NSData applyBody(NSValidatedArguments arguments) {
         return body.function(selfValue, arguments);
     }
 

@@ -90,50 +90,57 @@ public class ExpressionEvaluator {
     }
 
     public static NSData evaluateExpression(Context context, Expression expression) {
-        if (expression instanceof LambdaExpression) {
-            return evaluateLambdaExpression(context, (LambdaExpression) expression);
+        try {
+            if (expression instanceof LambdaExpression) {
+                return evaluateLambdaExpression(context, (LambdaExpression) expression);
 
-        } else if (expression instanceof AnonymousObjectExpression) {
-            return evaluateAnonymousObjectExpression(context, (AnonymousObjectExpression) expression);
+            } else if (expression instanceof AnonymousObjectExpression) {
+                return evaluateAnonymousObjectExpression(context, (AnonymousObjectExpression) expression);
 
-        } else if (expression instanceof CallExpression) {
-            return evaluateCallExpression(context, (CallExpression) expression);
+            } else if (expression instanceof CallExpression) {
+                return evaluateCallExpression(context, (CallExpression) expression);
 
-        } else if (expression instanceof LookupExpression) {
-            return evaluateLookupExpression(context, (LookupExpression) expression);
+            } else if (expression instanceof LookupExpression) {
+                return evaluateLookupExpression(context, (LookupExpression) expression);
 
-        } else if (expression instanceof ListExpression) {
-            return evaluateListExpression(context, (ListExpression) expression);
+            } else if (expression instanceof ListExpression) {
+                return evaluateListExpression(context, (ListExpression) expression);
 
-        } else if (expression instanceof IdentifierExpression) {
-            return evaluateIdentifierExpression(context, (IdentifierExpression) expression);
+            } else if (expression instanceof IdentifierExpression) {
+                return evaluateIdentifierExpression(context, (IdentifierExpression) expression);
 
-        } else if (expression instanceof LiteralBooleanExpression) {
-            return evaluateLiteralBooleanExpression((LiteralBooleanExpression) expression);
+            } else if (expression instanceof LiteralBooleanExpression) {
+                return evaluateLiteralBooleanExpression((LiteralBooleanExpression) expression);
 
-        } else if (expression instanceof LiteralStringExpression) {
-            return evaluateLiteralStringExpression((LiteralStringExpression) expression);
+            } else if (expression instanceof LiteralStringExpression) {
+                return evaluateLiteralStringExpression((LiteralStringExpression) expression);
 
-        } else if (expression instanceof LiteralNullExpression) {
-            return evaluateLiteralNullExpression();
+            } else if (expression instanceof LiteralNullExpression) {
+                return evaluateLiteralNullExpression();
 
-        } else if (expression instanceof LiteralNumberExpression) {
-            return evaluateLiteralNumberExpression((LiteralNumberExpression) expression);
+            } else if (expression instanceof LiteralNumberExpression) {
+                return evaluateLiteralNumberExpression((LiteralNumberExpression) expression);
 
-        } else if (expression instanceof BinaryExpression) {
-            return evaluateBinaryExpression(context, (BinaryExpression) expression);
+            } else if (expression instanceof BinaryExpression) {
+                return evaluateBinaryExpression(context, (BinaryExpression) expression);
 
-        } else if (expression instanceof UnaryExpression) {
-            return evaluateUnaryExpression(context, (UnaryExpression) expression);
+            } else if (expression instanceof UnaryExpression) {
+                return evaluateUnaryExpression(context, (UnaryExpression) expression);
 
-        } else if (expression instanceof SelfExpression) {
-            return evaluateSelfExpression(context);
+            } else if (expression instanceof SelfExpression) {
+                return evaluateSelfExpression(context);
 
-        } else if (expression instanceof ConditionalBranchesExpression) {
-            return evaluateConditionalBranchesExpression(context, (ConditionalBranchesExpression) expression);
+            } else if (expression instanceof ConditionalBranchesExpression) {
+                return evaluateConditionalBranchesExpression(context, (ConditionalBranchesExpression) expression);
 
-        } else {
-            throw new InternalStateError("Unknown expression type");
+            } else {
+                throw new InternalStateError("Unknown expression type");
+            }
+        } catch (VMError vme) {
+            if (vme.hasPosition()) {
+                throw vme;
+            }
+            throw new VMError(vme.getValue(), expression.getPosition());
         }
     }
 

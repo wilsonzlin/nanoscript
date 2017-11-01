@@ -51,13 +51,15 @@ public class NSVirtualClass extends NSClass {
         ClassConstructor st_constructor = st_class.getConstructor();
         if (st_constructor != null) {
             LambdaExpression lambda = st_constructor.getLambda();
-            nsClass.setConstructor(NSVirtualCallable.from(parentContext, lambda));
+            // <parentContext> will be rebound when called
+            nsClass.setConstructor(NSVirtualCallable.from(null, lambda));
         }
 
         // Process methods
         for (ClassMethod st_method : st_class.getMethods()) {
             String methodName = st_method.getName().getName();
-            NSVirtualCallable callable = NSVirtualCallable.from(parentContext, st_method.getLambda());
+            // <parentContext> will be rebound when called
+            NSVirtualCallable callable = NSVirtualCallable.from(null, st_method.getLambda());
             if (st_method.isStatic()) {
                 nsClass.addStaticMethod(methodName, callable);
             } else {

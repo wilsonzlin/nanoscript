@@ -1,10 +1,13 @@
 package in.wilsonl.nanoscript.Syntax;
 
+import in.wilsonl.nanoscript.Parsing.Token;
+import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Syntax.Expression.General.BinaryExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.IdentifierExpression;
 import in.wilsonl.nanoscript.Syntax.Expression.SelfExpression;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 import in.wilsonl.nanoscript.Utils.Utils;
@@ -13,20 +16,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static in.wilsonl.nanoscript.Parsing.TokenType.T_ACCESSOR;
-import static in.wilsonl.nanoscript.Parsing.TokenType.T_KEYWORD_SELF;
 
 public class Reference {
-
-    private final SetOnce<Boolean> startsWithSelf = new SetOnce<>();
+    private final SetOnce<Boolean> startsWithSelf = new SetOnce<>(false, false);
     private final List<Identifier> parts = new ROList<>();
+    private final Position position;
+
+    public Reference(Position position) {
+        this.position = position;
+    }
 
     public static Reference parseReference(Tokens tokens) {
-        Reference reference = new Reference();
+        Token firstToken = tokens.accept();
+        TokenType firstTokenType = firstToken.getType();
+        Position position = firstToken.getPosition();
+        Reference reference = new Reference(position);
 
-        reference.startsWithSelf(tokens.skipIfNext(T_KEYWORD_SELF));
-        if (reference.startsWithSelf() && !tokens.skipIfNext(T_ACCESSOR)) {
-            // End here
-            return reference;
+        switch (firstTokenType) {
+            case T_KEYWORD_SELF:
+                reference.startsWithSelf(true);
+                if (reference.startsWithSelf() && !tokens.skipIfNext(T_ACCESSOR)) {
+                    // End here
+                    return reference;
+                }
+                break;
+
+            case T_IDENTIFIER:
+                tokens.backUp();
+                break;
+
+            default:
+                throw tokens.constructRequiredSyntaxNotFoundException("Expected a reference, got " + firstTokenType);
         }
 
         do {
@@ -57,14 +77,14 @@ public class Reference {
         List<Identifier> toProcess = new ArrayList<>(getParts());
         Expression result;
         if (startsWithSelf()) {
-            result = new SelfExpression();
+            result = new SelfExpression(position);
         } else {
             result = new IdentifierExpression(toProcess.remove(0));
         }
 
         while (!toProcess.isEmpty()) {
             Identifier rhs = toProcess.remove(0);
-            result = new BinaryExpression(result, Operator.ACCESSOR, new IdentifierExpression(rhs));
+            result = new BinaryExpression(rhs.getPosition(), result, Operator.ACCESSOR, new IdentifierExpression(rhs));
         }
 
         return result;
@@ -91,5 +111,4 @@ public class Reference {
         result = 31 * result + getParts().hashCode();
         return result;
     }
-
 }

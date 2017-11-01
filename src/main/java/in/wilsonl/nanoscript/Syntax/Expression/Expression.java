@@ -8,6 +8,7 @@ import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralExpression;
 import in.wilsonl.nanoscript.Syntax.Operator;
+import in.wilsonl.nanoscript.Utils.Position;
 
 import static in.wilsonl.nanoscript.Parsing.ShuntingYard.UnitType.EXPRESSION;
 import static in.wilsonl.nanoscript.Parsing.ShuntingYard.UnitType.OPERATOR;
@@ -17,6 +18,11 @@ import static in.wilsonl.nanoscript.Syntax.Operator.Associativity.LEFT;
 import static in.wilsonl.nanoscript.Syntax.Operator.Associativity.RIGHT;
 
 public abstract class Expression {
+    private final Position position;
+
+    protected Expression(Position position) {
+        this.position = position;
+    }
 
     public static Expression parseExpression(Tokens tokens, AcceptableTokenTypes breakOn) {
         // Initialise shunting yard
@@ -138,4 +144,7 @@ public abstract class Expression {
         return parseExpression(tokens, null);
     }
 
+    public Position getPosition() {
+        return position;
+    }
 }

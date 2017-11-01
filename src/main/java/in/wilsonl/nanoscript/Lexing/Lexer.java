@@ -115,7 +115,7 @@ public class Lexer {
         map.put("constructor", T_KEYWORD_CONSTRUCTOR);
         map.put("endconstructor", T_KEYWORD_CONSTRUCTOR_END);
 
-        map.put("opt", T_KEYWORD_OPTIONAL);
+        map.put("optional", T_KEYWORD_OPTIONAL);
         map.put("self", T_KEYWORD_SELF);
         map.put("static", T_KEYWORD_STATIC);
         map.put("final", T_KEYWORD_FINAL);

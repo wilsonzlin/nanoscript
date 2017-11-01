@@ -5,6 +5,7 @@ import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
 import in.wilsonl.nanoscript.Syntax.Identifier;
 import in.wilsonl.nanoscript.Syntax.Parameter;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
 import static in.wilsonl.nanoscript.Parsing.TokenType.*;
@@ -15,9 +16,9 @@ public class ClassMethod extends ClassMember {
 
     public static ClassMethod parseClassMethod(Tokens tokens) {
         ClassMethod method = new ClassMethod();
-        LambdaExpression lambda = new LambdaExpression();
+        Position position = tokens.require(T_KEYWORD_METHOD).getPosition();
+        LambdaExpression lambda = new LambdaExpression(position);
 
-        tokens.require(T_KEYWORD_METHOD);
         if (tokens.skipIfNext(T_COLON)) {
             method.isStatic(tokens.skipIfNext(T_KEYWORD_STATIC));
 

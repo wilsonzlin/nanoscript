@@ -45,47 +45,54 @@ public class CodeBlockEvaluator {
             // If <result> is not null, short circuit
             EvaluationResult result;
 
-            if (statement instanceof BreakStatement) {
-                result = evaluateBreakStatement();
+            try {
+                if (statement instanceof BreakStatement) {
+                    result = evaluateBreakStatement();
 
-            } else if (statement instanceof CaseStatement) {
-                result = evaluateCaseStatement(context, (CaseStatement) statement);
+                } else if (statement instanceof CaseStatement) {
+                    result = evaluateCaseStatement(context, (CaseStatement) statement);
 
-            } else if (statement instanceof ClassStatement) {
-                result = evaluateClassStatement(context, (ClassStatement) statement);
+                } else if (statement instanceof ClassStatement) {
+                    result = evaluateClassStatement(context, (ClassStatement) statement);
 
-            } else if (statement instanceof ConditionalBranchesStatement) {
-                result = evaluateConditionalBranchesStatement(context, (ConditionalBranchesStatement) statement);
+                } else if (statement instanceof ConditionalBranchesStatement) {
+                    result = evaluateConditionalBranchesStatement(context, (ConditionalBranchesStatement) statement);
 
-            } else if (statement instanceof ExportStatement) {
-                result = evaluateExportStatement(context, (ExportStatement) statement);
+                } else if (statement instanceof ExportStatement) {
+                    result = evaluateExportStatement(context, (ExportStatement) statement);
 
-            } else if (statement instanceof ExpressionStatement) {
-                result = evaluateExpressionStatement(context, (ExpressionStatement) statement);
+                } else if (statement instanceof ExpressionStatement) {
+                    result = evaluateExpressionStatement(context, (ExpressionStatement) statement);
 
-            } else if (statement instanceof ForStatement) {
-                result = evaluateForStatement(context, (ForStatement) statement);
+                } else if (statement instanceof ForStatement) {
+                    result = evaluateForStatement(context, (ForStatement) statement);
 
-            } else if (statement instanceof LoopStatement) {
-                result = evaluateLoopStatement(context, (LoopStatement) statement);
+                } else if (statement instanceof LoopStatement) {
+                    result = evaluateLoopStatement(context, (LoopStatement) statement);
 
-            } else if (statement instanceof NextStatement) {
-                result = evaluateNextStatement();
+                } else if (statement instanceof NextStatement) {
+                    result = evaluateNextStatement();
 
-            } else if (statement instanceof ReturnStatement) {
-                result = evaluateReturnStatement(context, (ReturnStatement) statement);
+                } else if (statement instanceof ReturnStatement) {
+                    result = evaluateReturnStatement(context, (ReturnStatement) statement);
 
-            } else if (statement instanceof ThrowStatement) {
-                result = evaluateThrowStatement(context, (ThrowStatement) statement);
+                } else if (statement instanceof ThrowStatement) {
+                    result = evaluateThrowStatement(context, (ThrowStatement) statement);
 
-            } else if (statement instanceof TryStatement) {
-                result = evaluateTryStatement(context, (TryStatement) statement);
+                } else if (statement instanceof TryStatement) {
+                    result = evaluateTryStatement(context, (TryStatement) statement);
 
-            } else if (statement instanceof VariableDeclarationStatement) {
-                result = evaluateVariableDeclarationStatement(context, (VariableDeclarationStatement) statement);
+                } else if (statement instanceof VariableDeclarationStatement) {
+                    result = evaluateVariableDeclarationStatement(context, (VariableDeclarationStatement) statement);
 
-            } else {
-                throw new InternalStateError("Unknown statement type");
+                } else {
+                    throw new InternalStateError("Unknown statement type");
+                }
+            } catch (VMError vme) {
+                if (vme.hasPosition()) {
+                    throw vme;
+                }
+                throw new VMError(vme.getValue(), statement.getPosition());
             }
 
             if (result != null) {
@@ -216,7 +223,7 @@ public class CodeBlockEvaluator {
 
     private static EvaluationResult evaluateThrowStatement(Context context, ThrowStatement statement) {
         NSData value = evaluateExpression(context, statement.getValue());
-        throw new VMError(value);
+        throw new VMError(value, statement.getPosition());
     }
 
     private static EvaluationResult evaluateReturnStatement(Context context, ReturnStatement statement) {

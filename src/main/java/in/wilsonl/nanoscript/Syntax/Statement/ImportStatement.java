@@ -3,6 +3,7 @@ package in.wilsonl.nanoscript.Syntax.Statement;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Expression.Literal.LiteralStringExpression;
 import in.wilsonl.nanoscript.Syntax.Identifier;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
@@ -15,12 +16,15 @@ public class ImportStatement extends Statement {
     private final List<Import> imports = new ROList<>();
     private final SetOnce<LiteralStringExpression> from = new SetOnce<>();
 
+    public ImportStatement(Position position) {
+        super(position);
+    }
+
     // TODO Fix import statement syntax where asterisk on end of line means that next identifier is incorrectly parsed
 
     public static ImportStatement parseImportStatement(Tokens tokens) {
-        ImportStatement statement = new ImportStatement();
-
-        tokens.require(T_KEYWORD_FROM);
+        Position position = tokens.require(T_KEYWORD_FROM).getPosition();
+        ImportStatement statement = new ImportStatement(position);
 
         statement.setFrom(LiteralStringExpression.parseLiteralStringExpression(tokens));
 

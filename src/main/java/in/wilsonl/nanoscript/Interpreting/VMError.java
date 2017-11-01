@@ -9,6 +9,7 @@ import in.wilsonl.nanoscript.Interpreting.Data.NSNull;
 import in.wilsonl.nanoscript.Interpreting.Data.NSNumber;
 import in.wilsonl.nanoscript.Interpreting.Data.NSObject;
 import in.wilsonl.nanoscript.Interpreting.Data.NSString;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 
 import java.util.List;
@@ -17,9 +18,15 @@ import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.RuntimeErr
 
 public class VMError extends RuntimeException {
     private final NSData value;
+    private final Position position;
 
     public VMError(NSData value) {
+        this(value, null);
+    }
+
+    public VMError(NSData value, Position position) {
         this.value = value;
+        this.position = position;
     }
 
     public static VMError from(BuiltinClass type, Object... raw_args) {
@@ -49,13 +56,25 @@ public class VMError extends RuntimeException {
         return new VMError(nsError);
     }
 
+    public boolean hasPosition() {
+        return position != null;
+    }
+
     @Override
     public String getMessage() {
+        String message;
+
         if (value instanceof NSObject && ((NSObject) value).isInstanceOf(RuntimeError.getNSClass()).isTrue()) {
-            return ((NSObject) value).getConstructor().getName() + ": " + value.nsAccess("message").nsToString().getRawString();
+            message = ((NSObject) value).getConstructor().getName() + ": " + value.nsAccess("message").nsToString().getRawString();
         } else {
-            return "A VMError was thrown with a non-error-object value";
+            message = value.nsToString().getRawString();
         }
+
+        if (position != null) {
+            message += " [Line " + position.getLine() + ", Character " + position.getColumn() + "]";
+        }
+
+        return message;
     }
 
     public NSData getValue() {

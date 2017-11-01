@@ -26,23 +26,21 @@ public enum BuiltinFunction {
 
         return NSNull.NULL;
     }),
-    range(new ArgumentsValidator(new NSParameter[]{
+    range(new ArgumentsValidator(null, new NSParameter[]{
             new NSParameter("min", NSData.Type.NUMBER),
             new NSParameter(true, "max", NSData.Type.NUMBER),
             new NSParameter(true, "step", NSData.Type.NUMBER)
     }), (arguments) -> {
-        int argsCount = arguments.size();
-
         long max = ((NSNumber) arguments.get("min")).toInt();
         long min;
         long step;
-        if (argsCount > 1) {
+        if (arguments.get("max").nsIsNotNull()) {
             min = max;
             max = ((NSNumber) arguments.get("max")).toInt();
         } else {
             min = 0;
         }
-        if (argsCount > 2) {
+        if (arguments.get("step").nsIsNotNull()) {
             step = ((NSNumber) arguments.get("step")).toInt();
         } else {
             step = 1;
@@ -55,7 +53,7 @@ public enum BuiltinFunction {
 
         return NSList.from(res);
     }),
-    str(new ArgumentsValidator(new NSParameter("value")), (arguments) -> arguments.get("value").nsToString());
+    str(new ArgumentsValidator(null, new NSParameter("value")), (arguments) -> arguments.get("value").nsToString());
 
     private final NSNativeCallable function;
 

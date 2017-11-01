@@ -4,6 +4,7 @@ import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
 import in.wilsonl.nanoscript.Syntax.Parameter;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
 import static in.wilsonl.nanoscript.Parsing.TokenType.T_KEYWORD_CONSTRUCTOR;
@@ -14,9 +15,8 @@ public class ClassConstructor extends ClassMember {
 
     public static ClassConstructor parseConstructor(Tokens tokens) {
         ClassConstructor constructor = new ClassConstructor();
-        LambdaExpression lambda = new LambdaExpression();
-
-        tokens.require(T_KEYWORD_CONSTRUCTOR);
+        Position position = tokens.require(T_KEYWORD_CONSTRUCTOR).getPosition();
+        LambdaExpression lambda = new LambdaExpression(position);
 
         lambda.addAllParameters(Parameter.parseParametersList(tokens));
         lambda.setBody(CodeBlock.parseCodeBlock(tokens, T_KEYWORD_CONSTRUCTOR_END));

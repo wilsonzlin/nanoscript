@@ -2,9 +2,9 @@ package in.wilsonl.nanoscript.Interpreting.Data;
 
 import in.wilsonl.nanoscript.Interpreting.Arguments.ArgumentsValidator;
 import in.wilsonl.nanoscript.Interpreting.Arguments.NSArgument;
+import in.wilsonl.nanoscript.Interpreting.Arguments.NSValidatedArguments;
 
 import java.util.List;
-import java.util.Map;
 
 // REMEMBER: A callable never loses its context
 public abstract class NSCallable extends NSData {
@@ -17,13 +17,13 @@ public abstract class NSCallable extends NSData {
         this.parameters = parameters;
     }
 
-    protected abstract NSData applyBody(Map<String, NSData> arguments);
+    protected abstract NSData applyBody(NSValidatedArguments arguments);
 
     protected abstract NSCallable rebindSelf(NSObject to);
 
     @Override
     public final NSData nsCall(List<NSArgument> arguments) {
-        Map<String, NSData> match = parameters.match(arguments);
+        NSValidatedArguments match = parameters.match(arguments);
         return applyBody(match);
     }
 

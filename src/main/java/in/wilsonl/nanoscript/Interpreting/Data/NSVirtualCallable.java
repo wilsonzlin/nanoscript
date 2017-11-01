@@ -3,6 +3,7 @@ package in.wilsonl.nanoscript.Interpreting.Data;
 import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Interpreting.Arguments.ArgumentsValidator;
 import in.wilsonl.nanoscript.Interpreting.Arguments.NSParameter;
+import in.wilsonl.nanoscript.Interpreting.Arguments.NSValidatedArguments;
 import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.ContextHelper;
@@ -14,7 +15,6 @@ import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
 import in.wilsonl.nanoscript.Syntax.Parameter;
 
 import java.util.List;
-import java.util.Map;
 
 // REMEMBER: A callable never loses its context
 public class NSVirtualCallable extends NSCallable implements Context {
@@ -36,17 +36,17 @@ public class NSVirtualCallable extends NSCallable implements Context {
         NSParameter[] constraints = new NSParameter[st_params.size()];
         for (int i = 0; i < st_params.size(); i++) {
             Parameter st_p = st_params.get(i);
-            constraints[i] = new NSParameter(st_p.isOptional(), st_p.isVariableLength(), st_p.getName().getName(), null);
+            constraints[i] = new NSParameter(st_p.isOptional(), st_p.isVariableLength(), st_p.getName().getName(), null, st_p.getDefaultValue());
         }
-        ArgumentsValidator parameters = new ArgumentsValidator(constraints);
+        ArgumentsValidator parameters = new ArgumentsValidator(parentContext, constraints);
         return new NSVirtualCallable(parentContext, null, parameters, lambda.getBody());
     }
 
     @Override
-    protected NSData applyBody(Map<String, NSData> arguments) {
+    protected NSData applyBody(NSValidatedArguments arguments) {
         closure.clearSymbols();
-        for (Map.Entry<String, NSData> a : arguments.entrySet()) {
-            closure.createSymbol(a.getKey(), a.getValue());
+        for (NSValidatedArguments.NSValidatedArgument a : arguments) {
+            closure.createSymbol(a.getName(), a.getValue());
         }
 
         EvaluationResult evaluationResult = CodeBlockEvaluator.evaluateCodeBlock(this, body);

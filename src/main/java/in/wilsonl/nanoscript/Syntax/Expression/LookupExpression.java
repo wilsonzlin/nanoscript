@@ -3,6 +3,7 @@ package in.wilsonl.nanoscript.Syntax.Expression;
 import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 
 import java.util.List;
@@ -12,7 +13,8 @@ public class LookupExpression extends Expression {
     private final Expression source;
     private final Terms terms;
 
-    public LookupExpression(boolean nullSafe, Expression source, Terms terms) {
+    public LookupExpression(Position position, boolean nullSafe, Expression source, Terms terms) {
+        super(position);
         this.nullSafe = nullSafe;
         this.source = source;
         this.terms = terms;

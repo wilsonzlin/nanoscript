@@ -2,6 +2,7 @@ package in.wilsonl.nanoscript.Syntax.Expression;
 
 import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.Tokens;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 
 import java.util.List;
@@ -13,7 +14,8 @@ public class CallExpression extends Expression {
     private final Expression callee;
     private final Arguments arguments;
 
-    public CallExpression(boolean nullSafe, Expression callee, Arguments arguments) {
+    public CallExpression(Position position, boolean nullSafe, Expression callee, Arguments arguments) {
+        super(position);
         this.callee = callee;
         this.arguments = arguments;
         this.nullSafe = nullSafe;

@@ -6,6 +6,7 @@ import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 
 import java.util.List;
@@ -22,11 +23,15 @@ public class ConditionalBranchesStatement extends Statement {
     private final List<Branch> conditionalBranches = new ROList<>();
     private boolean hasFinalBranch = false;
 
+    public ConditionalBranchesStatement(Position position) {
+        super(position);
+    }
+
     public static ConditionalBranchesStatement parseConditionalBranchesStatement(Tokens tokens) {
-        ConditionalBranchesStatement branches = new ConditionalBranchesStatement();
+        Position position = tokens.require(T_KEYWORD_IF).getPosition();
+        ConditionalBranchesStatement branches = new ConditionalBranchesStatement(position);
 
         boolean done = false;
-        tokens.require(T_KEYWORD_IF);
         do {
             Expression condition = Expression.parseExpression(tokens, new AcceptableTokenTypes(T_KEYWORD_THEN));
             tokens.require(T_KEYWORD_THEN);

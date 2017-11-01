@@ -6,6 +6,7 @@ import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
@@ -22,10 +23,14 @@ public class CaseStatement extends Statement {
     private final SetOnce<Expression> target = new SetOnce<>();
     private boolean hasCatchAll = false;
 
-    public static CaseStatement parseCaseStatement(Tokens tokens) {
-        CaseStatement caseStatement = new CaseStatement();
+    public CaseStatement(Position position) {
+        super(position);
+    }
 
-        tokens.require(T_KEYWORD_CASE);
+    public static CaseStatement parseCaseStatement(Tokens tokens) {
+        Position position = tokens.require(T_KEYWORD_CASE).getPosition();
+
+        CaseStatement caseStatement = new CaseStatement(position);
 
         Expression target = Expression.parseExpression(tokens, OPTION_DELIMITER);
         caseStatement.setTarget(target);

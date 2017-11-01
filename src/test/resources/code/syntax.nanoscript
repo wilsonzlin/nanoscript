@@ -13,23 +13,31 @@ obj := {
     b = 2,
 }
 
-lambda := fn (arg1)
+lambda := fn (arg1, optional arg2 := [obj.a])
     print(arg1)
+    arg2[] = 2
+    obj.a = obj.a + 1
+    print(arg2)
 endfn
 
 class : Test begin
 endclass
 
-
 lambda(3.14)
+lambda(3.14)
+
 print(`a is `, obj.a)
+
 try
     print(obj.c)
+    "throw 1"
 catch err : ReferenceError
-    if err instanceof ReferenceError then
-        print(`Caught`)
-    endif
+    print(`Caught`)
+catch num : Number
+    print(`Caught number`)
 endtry
+
+"throw 1"
 
 print([1, 2, 3])
 
@@ -91,6 +99,7 @@ graph := [
 ]
 
 nodes := []
+"nodes.pop()"
 for i in range(#graph) do
     nodes[] = true
 endfor

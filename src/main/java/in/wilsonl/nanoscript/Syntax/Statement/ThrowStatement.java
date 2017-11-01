@@ -3,15 +3,19 @@ package in.wilsonl.nanoscript.Syntax.Statement;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
 public class ThrowStatement extends Statement {
     private final SetOnce<Expression> value = new SetOnce<>();
 
-    public static Statement parseThrowStatement(Tokens tokens) {
-        ThrowStatement throwStatement = new ThrowStatement();
+    public ThrowStatement(Position position) {
+        super(position);
+    }
 
-        tokens.require(TokenType.T_KEYWORD_THROW);
+    public static Statement parseThrowStatement(Tokens tokens) {
+        Position position = tokens.require(TokenType.T_KEYWORD_THROW).getPosition();
+        ThrowStatement throwStatement = new ThrowStatement(position);
 
         throwStatement.setValue(Expression.parseExpression(tokens));
 

@@ -7,6 +7,7 @@ public class ClassStatement extends Statement {
     private final Class nsClass;
 
     public ClassStatement(Class nsClass) {
+        super(nsClass.getPosition());
         this.nsClass = nsClass;
     }
 

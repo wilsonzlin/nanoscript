@@ -5,18 +5,20 @@ import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Syntax.Identifier;
+import in.wilsonl.nanoscript.Utils.Position;
 
 public class ExportStatement extends Statement {
     private final Expression value;
     private final Identifier name; // Can be null
 
-    public ExportStatement(Expression value, Identifier name) {
+    public ExportStatement(Position position, Expression value, Identifier name) {
+        super(position);
         this.value = value;
         this.name = name;
     }
 
     public static Statement parseExportStatement(Tokens tokens) {
-        tokens.require(TokenType.T_KEYWORD_EXPORT);
+        Position position = tokens.require(TokenType.T_KEYWORD_EXPORT).getPosition();
 
         Expression value = Expression.parseExpression(tokens, new AcceptableTokenTypes(TokenType.T_KEYWORD_AS));
 
@@ -24,7 +26,7 @@ public class ExportStatement extends Statement {
 
         Identifier name = Identifier.requireIdentifier(tokens);
 
-        return new ExportStatement(value, name);
+        return new ExportStatement(position, value, name);
     }
 
     public Expression getValue() {

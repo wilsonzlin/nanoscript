@@ -1,12 +1,12 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-import java.util.Map;
+import in.wilsonl.nanoscript.Interpreting.Arguments.NSValidatedArguments;
 
 public interface NSNativeSelflessCallableBody extends NSNativeCallableBody {
     @Override
-    default NSData function(NSObject self, Map<String, NSData> arguments) {
+    default NSData function(NSObject self, NSValidatedArguments arguments) {
         return selflessFunction(arguments);
     }
 
-    NSData selflessFunction(Map<String, NSData> arguments);
+    NSData selflessFunction(NSValidatedArguments arguments);
 }

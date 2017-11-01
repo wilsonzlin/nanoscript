@@ -4,6 +4,7 @@ import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
@@ -23,11 +24,15 @@ public class ConditionalBranchesExpression extends Expression {
     // `if` expressions must have `else` branch
     private final SetOnce<Expression> finalBranchValue = new SetOnce<>();
 
+    public ConditionalBranchesExpression(Position position) {
+        super(position);
+    }
+
     public static ConditionalBranchesExpression parseConditionalBranchesExpression(Tokens tokens) {
-        ConditionalBranchesExpression branches = new ConditionalBranchesExpression();
+        Position position = tokens.require(T_KEYWORD_IF).getPosition();
+        ConditionalBranchesExpression branches = new ConditionalBranchesExpression(position);
 
         boolean done = false;
-        tokens.require(T_KEYWORD_IF);
         do {
             Expression condition = Expression.parseExpression(tokens, new AcceptableTokenTypes(T_COLON));
             tokens.require(T_COLON);

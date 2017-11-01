@@ -7,11 +7,13 @@ public class IdentifierExpression extends Expression {
     private final Identifier identifier;
 
     public IdentifierExpression(Identifier identifier) {
+        super(identifier.getPosition());
         this.identifier = identifier;
     }
 
     public static IdentifierExpression parseIdentifierExpression(Tokens tokens) {
-        return new IdentifierExpression(Identifier.requireIdentifier(tokens));
+        Identifier identifier = Identifier.requireIdentifier(tokens);
+        return new IdentifierExpression(identifier);
     }
 
     public Identifier getIdentifier() {

@@ -85,9 +85,9 @@ public class ShuntingYard {
         }
 
         while (hasOperator()) {
-            OperatorContainer __ = peekTopOperator();
-            Operator lastOperator = __.getOperator();
-            Object lastOperatorData = __.getAdditionalData();
+            OperatorContainer lastOperatorContainer = peekTopOperator();
+            Operator lastOperator = lastOperatorContainer.getOperator();
+            Object lastOperatorData = lastOperatorContainer.getAdditionalData();
             int lastOperatorPrecedence = lastOperator.getPrecedence();
             Operator.Arity lastOperatorArity = lastOperator.getArity();
 
@@ -95,14 +95,15 @@ public class ShuntingYard {
                 removeLastOperator();
 
                 Expression result;
+                Position lastOperatorPosition = lastOperatorContainer.position;
 
                 switch (lastOperator) {
                     case LOOKUP:
                     case NULL_LOOKUP:
-                        Expression source = popExpressionForOperator(__);
+                        Expression source = popExpressionForOperator(lastOperatorContainer);
                         boolean isNullSafe = lastOperator == Operator.NULL_LOOKUP;
                         if (lastOperatorData instanceof LookupExpression.Terms) {
-                            result = new LookupExpression(isNullSafe, source, (LookupExpression.Terms) lastOperatorData);
+                            result = new LookupExpression(lastOperatorPosition, isNullSafe, source, (LookupExpression.Terms) lastOperatorData);
                         } else {
                             throw new InternalStateError("Operator data is not Terms or Slices");
                         }
@@ -113,19 +114,19 @@ public class ShuntingYard {
                         if (!(lastOperatorData instanceof CallExpression.Arguments)) {
                             throw new InternalStateError("Operator data is not Arguments");
                         }
-                        Expression callee = popExpressionForOperator(__);
-                        result = new CallExpression(lastOperator == Operator.NULL_CALL, callee, (CallExpression.Arguments) lastOperatorData);
+                        Expression callee = popExpressionForOperator(lastOperatorContainer);
+                        result = new CallExpression(lastOperatorPosition, lastOperator == Operator.NULL_CALL, callee, (CallExpression.Arguments) lastOperatorData);
                         break;
 
                     default:
                         if (lastOperatorArity == Operator.Arity.UNARY) {
-                            Expression operand = popExpressionForOperator(__);
-                            result = new UnaryExpression(lastOperator, operand);
+                            Expression operand = popExpressionForOperator(lastOperatorContainer);
+                            result = new UnaryExpression(lastOperatorPosition, lastOperator, operand);
 
                         } else if (lastOperatorArity == Operator.Arity.BINARY) {
-                            Expression rhs = popExpressionForOperator(__);
-                            Expression lhs = popExpressionForOperator(__);
-                            result = new BinaryExpression(lhs, lastOperator, rhs);
+                            Expression rhs = popExpressionForOperator(lastOperatorContainer);
+                            Expression lhs = popExpressionForOperator(lastOperatorContainer);
+                            result = new BinaryExpression(lastOperatorPosition, lhs, lastOperator, rhs);
 
                         } else {
                             throw new InternalStateError(String.format("Unhandled operator %s with arity %s", lastOperator, lastOperatorArity));

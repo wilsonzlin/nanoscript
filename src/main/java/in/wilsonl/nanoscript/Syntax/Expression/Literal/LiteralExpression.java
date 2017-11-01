@@ -3,6 +3,7 @@ package in.wilsonl.nanoscript.Syntax.Expression.Literal;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
+import in.wilsonl.nanoscript.Utils.Position;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +14,8 @@ public abstract class LiteralExpression<T> extends Expression {
     private final Type type;
     private final T value;
 
-    public LiteralExpression(Type type, T value) {
+    public LiteralExpression(Position position, Type type, T value) {
+        super(position);
         this.type = type;
         this.value = value;
     }

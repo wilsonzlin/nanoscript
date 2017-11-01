@@ -21,10 +21,10 @@ public class ArgumentsValidatorTest {
         NSParameter[] paramArr = new NSParameter[config.parameters.size()];
         config.parameters.toArray(paramArr);
 
-        ArgumentsValidator validator = new ArgumentsValidator(paramArr);
-        Map<String, NSData> result = validator.match(config.arguments);
+        ArgumentsValidator validator = new ArgumentsValidator(null, paramArr);
+        NSValidatedArguments result = validator.match(config.arguments);
 
-        Set<String> extraKeys = new HashSet<>(result.keySet());
+        Set<String> extraKeys = result.getNames();
         extraKeys.removeAll(config.expected.keySet());
 
         List<NSData> varLenResult = null;
@@ -38,7 +38,7 @@ public class ArgumentsValidatorTest {
         }
 
         Set<String> missingKeys = new HashSet<>(config.expected.keySet());
-        missingKeys.removeAll(result.keySet());
+        missingKeys.removeAll(result.getNames());
         if (!missingKeys.isEmpty()) {
             throw new AssertionError("Missing arguments: " + Utils.join(", ", missingKeys));
         }
@@ -135,7 +135,7 @@ public class ArgumentsValidatorTest {
                 expectedVarLenArgs.set(new ROList<>());
                 varLenName.set(name);
             }
-            parameters.add(new NSParameter(optional, variableLength, name, types));
+            parameters.add(new NSParameter(optional, variableLength, name, types, null));
             return this;
         }
 

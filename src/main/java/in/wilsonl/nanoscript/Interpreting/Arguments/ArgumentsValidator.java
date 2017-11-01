@@ -1,11 +1,14 @@
 package in.wilsonl.nanoscript.Interpreting.Arguments;
 
 import in.wilsonl.nanoscript.Exception.InternalStateError;
+import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
 import in.wilsonl.nanoscript.Interpreting.Data.NSList;
+import in.wilsonl.nanoscript.Interpreting.Data.NSNull;
+import in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator;
 import in.wilsonl.nanoscript.Interpreting.VMError;
+import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Utils.ROList;
-import in.wilsonl.nanoscript.Utils.ROMap;
 
 import java.lang.reflect.MalformedParametersException;
 import java.util.HashMap;
@@ -17,9 +20,10 @@ import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.TypeError;
 import static java.lang.String.format;
 
 public class ArgumentsValidator {
-    public static final ArgumentsValidator ANY = new ArgumentsValidator(new NSParameter(true, true, "values"));
-    public static final ArgumentsValidator ZERO = new ArgumentsValidator();
+    public static final ArgumentsValidator ANY = new ArgumentsValidator(null, new NSParameter(true, true, "values"));
+    public static final ArgumentsValidator ZERO = new ArgumentsValidator(null);
     private final NSParameter[] parameters;
+    private final Context defaultValuesContext; // Can be null
     private boolean hasOptional = false;
     private boolean hasVarLen = false;
     // <posOfVarLen> should be parameters.length if not hasVarLen
@@ -31,7 +35,8 @@ public class ArgumentsValidator {
     // This must be reset on every call to .match
     private Map<String, NSData> matchedValues = new HashMap<>();
 
-    public ArgumentsValidator(NSParameter[] parameters) {
+    public ArgumentsValidator(Context defaultValuesContext, NSParameter[] parameters) {
+        this.defaultValuesContext = defaultValuesContext;
         this.parameters = parameters;
         int paramsCount = parameters.length;
         boolean hasOptionalVarLen = false;
@@ -39,6 +44,9 @@ public class ArgumentsValidator {
             NSParameter parameter = parameters[i];
             if (parameter == null) {
                 throw new InternalStateError("Parameter is null");
+            }
+            if (parameter.getRawDefaultValue() != null && defaultValuesContext == null) {
+                throw new InternalStateError("A parameter exists with a default value but with no context");
             }
             if (parameter.isOptional()) {
                 if (hasVarLen && !hasOptionalVarLen) {
@@ -78,12 +86,12 @@ public class ArgumentsValidator {
         }
     }
 
-    public ArgumentsValidator(NSParameter parameter) {
-        this(new NSParameter[]{parameter});
+    public ArgumentsValidator(Context defaultValuesContext, NSParameter parameter) {
+        this(defaultValuesContext, new NSParameter[]{parameter});
     }
 
-    public ArgumentsValidator() {
-        this(new NSParameter[0]);
+    public ArgumentsValidator(Context defaultValuesContext) {
+        this(defaultValuesContext, new NSParameter[0]);
     }
 
     private void validateArgument(int argNo, NSParameter p, NSArgument a) {
@@ -132,7 +140,7 @@ public class ArgumentsValidator {
         return realArgIdx - direction;
     }
 
-    public Map<String, NSData> match(List<NSArgument> args) {
+    public NSValidatedArguments match(List<NSArgument> args) {
         matchedValues.clear();
 
         /*
@@ -187,110 +195,24 @@ public class ArgumentsValidator {
             }
         }
 
-        return new ROMap<>(matchedValues);
-    }
-
-    /*
-    public void validate(List<NSArgument> arguments) {
-        /*
-         *   If hasOptional, this will collect args before the first optional,
-         *     regardless of hasVarLen
-         *   If hasVarLen but not hasOptional, this will collect args before the
-         *     variable length
-         *   If neither, this will collect all args
-         *
-        int upperBoundFromLeft = (hasOptional ? posOfFirstOptional : posOfVarLen) - 1;
-        int lastArgIdxFromLeft = validateArguments(0, upperBoundFromLeft, upperBoundFromLeft, arguments, true);
-        for (int i = 0; i < upperBoundFromLeft; i++) {
-            ParameterConstraint p = parameters[i];
-            NSArgument a;
-            try {
-                a = arguments.get(i);
-            } catch (IndexOutOfBoundsException ioobe) {
-                throw VMError.from(ArgumentsError, format("Argument %d is missing", i));
-            }
-            validateArgument(i, p, a);
-            lastArgIdxFromLeft++;
-        }
-
-
-        /*
-         *   If hasOptional, this will collect args from the right after the last optional,
-         *     regardless of hasVarLen
-         *   If hasVarLen but not hasOptional, this will collect args from the right after
-         *    the variable length
-         *   If neither, this will not run
-         *
-        int lowerBoundFromRight = hasOptional ? posOfLastOptional : posOfVarLen;
-        int lastArgIdxFromRight = arguments.size();
-        int reqArgFromRight = 0;
-        while (reqArgFromRight > lowerBoundFromRight - parameters.length + 1) {
-            reqArgFromRight--;
-            lastArgIdxFromRight--;
-            ParameterConstraint p = parameters[parameters.length + reqArgFromRight];
-            // This is correct
-            // Whether it invalidates varlen params is checked later on
-            if (lastArgIdxFromRight <= lastArgIdxFromLeft) {
-                throw VMError.from(ArgumentsError, format("Argument %d is missing", reqArgFromRight));
-            }
-            NSArgument a = arguments.get(lastArgIdxFromRight);
-            validateArgument(reqArgFromRight, p, a);
-        }
-
-        int optArgFromRight = 0;
-
         if (hasOptional) {
-            int optionalUpperBound = hasVarLen ? posOfVarLen : posOfLastOptional + 1;
-            for (int i = posOfFirstOptional; i < optionalUpperBound; i++) {
-                if (i >= lastArgIdxFromRight) {
-                    // WARNING: Ends here
-                    return;
-                }
-                ParameterConstraint p = parameters[i];
-                NSArgument a = arguments.get(i);
-                validateArgument(i, p, a);
-                lastArgIdxFromLeft++;
-            }
-
-            if (hasVarLen) {
-                // Also means there might be args to the right of the varlen
-                for (; optArgFromRight > posOfVarLen - posOfLastOptional; optArgFromRight--) {
-                    ParameterConstraint p = parameters[posOfLastOptional + optArgFromRight];
-                    int argNo = lastArgIdxFromRight + optArgFromRight;
-                    if (argNo <= posOfVarLen) {
-                        allArgsConsumed = true;
-                        break;
+            for (int i = posOfFirstOptional; i <= posOfLastOptional; i++) {
+                NSParameter param = parameters[i];
+                String name = param.getName();
+                if (!param.isVariableLength() && !matchedValues.containsKey(name)) {
+                    Expression rawDefaultValue = param.getRawDefaultValue();
+                    NSData defaultValue;
+                    if (rawDefaultValue == null) {
+                        defaultValue = NSNull.NULL;
+                    } else {
+                        defaultValue = ExpressionEvaluator.evaluateExpression(defaultValuesContext, rawDefaultValue);
                     }
-                    NSArgument a = arguments.get(argNo);
-                    validateArgument(argNo, p, a);
-                }
-
-                if (allArgsConsumed) {
-                    // WARNING: Ends here
-                    return;
+                    matchedValues.put(name, defaultValue);
                 }
             }
         }
 
-        if (hasVarLen) {
-            ParameterConstraint p = parameters[posOfVarLen];
-            int collected = 0;
-            for (int j = posOfVarLen; j < lastArgIdxFromRight + optArgFromRight; j++) {
-                NSArgument a = arguments.get(j);
-                validateArgument(j, p, a);
-                collected++;
-            }
-            if (collected == 0 && !hasOptional) {
-                throw VMError.from(ArgumentsError, "At least one argument is required for the variable length parameter");
-            }
-        } else {
-            for (int j = upperBoundFromLeft; j < arguments.size(); j++) {
-                if (!arguments.get(j).isOptional()) {
-                    throw VMError.from(ArgumentsError, format("Argument %d is extraneous", j));
-                }
-            }
-        }
+        return new NSValidatedArguments(matchedValues);
     }
-    */
 
 }

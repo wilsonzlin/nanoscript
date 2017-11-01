@@ -7,6 +7,7 @@ import in.wilsonl.nanoscript.Syntax.Class.Member.ClassMethod;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassVariable;
 import in.wilsonl.nanoscript.Syntax.Identifier;
 import in.wilsonl.nanoscript.Syntax.Reference;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
@@ -21,12 +22,17 @@ public class Class {
     private final List<Reference> parents = new ROList<>();
     private final SetOnce<Identifier> name = new SetOnce<>();
     private final SetOnce<ClassConstructor> constructor = new SetOnce<>(true); // Can be null if using default constructor
+    private final Position position;
     // TODO final, sealed, static
 
-    public static Class parseClass(Tokens tokens) {
-        Class nanoscriptClass = new Class();
+    public Class(Position position) {
+        this.position = position;
+    }
 
-        tokens.require(T_KEYWORD_CLASS);
+    public static Class parseClass(Tokens tokens) {
+        Position position = tokens.require(T_KEYWORD_CLASS).getPosition();
+        Class nanoscriptClass = new Class(position);
+
         tokens.require(T_COLON);
 
         nanoscriptClass.setName(Identifier.requireIdentifier(tokens));
@@ -110,5 +116,9 @@ public class Class {
 
     public void setConstructor(ClassConstructor constructor) {
         this.constructor.set(constructor);
+    }
+
+    public Position getPosition() {
+        return position;
     }
 }

@@ -4,6 +4,7 @@ import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Parameter;
 import in.wilsonl.nanoscript.Syntax.Statement.ReturnStatement;
+import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
@@ -15,10 +16,13 @@ public class LambdaExpression extends Expression {
     private final List<Parameter> parameters = new ROList<>();
     private final SetOnce<CodeBlock> body = new SetOnce<>();
 
-    public static LambdaExpression parseLambdaExpression(Tokens tokens) {
-        LambdaExpression lambda = new LambdaExpression();
+    public LambdaExpression(Position position) {
+        super(position);
+    }
 
-        tokens.require(T_KEYWORD_FUNCTION);
+    public static LambdaExpression parseLambdaExpression(Tokens tokens) {
+        Position position = tokens.require(T_KEYWORD_FUNCTION).getPosition();
+        LambdaExpression lambda = new LambdaExpression(position);
 
         lambda.addAllParameters(Parameter.parseParametersList(tokens));
 
@@ -26,7 +30,7 @@ public class LambdaExpression extends Expression {
         if (tokens.skipIfNext(T_ARROW_RIGHT)) {
             Expression expr = Expression.parseExpression(tokens);
             body = new CodeBlock();
-            body.pushStatement(new ReturnStatement(expr));
+            body.pushStatement(new ReturnStatement(expr.getPosition(), expr));
         } else {
             body = CodeBlock.parseCodeBlock(tokens, T_KEYWORD_FUNCTION_END);
             tokens.require(T_KEYWORD_FUNCTION_END);

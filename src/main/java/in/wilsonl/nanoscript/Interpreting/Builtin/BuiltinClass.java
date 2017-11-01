@@ -16,7 +16,7 @@ import static in.wilsonl.nanoscript.Interpreting.Data.NSNull.NULL;
 
 public enum BuiltinClass {
     RuntimeError(new ClassBuilder()
-            .setConstructor(new ArgumentsValidator(new NSParameter("message", NSData.Type.STRING)), (self, arguments) -> {
+            .setConstructor(new ArgumentsValidator(null, new NSParameter("message", NSData.Type.STRING)), (self, arguments) -> {
                 self.nsAssign("message", arguments.get("message").nsToString());
                 return NULL;
             })

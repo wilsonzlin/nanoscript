@@ -51,7 +51,7 @@ public class Tokens implements Matchable<TokenType>, Iterable<Token> {
 
     private Position getPosition() {
         if (lastAcceptedPos < 0) {
-            return new Position(1, 0);
+            return new Position(1, 1);
         } else {
             return tokens.get(lastAcceptedPos).getPosition();
         }

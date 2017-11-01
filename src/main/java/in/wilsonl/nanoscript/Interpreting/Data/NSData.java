@@ -40,6 +40,10 @@ public abstract class NSData {
         return this;
     }
 
+    public boolean nsIsNotNull() {
+        return true;
+    }
+
     public NSIterator nsIterate() {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be iterated", getFriendlyTypeName(true)));
     }

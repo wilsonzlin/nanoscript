@@ -128,7 +128,7 @@ public class NSList extends NSData {
         for (NSData v : rawList) {
             strvals.add(v.nsToString().getRawString());
         }
-        return NSString.from(Utils.join(", ", strvals));
+        return NSString.from("[" + Utils.join(", ", strvals) + "]");
     }
 
     @Override

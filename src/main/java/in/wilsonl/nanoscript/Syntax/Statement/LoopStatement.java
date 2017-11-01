@@ -6,6 +6,7 @@ import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
+import in.wilsonl.nanoscript.Utils.Position;
 
 public class LoopStatement extends Statement {
     private final Expression condition;
@@ -13,7 +14,8 @@ public class LoopStatement extends Statement {
     private final TestStage testStage;
     private final TestType testType;
 
-    public LoopStatement(Expression condition, CodeBlock body, TestStage testStage, TestType testType) {
+    public LoopStatement(Position position, Expression condition, CodeBlock body, TestStage testStage, TestType testType) {
+        super(position);
         this.condition = condition;
         this.body = body;
         this.testStage = testStage;
@@ -37,7 +39,7 @@ public class LoopStatement extends Statement {
             default:
                 throw new InternalStateError("Unknown loop statement initial token: " + initialToken);
         }
-        tokens.require(initialToken);
+        Position position = tokens.require(initialToken).getPosition();
         Expression condition = Expression.parseExpression(tokens, new AcceptableTokenTypes(TokenType.T_KEYWORD_BEFORE, TokenType.T_KEYWORD_AFTER));
         TestStage testStage;
         switch (tokens.accept().getType()) {
@@ -55,7 +57,7 @@ public class LoopStatement extends Statement {
         CodeBlock body = CodeBlock.parseCodeBlock(tokens, bodyEndDelimiter);
         tokens.require(bodyEndDelimiter);
 
-        return new LoopStatement(condition, body, testStage, testType);
+        return new LoopStatement(position, condition, body, testStage, testType);
     }
 
     public static LoopStatement parseWhileStatement(Tokens tokens) {
