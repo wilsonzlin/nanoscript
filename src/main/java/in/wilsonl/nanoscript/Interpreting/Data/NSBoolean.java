@@ -1,11 +1,16 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-public class NSBoolean extends NSData<Boolean> {
+public class NSBoolean extends NSData {
     public static final NSBoolean TRUE = new NSBoolean(true);
     public static final NSBoolean FALSE = new NSBoolean(false);
+    private final boolean rawBoolean;
+    private final NSString stringValue;
 
+    // Don't use constructor, use NSBoolean.from or <TRUE>/<FALSE>
     private NSBoolean(boolean value) {
-        super(Type.BOOLEAN, value);
+        super(Type.BOOLEAN);
+        this.rawBoolean = value;
+        this.stringValue = NSString.from(value ? "true" : "false");
     }
 
     public static NSBoolean from(boolean b) {
@@ -13,7 +18,11 @@ public class NSBoolean extends NSData<Boolean> {
     }
 
     public NSBoolean invert() {
-        return from(!getRawValue());
+        return from(!rawBoolean);
+    }
+
+    public boolean isTrue() {
+        return rawBoolean;
     }
 
     // Don't need hashCode or equals, as the default implements are correct as long
@@ -26,6 +35,6 @@ public class NSBoolean extends NSData<Boolean> {
 
     @Override
     public NSString nsToString() {
-        return NSString.from(getRawValue().toString());
+        return stringValue;
     }
 }

@@ -6,8 +6,7 @@ import in.wilsonl.nanoscript.Utils.ROList;
 
 import java.util.List;
 
-import static in.wilsonl.nanoscript.Parsing.TokenType.T_COMMA;
-import static in.wilsonl.nanoscript.Parsing.TokenType.T_PARENTHESIS_RIGHT;
+import static in.wilsonl.nanoscript.Parsing.TokenType.*;
 
 public class CallExpression extends Expression {
     private final boolean nullSafe;
@@ -30,9 +29,11 @@ public class CallExpression extends Expression {
                 break;
             }
 
-            Expression arg = parseExpression(tokens, new AcceptableTokenTypes(T_COMMA, T_PARENTHESIS_RIGHT));
+            boolean optional = tokens.skipIfNext(T_KEYWORD_OPTIONAL);
 
-            arguments.pushArgument(arg);
+            Expression value = parseExpression(tokens, new AcceptableTokenTypes(T_COMMA, T_PARENTHESIS_RIGHT));
+
+            arguments.pushArgument(new Argument(optional, value));
         } while (tokens.skipIfNext(T_COMMA));
 
         return arguments;
@@ -50,14 +51,32 @@ public class CallExpression extends Expression {
         return arguments;
     }
 
-    public static class Arguments {
-        private final List<Expression> arguments = new ROList<>();
+    public static class Argument {
+        private final boolean optional;
+        private final Expression value;
 
-        public List<Expression> getArguments() {
+        public Argument(boolean optional, Expression value) {
+            this.optional = optional;
+            this.value = value;
+        }
+
+        public boolean isOptional() {
+            return optional;
+        }
+
+        public Expression getValue() {
+            return value;
+        }
+    }
+
+    public static class Arguments {
+        private final List<Argument> arguments = new ROList<>();
+
+        public List<Argument> getArguments() {
             return arguments;
         }
 
-        public void pushArgument(Expression expr) {
+        public void pushArgument(Argument expr) {
             arguments.add(expr);
         }
     }

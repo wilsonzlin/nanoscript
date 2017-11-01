@@ -1,6 +1,5 @@
 package in.wilsonl.nanoscript.Syntax.Class.Member;
 
-import in.wilsonl.nanoscript.Interpreting.Data.NSConstructorSource;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
@@ -10,7 +9,7 @@ import in.wilsonl.nanoscript.Utils.SetOnce;
 import static in.wilsonl.nanoscript.Parsing.TokenType.T_KEYWORD_CONSTRUCTOR;
 import static in.wilsonl.nanoscript.Parsing.TokenType.T_KEYWORD_CONSTRUCTOR_END;
 
-public class ClassConstructor extends ClassMember implements NSConstructorSource {
+public class ClassConstructor extends ClassMember {
     private final SetOnce<LambdaExpression> lambda = new SetOnce<>();
 
     public static ClassConstructor parseConstructor(Tokens tokens) {

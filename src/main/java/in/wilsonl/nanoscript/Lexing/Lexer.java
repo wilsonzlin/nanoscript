@@ -42,6 +42,7 @@ public class Lexer {
     private static OperatorTreeNode _createOperatorTreeRootNode() {
         Map<String, TokenType> sequences = new HashMap<>();
 
+        sequences.put("...", T_ELLIPSIS);
         sequences.put("#", T_HASH);
         sequences.put("(", T_PARENTHESIS_LEFT);
         sequences.put(")", T_PARENTHESIS_RIGHT);
@@ -114,6 +115,7 @@ public class Lexer {
         map.put("constructor", T_KEYWORD_CONSTRUCTOR);
         map.put("endconstructor", T_KEYWORD_CONSTRUCTOR_END);
 
+        map.put("opt", T_KEYWORD_OPTIONAL);
         map.put("self", T_KEYWORD_SELF);
         map.put("static", T_KEYWORD_STATIC);
         map.put("final", T_KEYWORD_FINAL);

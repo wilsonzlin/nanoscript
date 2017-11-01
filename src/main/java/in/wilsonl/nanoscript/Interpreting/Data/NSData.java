@@ -1,5 +1,6 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
+import in.wilsonl.nanoscript.Interpreting.Arguments.NSArgument;
 import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.VMError;
 
@@ -7,17 +8,20 @@ import java.util.List;
 
 import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.UnsupportedOperationError;
 
-public abstract class NSData<T> {
+public abstract class NSData {
     private final Type type;
-    private final T rawValue;
 
-    protected NSData(Type type, T rawValue) {
+    protected NSData(Type type) {
         this.type = type;
-        this.rawValue = rawValue;
     }
 
     public final Type getType() {
         return type;
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("As a precaution, Java's .toString is not allowed on NSData");
     }
 
     private String getFriendlyTypeName(boolean capitalise) {
@@ -32,43 +36,43 @@ public abstract class NSData<T> {
         return getFriendlyTypeName(false);
     }
 
-    public final T getRawValue() {
-        return rawValue;
+    public NSData nsClone() {
+        return this;
     }
 
     public NSIterator nsIterate() {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be iterated", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsAdd(NSData<?> other) {
+    public NSData nsAdd(NSData other) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be added", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsSubtract(NSData<?> other) {
+    public NSData nsSubtract(NSData other) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be subtracted", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsMultiply(NSData<?> other) {
+    public NSData nsMultiply(NSData other) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be multiplied", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsDivide(NSData<?> other) {
+    public NSData nsDivide(NSData other) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be divided", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsExponentiate(NSData<?> other) {
+    public NSData nsExponentiate(NSData other) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be exponentiated", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsModulo(NSData<?> other) {
+    public NSData nsModulo(NSData other) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be moduloed", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsApplyHashOperator() {
+    public NSData nsApplyHashOperator() {
         throw VMError.from(UnsupportedOperationError, String.format("The hash operator cannot be applied to %s values", getFriendlyTypeName()));
     }
 
-    public NSBoolean nsTestEquality(NSData<?> other) {
+    public NSBoolean nsTestEquality(NSData other) {
         if (getType() == Type.NULL) {
             return NSBoolean.from(equals(other));
         }
@@ -81,27 +85,27 @@ public abstract class NSData<T> {
         return NSBoolean.from(equals(other));
     }
 
-    public NSNumber nsCompare(NSData<?> other) {
+    public NSNumber nsCompare(NSData other) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be compared", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsCall(List<NSData<?>> arguments) {
+    public NSData nsCall(List<NSArgument> arguments) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be called", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsLookup(List<NSData<?>> terms) {
+    public NSData nsLookup(List<NSData> terms) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be looked up", getFriendlyTypeName(true)));
     }
 
-    public void nsUpdate(List<NSData<?>> terms, NSData<?> value) {
+    public void nsUpdate(List<NSData> terms, NSData value) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be updated", getFriendlyTypeName(true)));
     }
 
-    public NSData<?> nsAccess(String member) {
+    public NSData nsAccess(String member) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values do not have any members", getFriendlyTypeName(true)));
     }
 
-    public void nsAssign(String member, NSData<?> value) {
+    public void nsAssign(String member, NSData value) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values do not have any members", getFriendlyTypeName(true)));
     }
 

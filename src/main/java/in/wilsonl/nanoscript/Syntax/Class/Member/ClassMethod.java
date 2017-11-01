@@ -1,6 +1,5 @@
 package in.wilsonl.nanoscript.Syntax.Class.Member;
 
-import in.wilsonl.nanoscript.Interpreting.Data.NSInstanceMethodSource;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
@@ -10,7 +9,7 @@ import in.wilsonl.nanoscript.Utils.SetOnce;
 
 import static in.wilsonl.nanoscript.Parsing.TokenType.*;
 
-public class ClassMethod extends ClassMember implements NSInstanceMethodSource {
+public class ClassMethod extends ClassMember {
     private final SetOnce<LambdaExpression> lambda = new SetOnce<>();
     private final SetOnce<Identifier> name = new SetOnce<>();
 

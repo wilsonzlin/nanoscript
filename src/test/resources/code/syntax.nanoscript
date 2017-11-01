@@ -102,26 +102,32 @@ dfs := fn (start_node)
     while #stack > 0 before
         top := stack[-1]
         white_neighbour := null
+        "print(`Processing ` + str(top))"
+        "print(`Neighbours of ` + str(top) + `:`)"
+        "print(graph[top])"
         for neighbour in graph[top] do
-            is_gray := false
+            "print(`Checking neighbour ` + str(neighbour))"
+            is_grey := false
             for n in stack do
                 if n == neighbour then
-                    print(n)
-                    is_gray = true
+                    "print(str(n) + ` is in stack and is therefore grey`)"
+                    is_grey = true
                     break
                 endif
             endfor
-            is_black := nodes[neighbour]
-            if is_gray or is_black then
+            is_black := not nodes[neighbour]
+            if not is_grey and not is_black then
+                "print(`Yes, ` + str(top) + ` has white neighbour ` + str(neighbour))"
                 white_neighbour = neighbour
                 break
             endif
         endfor
         if white_neighbour == null then
-            print(auto_increment, stack.pop())
+            print(str(auto_increment) + `,` + str(stack.pop()))
             auto_increment = auto_increment + 1
             nodes[top] = false
         otherwise
+            "print(`Adding ` + str(white_neighbour) + ` to stack`)"
             stack[] = white_neighbour
         endif
     loop

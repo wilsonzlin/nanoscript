@@ -8,6 +8,7 @@ import in.wilsonl.nanoscript.Interpreting.Data.NSData;
 import in.wilsonl.nanoscript.Interpreting.Data.NSIterator;
 import in.wilsonl.nanoscript.Interpreting.Data.NSNull;
 import in.wilsonl.nanoscript.Interpreting.Data.NSObject;
+import in.wilsonl.nanoscript.Interpreting.Data.NSVirtualClass;
 import in.wilsonl.nanoscript.Interpreting.GlobalScope;
 import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
@@ -101,7 +102,7 @@ public class CodeBlockEvaluator {
         try {
             evaluateCodeBlock(scope, st_tryBody);
         } catch (VMError vme) {
-            NSData<?> error = vme.getValue();
+            NSData error = vme.getValue();
             scope.clearSymbols();
             for (TryStatement.Catch c : statement.getCatchBlocks()) {
                 Set<Reference> types = c.getTypes();
@@ -139,7 +140,7 @@ public class CodeBlockEvaluator {
             throw VMError.from(SyntaxError, "Classes must be declared at the top level");
         }
 
-        NSClass nsClass = NSClass.from(context, statement.getNSClass());
+        NSClass nsClass = NSVirtualClass.from(context, statement.getNSClass());
         context.createContextSymbol(nsClass.getName(), nsClass);
 
         return null;
@@ -151,7 +152,7 @@ public class CodeBlockEvaluator {
         }
 
         String name = statement.getName().getName();
-        NSData<?> value = evaluateExpression(context, statement.getValue());
+        NSData value = evaluateExpression(context, statement.getValue());
 
         ((GlobalScope) context).addExport(name, value);
 
@@ -179,12 +180,12 @@ public class CodeBlockEvaluator {
 
             for (int i = 0; i < iterablesCount; i++) {
                 String name = names[i];
-                NSData<?> value;
+                NSData value;
                 try {
                     value = iters[i].next();
                 } catch (VMError err) {
-                    NSData<?> vmerrobj = err.getValue();
-                    if (vmerrobj instanceof NSObject && ((NSObject) vmerrobj).isInstanceOf(EndOfIterationError.getNSClass()).getRawValue()) {
+                    NSData vmerrobj = err.getValue();
+                    if (vmerrobj instanceof NSObject && ((NSObject) vmerrobj).isInstanceOf(EndOfIterationError.getNSClass()).isTrue()) {
                         return null;
                     } else {
                         throw err;
@@ -214,13 +215,13 @@ public class CodeBlockEvaluator {
     }
 
     private static EvaluationResult evaluateThrowStatement(Context context, ThrowStatement statement) {
-        NSData<?> value = evaluateExpression(context, statement.getValue());
+        NSData value = evaluateExpression(context, statement.getValue());
         throw new VMError(value);
     }
 
     private static EvaluationResult evaluateReturnStatement(Context context, ReturnStatement statement) {
         Expression st_val = statement.getValue();
-        NSData<?> value;
+        NSData value;
         if (st_val == null) {
             value = NSNull.NULL;
         } else {
@@ -240,7 +241,7 @@ public class CodeBlockEvaluator {
     private static EvaluationResult evaluateConditionalBranchesStatement(Context context, ConditionalBranchesStatement statement) {
         for (Branch b : statement.getConditionalBranches()) {
             Expression st_cond = b.getCondition();
-            boolean passed = st_cond == null || evaluateExpression(context, st_cond).nsToBoolean().getRawValue();
+            boolean passed = st_cond == null || evaluateExpression(context, st_cond).nsToBoolean().isTrue();
             if (passed) {
                 BlockScope scope = new BlockScope(context, BlockScope.Type.CONDITIONAL_BRANCH);
                 return evaluateCodeBlock(scope, b.getBody());
@@ -255,14 +256,14 @@ public class CodeBlockEvaluator {
     }
 
     private static EvaluationResult evaluateCaseStatement(Context context, CaseStatement statement) {
-        NSData<?> target = evaluateExpression(context, statement.getTarget());
+        NSData target = evaluateExpression(context, statement.getTarget());
         List<Option> st_options = statement.getOptions();
 
         for (Option o : st_options) {
             Expression st_cond = o.getCondition();
             CodeBlock st_body = o.getBody();
 
-            boolean passed = st_cond == null || target.nsTestEquality(evaluateExpression(context, st_cond)).getRawValue();
+            boolean passed = st_cond == null || target.nsTestEquality(evaluateExpression(context, st_cond)).isTrue();
 
             if (passed) {
                 EvaluationResult evaluationResult = evaluateCodeBlock(context, st_body);
@@ -288,7 +289,7 @@ public class CodeBlockEvaluator {
     private static EvaluationResult evaluateVariableDeclarationStatement(Context context, VariableDeclarationStatement statement) {
         String name = statement.getVariable().getName().getName();
         Expression st_init = statement.getVariable().getInitialiser();
-        NSData<?> value = evaluateExpression(context, st_init);
+        NSData value = evaluateExpression(context, st_init);
         context.createContextSymbol(name, value);
         return null;
     }
@@ -306,7 +307,7 @@ public class CodeBlockEvaluator {
             loopScope.clearSymbols();
 
             if (testBefore) {
-                boolean shouldStart = evaluateExpression(loopScope, st_condition).nsToBoolean().getRawValue();
+                boolean shouldStart = evaluateExpression(loopScope, st_condition).nsToBoolean().isTrue();
                 if (invertResult) {
                     shouldStart = !shouldStart;
                 }
@@ -334,7 +335,7 @@ public class CodeBlockEvaluator {
             }
 
             if (!testBefore) {
-                boolean shouldEnd = !evaluateExpression(loopScope, st_condition).nsToBoolean().getRawValue();
+                boolean shouldEnd = !evaluateExpression(loopScope, st_condition).nsToBoolean().isTrue();
                 if (invertResult) {
                     shouldEnd = !shouldEnd;
                 }

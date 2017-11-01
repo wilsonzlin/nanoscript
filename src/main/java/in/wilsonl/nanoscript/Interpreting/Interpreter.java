@@ -2,6 +2,7 @@ package in.wilsonl.nanoscript.Interpreting;
 
 import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinFunction;
+import in.wilsonl.nanoscript.Interpreting.Evaluator.CodeBlockEvaluator;
 import in.wilsonl.nanoscript.Interpreting.Evaluator.EvaluationResult;
 import in.wilsonl.nanoscript.Syntax.Chunk;
 
@@ -26,7 +27,7 @@ public class Interpreter {
             globalScope.createContextSymbol(f.name(), f.getNSClass());
         }
 
-        EvaluationResult evaluationResult = globalScope.evaluateCodeBlockInContext(chunk.getCodeBlock());
+        EvaluationResult evaluationResult = CodeBlockEvaluator.evaluateCodeBlock(globalScope, chunk.getCodeBlock());
         if (evaluationResult != null) {
             switch (evaluationResult.getMode()) {
                 case BREAK:

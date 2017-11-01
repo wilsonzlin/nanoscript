@@ -1,11 +1,11 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-public abstract class NSIterator extends NSData<Object> {
+public abstract class NSIterator extends NSData {
     protected NSIterator() {
-        super(Type.ITERATOR, null);
+        super(Type.ITERATOR);
     }
 
-    public abstract NSData<?> next();
+    public abstract NSData next();
 
     @Override
     public NSBoolean nsToBoolean() {

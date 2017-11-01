@@ -1,10 +1,10 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-public class NSNull extends NSData<Object> {
+public class NSNull extends NSData {
     public static final NSNull NULL = new NSNull();
 
     private NSNull() {
-        super(Type.NULL, null);
+        super(Type.NULL);
     }
 
     // Don't need hashCode or equals, as the default implements are correct as long

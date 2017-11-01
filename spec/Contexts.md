@@ -58,15 +58,17 @@ endclass
 
 ### Get symbol
 
+1. &lt;Callable closure> (if method)
 1. Own static members
 1. Ancestor static members
-1. <Global/Chunk>
+1. &lt;Global/Chunk>
 
 ### Set symbol
 
+1. &lt;Callable closure> (if method)
 1. Own static members
 1. Ancestor static members
-1. <Global/Chunk>
+1. &lt;Global/Chunk>
 
 ### Apply access
 
@@ -80,7 +82,7 @@ In the form `SomeClass.staticVariable`.
 
 1. Own static variables
 
-## Class from instance member
+## Class from instance member or constructor
 
 When mentioning `ancestor` in the lists below, ancestor instance variables are inherited, and are copied to become own instance variables.
 Changing one does not affect other instances.
@@ -88,21 +90,23 @@ Changing one does not affect other instances.
 ### Get symbol
 
 1. `self`
+1. &lt;Callable closure> (if method/constructor)
 1. Own instance members
 1. Ancestor instance members
 1. Own static members
 1. Ancestor static members
-1. <Global/Chunk>
+1. &lt;Global/Chunk>
 
 ### Set symbol
 
 To create a new instance variable, use `self.<name>`
 
+1. &lt;Callable closure> (if method/constructor)
 1. Own instance members
 1. Ancestor instance members
 1. Own static members
 1. Ancestor static members
-1. <Global/Chunk>
+1. &lt;Global/Chunk>
 
 ### Apply access
 

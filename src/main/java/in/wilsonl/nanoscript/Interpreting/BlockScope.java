@@ -16,17 +16,17 @@ public class BlockScope implements Context {
     }
 
     @Override
-    public NSData<?> getContextSymbol(String name) {
+    public NSData getContextSymbol(String name) {
         return contextHelper.getSymbol(name);
     }
 
     @Override
-    public boolean setContextSymbol(String name, NSData<?> value) {
+    public boolean setContextSymbol(String name, NSData value) {
         return contextHelper.setSymbol(name, value);
     }
 
     @Override
-    public void createContextSymbol(String name, NSData<?> initialValue) {
+    public void createContextSymbol(String name, NSData initialValue) {
         contextHelper.createSymbol(name, initialValue);
     }
 

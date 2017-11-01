@@ -1,6 +1,5 @@
 package in.wilsonl.nanoscript.Syntax.Class.Member;
 
-import in.wilsonl.nanoscript.Interpreting.Data.NSInstanceVariableSource;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
@@ -8,7 +7,7 @@ import in.wilsonl.nanoscript.Syntax.Identifier;
 import in.wilsonl.nanoscript.Syntax.Variable;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
-public class ClassVariable extends ClassMember implements NSInstanceVariableSource {
+public class ClassVariable extends ClassMember {
     private final SetOnce<Variable> variable = new SetOnce<>();
 
     public static ClassVariable parseClassVariable(Tokens tokens) {

@@ -5,6 +5,14 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 public class ROMap<K, V> extends HashMap<K, V> {
+    public ROMap() {
+        super();
+    }
+
+    public ROMap(Map<? extends K, ? extends V> map) {
+        super(map);
+    }
+
     @Override
     public V put(K k, V v) {
         if (containsKey(k)) {
