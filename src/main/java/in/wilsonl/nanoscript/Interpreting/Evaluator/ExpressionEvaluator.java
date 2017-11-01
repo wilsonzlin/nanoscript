@@ -57,7 +57,7 @@ public class ExpressionEvaluator {
     }
 
     // Helper function
-    public static boolean evaluateInstanceOfExpression(Context context, NSData value, Expression st_type) {
+    public static boolean evaluateTypeOfExpression(Context context, NSData value, Expression st_type) {
         if (st_type instanceof IdentifierExpression) {
             String id = ((IdentifierExpression) st_type).getIdentifier().getName();
             NSData.Type valueType = value.getType();
@@ -73,7 +73,7 @@ public class ExpressionEvaluator {
 
         NSData targetValue = evaluateExpression(context, st_type);
         if (targetValue.getType() != NSData.Type.CLASS) {
-            throw VMError.from(BuiltinClass.TypeError, "RHS of instanceof check is not a class");
+            throw VMError.from(BuiltinClass.TypeError, "RHS of type check is not a class");
         }
         return ((NSObject) value).isInstanceOf((NSClass) targetValue).isTrue();
     }
@@ -223,8 +223,7 @@ public class ExpressionEvaluator {
             return evaluateAssignmentOrUpdateExpression(context, expression);
         }
 
-        // For ASSIGNMENT, <lhs> may not be evaluated,
-        // so check before
+        // For ASSIGNMENT, <lhs> may not be evaluated, so check before here
         NSData lhs = evaluateExpression(context, st_lhs);
         NSData rhs;
 
@@ -314,10 +313,10 @@ public class ExpressionEvaluator {
                         throw new InternalStateError("Unknown relation operator");
                 }
 
-            case INSTANCEOF:
-            case NOT_INSTANCEOF:
-                boolean isInstance = evaluateInstanceOfExpression(context, lhs, st_rhs);
-                if (operator == Operator.NOT_INSTANCEOF) {
+            case TYPEOF:
+            case NOT_TYPEOF:
+                boolean isInstance = evaluateTypeOfExpression(context, lhs, st_rhs);
+                if (operator == Operator.NOT_TYPEOF) {
                     isInstance = !isInstance;
                 }
                 return NSBoolean.from(isInstance);

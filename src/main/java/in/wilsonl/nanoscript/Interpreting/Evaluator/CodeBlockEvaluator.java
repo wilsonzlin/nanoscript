@@ -37,7 +37,7 @@ import java.util.Set;
 import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.EndOfIterationError;
 import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.SyntaxError;
 import static in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator.evaluateExpression;
-import static in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator.evaluateInstanceOfExpression;
+import static in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator.evaluateTypeOfExpression;
 
 public class CodeBlockEvaluator {
     public static EvaluationResult evaluateCodeBlock(Context context, CodeBlock codeBlock) {
@@ -104,16 +104,16 @@ public class CodeBlockEvaluator {
         } catch (VMError vme) {
             NSData error = vme.getValue();
             scope.clearSymbols();
-            for (TryStatement.Catch c : statement.getCatchBlocks()) {
-                Set<Reference> types = c.getTypes();
-                CodeBlock st_catchBody = c.getBody();
-                String paramName = c.getParameterName().getName();
+            for (TryStatement.Catch st_catch : statement.getCatchBlocks()) {
+                Set<Reference> types = st_catch.getTypes();
+                CodeBlock st_catchBody = st_catch.getBody();
+                String paramName = st_catch.getParameterName().getName();
 
                 boolean thisBlockMatches = false;
 
                 if (types != null) {
                     for (Reference st_type : types) {
-                        if (evaluateInstanceOfExpression(context, error, st_type.toExpression())) {
+                        if (evaluateTypeOfExpression(context, error, st_type.toExpression())) {
                             thisBlockMatches = true;
                             break;
                         }

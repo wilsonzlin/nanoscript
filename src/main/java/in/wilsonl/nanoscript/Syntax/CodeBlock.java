@@ -99,16 +99,6 @@ public class CodeBlock {
         body.add(statement);
     }
 
-    public <T extends Statement> Statement popStatementIfIsInstance(Class<T> type) {
-        Statement last = body.remove(body.size() - 1);
-        if (type.isInstance(last)) {
-            return last;
-        } else {
-            body.add(last);
-            return null;
-        }
-    }
-
     public List<Statement> getBody() {
         return body;
     }

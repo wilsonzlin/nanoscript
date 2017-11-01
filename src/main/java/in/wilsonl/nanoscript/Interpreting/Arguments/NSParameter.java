@@ -23,7 +23,7 @@ public class NSParameter {
         this.variableLength = variableLength;
         this.name = name;
 
-        if (types != null) {
+        if (types != null && types.length > 0) {
             StringBuilder typesStringRep = new StringBuilder();
             for (int i = 0; i <= types.length - 1; i++) {
                 NSData.Type type = types[i];

@@ -12,7 +12,6 @@ import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.LambdaExpression;
 import in.wilsonl.nanoscript.Syntax.Parameter;
-import in.wilsonl.nanoscript.Utils.ROList;
 
 import java.util.List;
 import java.util.Map;

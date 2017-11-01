@@ -32,7 +32,8 @@ public class MatcherTreeNode<M, R> {
         }
     }
 
-    public void addSequence(R result, M... sequence) {
+    @SafeVarargs
+    public final void addSequence(R result, M... sequence) {
         addSequence(sequence, 0, result);
     }
 

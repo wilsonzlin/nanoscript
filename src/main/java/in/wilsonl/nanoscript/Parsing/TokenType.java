@@ -117,7 +117,7 @@ public enum TokenType {
     T_LEQ,
     T_GEQ,
     T_SPACESHIP,
-    T_KEYWORD_INSTANCEOF,
+    T_KEYWORD_TYPEOF,
 
     T_QUESTION,
     T_COLON,
