@@ -25,6 +25,7 @@ public class VMError extends RuntimeException {
     }
 
     public VMError(NSData value, Position position) {
+        super(buildMessage(value, position));
         this.value = value;
         this.position = position;
     }
@@ -60,8 +61,7 @@ public class VMError extends RuntimeException {
         return position != null;
     }
 
-    @Override
-    public String getMessage() {
+    private static String buildMessage(NSData value, Position position) {
         String message;
 
         if (value instanceof NSObject && ((NSObject) value).isInstanceOf(RuntimeError.getNSClass()).isTrue()) {

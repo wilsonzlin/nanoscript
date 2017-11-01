@@ -137,6 +137,7 @@ public class ExpressionEvaluator {
                 throw new InternalStateError("Unknown expression type");
             }
         } catch (VMError vme) {
+            // A descendant/nested expression or code block may have already added positioning
             if (vme.hasPosition()) {
                 throw vme;
             }

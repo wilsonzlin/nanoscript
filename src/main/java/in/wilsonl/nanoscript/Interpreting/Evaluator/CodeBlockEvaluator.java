@@ -89,6 +89,7 @@ public class CodeBlockEvaluator {
                     throw new InternalStateError("Unknown statement type");
                 }
             } catch (VMError vme) {
+                // A descendant/nested expression or code block may have already added positioning
                 if (vme.hasPosition()) {
                     throw vme;
                 }
