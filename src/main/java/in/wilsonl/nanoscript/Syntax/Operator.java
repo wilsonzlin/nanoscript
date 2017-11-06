@@ -42,9 +42,7 @@ public enum Operator {
 
     OR(4),
 
-    NULL_COALESCING(3, Associativity.RIGHT),
-
-    ASSIGNMENT(0, Associativity.RIGHT);
+    NULL_COALESCING(3, Associativity.RIGHT);
 
     private static final MatcherTreeNode<TokenType, Operator> OPERATOR_TREE_ROOT_NODE = _createOperatorTreeNode();
 
@@ -104,8 +102,6 @@ public enum Operator {
         root.addSequence(OR, T_KEYWORD_OR);
 
         root.addSequence(NULL_COALESCING, T_NULL_COALESCING);
-
-        root.addSequence(ASSIGNMENT, T_ASSIGNMENT);
 
         return root;
     }

@@ -58,7 +58,7 @@ public abstract class NSClass extends NSData {
     }
 
     // So that descendants can match parent's constructor
-    public final NSCallable getConstructor() {
+    public final NSCallable getRawConstructor() {
         return constructor.get();
     }
 
@@ -159,6 +159,7 @@ public abstract class NSClass extends NSData {
     @Override
     public final NSData nsCall(List<NSArgument> arguments) {
         NSObject newObject = NSObject.from(this);
+        initialiseInstanceVariables(newObject);
         applyConstructor(newObject, arguments);
         return newObject;
     }

@@ -45,4 +45,8 @@ public class ContextHelper {
     public void clearSymbols() {
         variables.clear();
     }
+
+    public boolean hasSymbol(String name) {
+        return variables.containsKey(name);
+    }
 }

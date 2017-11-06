@@ -124,7 +124,7 @@ public class NSNativeClass extends NSClass {
                 throw new InternalStateError("Native class does not have exactly one parent");
             }
             NSClass parent = parents.get(0);
-            constructor.set(parent.getConstructor());
+            constructor.set(parent.getRawConstructor());
             return this;
         }
     }

@@ -79,7 +79,7 @@ public class ExpressionEvaluator {
     }
 
     // Helper function
-    private static List<NSData> evaluateListOfExpressions(Context context, List<Expression> expressions) {
+    public static List<NSData> evaluateListOfExpressions(Context context, List<Expression> expressions) {
         List<NSData> evaluated = new ROList<>();
 
         for (Expression a : expressions) {
@@ -153,40 +153,6 @@ public class ExpressionEvaluator {
         return NSList.from(values);
     }
 
-    private static NSData evaluateAssignmentOrUpdateExpression(Context context, BinaryExpression binaryExpression) {
-        Expression st_lhs = binaryExpression.getLHS();
-        Expression st_rhs = binaryExpression.getRHS();
-        NSData value;
-
-        if (st_lhs instanceof LookupExpression) {
-            LookupExpression st_source = (LookupExpression) st_lhs;
-            NSData source = evaluateExpression(context, st_source.getSource());
-            value = evaluateExpression(context, st_rhs);
-            List<NSData> terms = evaluateListOfExpressions(context, st_source.getTerms().getTerms());
-            source.nsUpdate(terms, value);
-        } else if (st_lhs instanceof BinaryExpression && ((BinaryExpression) st_lhs).getOperator() == Operator.ACCESSOR) {
-            Expression st_source = ((BinaryExpression) st_lhs).getLHS();
-            Expression st_member = ((BinaryExpression) st_lhs).getRHS();
-            if (!(st_member instanceof IdentifierExpression)) {
-                throw VMError.from(BuiltinClass.SyntaxError, "Invalid member assignment");
-            }
-            NSData source = evaluateExpression(context, st_source);
-            String member = ((IdentifierExpression) st_member).getIdentifier().getName();
-            value = evaluateExpression(context, st_rhs);
-            source.nsAssign(member, value);
-        } else if (st_lhs instanceof IdentifierExpression) {
-            String symbol = ((IdentifierExpression) st_lhs).getIdentifier().getName();
-            value = evaluateExpression(context, st_rhs);
-            if (!context.setContextSymbol(symbol, value)) {
-                throw VMError.from(BuiltinClass.ReferenceError, String.format("The variable `%s` does not exist", symbol));
-            }
-        } else {
-            throw VMError.from(BuiltinClass.SyntaxError, "Invalid assignment LHS");
-        }
-
-        return value;
-    }
-
     private static NSData evaluateConditionalBranchesExpression(Context context, ConditionalBranchesExpression expression) {
         for (Branch b : expression.getConditionalBranches()) {
             NSData condition = evaluateExpression(context, b.getCondition());
@@ -226,10 +192,6 @@ public class ExpressionEvaluator {
         Expression st_lhs = expression.getLHS();
         Expression st_rhs = expression.getRHS();
         Operator operator = expression.getOperator();
-
-        if (operator == Operator.ASSIGNMENT) {
-            return evaluateAssignmentOrUpdateExpression(context, expression);
-        }
 
         // For ASSIGNMENT, <lhs> may not be evaluated, so check before here
         NSData lhs = evaluateExpression(context, st_lhs);

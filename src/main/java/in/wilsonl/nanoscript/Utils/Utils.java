@@ -41,13 +41,13 @@ public class Utils {
         return str.toString();
     }
 
-    public static String join(String delimiter, String[] array, int offset, int before) {
+    public static String join(String delimiter, Object[] array, int offset, int before) {
         StringBuilder str = new StringBuilder();
         if (before < 0) {
             before = array.length + before;
         }
         for (int i = offset; i < before; i++) {
-            str.append(array[i]);
+            str.append(array[i].toString());
             if (i < before - 1) {
                 str.append(delimiter);
             }
@@ -55,7 +55,7 @@ public class Utils {
         return str.toString();
     }
 
-    public static String join(String delimiter, String[] array) {
+    public static String join(String delimiter, Object[] array) {
         return join(delimiter, array, 0, array.length);
     }
 

@@ -30,6 +30,10 @@ public class BlockScope implements Context {
         contextHelper.createSymbol(name, initialValue);
     }
 
+    public boolean hasContextSymbol(String name) {
+        return contextHelper.hasSymbol(name);
+    }
+
     public void clearSymbols() {
         contextHelper.clearSymbols();
     }

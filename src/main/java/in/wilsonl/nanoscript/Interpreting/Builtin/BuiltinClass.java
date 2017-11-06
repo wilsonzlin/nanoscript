@@ -3,7 +3,6 @@ package in.wilsonl.nanoscript.Interpreting.Builtin;
 import in.wilsonl.nanoscript.Interpreting.Arguments.ArgumentsValidator;
 import in.wilsonl.nanoscript.Interpreting.Arguments.NSArgument;
 import in.wilsonl.nanoscript.Interpreting.Arguments.NSParameter;
-import in.wilsonl.nanoscript.Interpreting.Data.NSData;
 import in.wilsonl.nanoscript.Interpreting.Data.NSNativeClass;
 import in.wilsonl.nanoscript.Interpreting.Data.NSNativeClass.ClassBuilder;
 import in.wilsonl.nanoscript.Interpreting.Data.NSString;
@@ -12,11 +11,12 @@ import in.wilsonl.nanoscript.Utils.ROList;
 import java.util.List;
 
 import static in.wilsonl.nanoscript.Interpreting.Arguments.ArgumentsValidator.ZERO;
+import static in.wilsonl.nanoscript.Interpreting.Data.NSData.Type.STRING;
 import static in.wilsonl.nanoscript.Interpreting.Data.NSNull.NULL;
 
 public enum BuiltinClass {
     RuntimeError(new ClassBuilder()
-            .setConstructor(new ArgumentsValidator(null, new NSParameter("message", NSData.Type.STRING)), (self, arguments) -> {
+            .setConstructor(new ArgumentsValidator(null, new NSParameter("message", STRING)), (self, arguments) -> {
                 self.nsAssign("message", arguments.get("message").nsToString());
                 return NULL;
             })

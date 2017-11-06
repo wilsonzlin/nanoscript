@@ -8,17 +8,18 @@ import in.wilsonl.nanoscript.Syntax.Statement.BreakStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.CaseStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ClassStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ConditionalBranchesStatement;
+import in.wilsonl.nanoscript.Syntax.Statement.CreateStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ExportStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ExpressionStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ForStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.LoopStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.NextStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ReturnStatement;
+import in.wilsonl.nanoscript.Syntax.Statement.SetStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.Statement;
 import in.wilsonl.nanoscript.Syntax.Statement.SuperStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ThrowStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.TryStatement;
-import in.wilsonl.nanoscript.Syntax.Statement.VariableDeclarationStatement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,12 +41,14 @@ public class CodeBlock {
         map.put(T_KEYWORD_CASE, CaseStatement::parseCaseStatement);
         map.put(T_KEYWORD_CLASS, ClassStatement::parseClassStatement);
         map.put(T_KEYWORD_IF, ConditionalBranchesStatement::parseConditionalBranchesStatement);
+        map.put(T_KEYWORD_CREATE, CreateStatement::parseCreateStatement);
         map.put(T_KEYWORD_EXPORT, ExportStatement::parseExportStatement);
         map.put(T_KEYWORD_FOR, ForStatement::parseForStatement);
         map.put(T_KEYWORD_WHILE, LoopStatement::parseWhileStatement);
         map.put(T_KEYWORD_UNTIL, LoopStatement::parseUntilStatement);
         map.put(T_KEYWORD_NEXT, NextStatement::parseNextStatement);
         map.put(T_KEYWORD_RETURN, ReturnStatement::parseReturnStatement);
+        map.put(T_KEYWORD_SET, SetStatement::parseSetStatement);
         map.put(T_KEYWORD_SUPER, SuperStatement::parseSuperStatement);
         map.put(T_KEYWORD_THROW, ThrowStatement::parseThrowStatement);
         map.put(T_KEYWORD_TRY, TryStatement::parseTryStatement);
@@ -76,17 +79,9 @@ public class CodeBlock {
 
             if (PARSERS.containsKey(nextTokenType)) {
                 statement = PARSERS.get(nextTokenType).apply(tokens);
-            } else if (nextTokenType == T_IDENTIFIER || nextTokenType == T_KEYWORD_SELF) {
-                TokenType tokenTypeAfter = tokens.peek(2).getType();
-                if (tokenTypeAfter == T_INITIALISE) {
-                    // If <nextTokenType> is `self`, this will throw exception
-                    statement = VariableDeclarationStatement.parseVariableDeclarationStatement(tokens);
-                } else {
-                    // Handles all other possibilities, and throws when unknown
-                    statement = ExpressionStatement.parseExpressionStatement(tokens);
-                }
             } else {
-                throw tokens.constructMalformedSyntaxException("Unknown statement");
+                // Handles all other possibilities, and throws when unknown
+                statement = ExpressionStatement.parseExpressionStatement(tokens);
             }
 
             codeBlock.pushStatement(statement);

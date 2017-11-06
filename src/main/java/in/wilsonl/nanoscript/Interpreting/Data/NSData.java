@@ -120,6 +120,6 @@ public abstract class NSData {
     }
 
     public enum Type {
-        BOOLEAN, NULL, NUMBER, STRING, CALLABLE, OBJECT, CLASS, ITERATOR, LIST
+        BOOLEAN, NULL, NUMBER, STRING, CALLABLE, OBJECT, CLASS, ITERATOR, MAP, LIST
     }
 }

@@ -69,10 +69,6 @@ public class Lexer {
         sequences.put("^", T_EXPONENTIATE);
         sequences.put("%", T_MODULO);
 
-        // Variables
-        sequences.put(":=", T_INITIALISE);
-        sequences.put("=", T_ASSIGNMENT);
-
         // Relation
         sequences.put("==", T_EQ);
         sequences.put("!=", T_NEQ);
@@ -110,6 +106,7 @@ public class Lexer {
 
         map.put("fn", T_KEYWORD_FUNCTION);
         map.put("endfn", T_KEYWORD_FUNCTION_END);
+        map.put("variable", T_KEYWORD_VARIABLE);
         map.put("method", T_KEYWORD_METHOD);
         map.put("endmethod", T_KEYWORD_METHOD_END);
         map.put("constructor", T_KEYWORD_CONSTRUCTOR);
@@ -120,6 +117,10 @@ public class Lexer {
         map.put("static", T_KEYWORD_STATIC);
         map.put("final", T_KEYWORD_FINAL);
         map.put("sealed", T_KEYWORD_SEALED);
+
+        map.put("create", T_KEYWORD_CREATE);
+        map.put("set", T_KEYWORD_SET);
+        map.put("to", T_KEYWORD_TO);
 
         map.put("throw", T_KEYWORD_THROW);
 
@@ -159,7 +160,7 @@ public class Lexer {
         map.put("endcase", T_KEYWORD_CASE_END);
         map.put("when", T_KEYWORD_WHEN);
 
-        map.put("ret", T_KEYWORD_RETURN);
+        map.put("return", T_KEYWORD_RETURN);
         map.put("break", T_KEYWORD_BREAK);
         map.put("next", T_KEYWORD_NEXT);
 

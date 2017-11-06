@@ -13,15 +13,16 @@ public class ClassVariable extends ClassMember {
     public static ClassVariable parseClassVariable(Tokens tokens) {
         ClassVariable oomlClassVariable = new ClassVariable();
         Variable oomlVariable = new Variable();
-
-        oomlVariable.setName(Identifier.requireIdentifier(tokens));
+        tokens.require(TokenType.T_KEYWORD_VARIABLE);
         if (tokens.skipIfNext(TokenType.T_COLON)) {
             oomlClassVariable.isStatic(tokens.skipIfNext(TokenType.T_KEYWORD_STATIC));
         } else {
             oomlClassVariable.isStatic(false);
         }
 
-        tokens.require(TokenType.T_INITIALISE);
+        oomlVariable.setName(Identifier.requireIdentifier(tokens));
+
+        tokens.require(TokenType.T_KEYWORD_AS);
         oomlVariable.setInitialiser(Expression.parseExpression(tokens));
 
         oomlClassVariable.setVariable(oomlVariable);

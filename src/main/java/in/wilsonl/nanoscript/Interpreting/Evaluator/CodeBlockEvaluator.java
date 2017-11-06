@@ -2,6 +2,7 @@ package in.wilsonl.nanoscript.Interpreting.Evaluator;
 
 import in.wilsonl.nanoscript.Exception.InternalStateError;
 import in.wilsonl.nanoscript.Interpreting.BlockScope;
+import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.Context;
 import in.wilsonl.nanoscript.Interpreting.Data.NSClass;
 import in.wilsonl.nanoscript.Interpreting.Data.NSData;
@@ -13,6 +14,10 @@ import in.wilsonl.nanoscript.Interpreting.GlobalScope;
 import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Syntax.CodeBlock;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
+import in.wilsonl.nanoscript.Syntax.Expression.General.BinaryExpression;
+import in.wilsonl.nanoscript.Syntax.Expression.IdentifierExpression;
+import in.wilsonl.nanoscript.Syntax.Expression.LookupExpression;
+import in.wilsonl.nanoscript.Syntax.Operator;
 import in.wilsonl.nanoscript.Syntax.Reference;
 import in.wilsonl.nanoscript.Syntax.Statement.BreakStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.CaseStatement;
@@ -20,24 +25,24 @@ import in.wilsonl.nanoscript.Syntax.Statement.CaseStatement.Option;
 import in.wilsonl.nanoscript.Syntax.Statement.ClassStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ConditionalBranchesStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ConditionalBranchesStatement.Branch;
+import in.wilsonl.nanoscript.Syntax.Statement.CreateStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ExportStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ExpressionStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ForStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.LoopStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.NextStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.ReturnStatement;
+import in.wilsonl.nanoscript.Syntax.Statement.SetStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.Statement;
 import in.wilsonl.nanoscript.Syntax.Statement.ThrowStatement;
 import in.wilsonl.nanoscript.Syntax.Statement.TryStatement;
-import in.wilsonl.nanoscript.Syntax.Statement.VariableDeclarationStatement;
 
 import java.util.List;
 import java.util.Set;
 
 import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.EndOfIterationError;
 import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.SyntaxError;
-import static in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator.evaluateExpression;
-import static in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator.evaluateTypeOfExpression;
+import static in.wilsonl.nanoscript.Interpreting.Evaluator.ExpressionEvaluator.*;
 
 public class CodeBlockEvaluator {
     public static EvaluationResult evaluateCodeBlock(Context context, CodeBlock codeBlock) {
@@ -58,6 +63,9 @@ public class CodeBlockEvaluator {
                 } else if (statement instanceof ConditionalBranchesStatement) {
                     result = evaluateConditionalBranchesStatement(context, (ConditionalBranchesStatement) statement);
 
+                } else if (statement instanceof CreateStatement) {
+                    result = evaluateVariableDeclarationStatement(context, (CreateStatement) statement);
+
                 } else if (statement instanceof ExportStatement) {
                     result = evaluateExportStatement(context, (ExportStatement) statement);
 
@@ -76,14 +84,14 @@ public class CodeBlockEvaluator {
                 } else if (statement instanceof ReturnStatement) {
                     result = evaluateReturnStatement(context, (ReturnStatement) statement);
 
+                } else if (statement instanceof SetStatement) {
+                    result = evaluateSetStatement(context, (SetStatement) statement);
+
                 } else if (statement instanceof ThrowStatement) {
                     result = evaluateThrowStatement(context, (ThrowStatement) statement);
 
                 } else if (statement instanceof TryStatement) {
                     result = evaluateTryStatement(context, (TryStatement) statement);
-
-                } else if (statement instanceof VariableDeclarationStatement) {
-                    result = evaluateVariableDeclarationStatement(context, (VariableDeclarationStatement) statement);
 
                 } else {
                     throw new InternalStateError("Unknown statement type");
@@ -138,6 +146,40 @@ public class CodeBlockEvaluator {
             }
 
             throw vme;
+        }
+
+        return null;
+    }
+
+    private static EvaluationResult evaluateSetStatement(Context context, SetStatement setStatement) {
+        Expression st_lhs = setStatement.getTarget();
+        Expression st_rhs = setStatement.getValue();
+        NSData value;
+
+        if (st_lhs instanceof LookupExpression) {
+            LookupExpression st_source = (LookupExpression) st_lhs;
+            NSData source = evaluateExpression(context, st_source.getSource());
+            value = evaluateExpression(context, st_rhs);
+            List<NSData> terms = evaluateListOfExpressions(context, st_source.getTerms().getTerms());
+            source.nsUpdate(terms, value);
+        } else if (st_lhs instanceof BinaryExpression && ((BinaryExpression) st_lhs).getOperator() == Operator.ACCESSOR) {
+            Expression st_source = ((BinaryExpression) st_lhs).getLHS();
+            Expression st_member = ((BinaryExpression) st_lhs).getRHS();
+            if (!(st_member instanceof IdentifierExpression)) {
+                throw VMError.from(BuiltinClass.SyntaxError, "Invalid member assignment");
+            }
+            NSData source = evaluateExpression(context, st_source);
+            String member = ((IdentifierExpression) st_member).getIdentifier().getName();
+            value = evaluateExpression(context, st_rhs);
+            source.nsAssign(member, value);
+        } else if (st_lhs instanceof IdentifierExpression) {
+            String symbol = ((IdentifierExpression) st_lhs).getIdentifier().getName();
+            value = evaluateExpression(context, st_rhs);
+            if (!context.setContextSymbol(symbol, value)) {
+                throw VMError.from(BuiltinClass.ReferenceError, String.format("The variable `%s` does not exist", symbol));
+            }
+        } else {
+            throw VMError.from(BuiltinClass.SyntaxError, "Invalid assignment target");
         }
 
         return null;
@@ -294,9 +336,9 @@ public class CodeBlockEvaluator {
         return null;
     }
 
-    private static EvaluationResult evaluateVariableDeclarationStatement(Context context, VariableDeclarationStatement statement) {
-        String name = statement.getVariable().getName().getName();
-        Expression st_init = statement.getVariable().getInitialiser();
+    private static EvaluationResult evaluateVariableDeclarationStatement(Context context, CreateStatement statement) {
+        String name = statement.getIdentifier().getName();
+        Expression st_init = statement.getValue();
         NSData value = evaluateExpression(context, st_init);
         context.createContextSymbol(name, value);
         return null;

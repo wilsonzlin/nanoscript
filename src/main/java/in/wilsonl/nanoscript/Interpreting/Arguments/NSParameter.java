@@ -28,7 +28,7 @@ public class NSParameter {
 
         if (types != null && types.length > 0) {
             StringBuilder typesStringRep = new StringBuilder();
-            for (int i = 0; i <= types.length - 1; i++) {
+            for (int i = 0; i < types.length - 1; i++) {
                 NSData.Type type = types[i];
                 this.types.add(type);
                 typesStringRep.append(type);

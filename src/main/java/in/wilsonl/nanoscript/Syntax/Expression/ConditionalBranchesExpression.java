@@ -43,11 +43,11 @@ public class ConditionalBranchesExpression extends Expression {
             TokenType nextToken = tokens.peekType();
 
             switch (nextToken) {
-                case T_KEYWORD_ELSEIF:
+                case T_KEYWORD_ELIF:
                     tokens.skip();
                     break;
 
-                case T_KEYWORD_OTHERWISE:
+                case T_KEYWORD_ELSE:
                 case T_KEYWORD_ENDIF:
                     done = true;
                     break;

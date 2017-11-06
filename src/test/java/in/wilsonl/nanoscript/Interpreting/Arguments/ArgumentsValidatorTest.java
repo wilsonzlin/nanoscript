@@ -55,7 +55,21 @@ public class ArgumentsValidatorTest {
     }
 
     @Test
-    public void testValidate() {
+    public void testOptionalArguments() {
+        // lambda := fn (a) endfn
+        // lambda(3, optional 4)
+        test(new Builder()
+                .addParameter(false, false, "a")
+
+                .addArgument(false, TRUE)
+                .addArgument(true, TRUE)
+
+                .addExpected("a", TRUE)
+        );
+    }
+
+    @Test
+    public void testFullFat() {
         // fn (a, b, c, opt d, opt e, opt f, opt ...g, opt h, opt i, opt j, k, l, m)
         test(new Builder()
                 .addParameter(false, false, "leftRequired1")

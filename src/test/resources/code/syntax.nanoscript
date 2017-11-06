@@ -1,30 +1,41 @@
-five := 1 + 1
+from `syntax.nanoscript` import self
+
+create five as 1 + 1
 
 print(1)
 
-for i in range(1, 2, 3) do
+for i in range(1, 5) do
     print(i)
 endfor
 
 print(five, 4, 3, `two`)
 
-obj := {
-    a = 1,
-    b = 2,
+create obj as {
+    a as 1,
+    b as 2,
 }
 
-lambda := fn (arg1, optional arg2 := [obj.a])
+throw RuntimeError(`astr`)
+
+create lambda as fn (arg1, optional arg2 ?? [obj.a])
     print(arg1)
-    arg2[] = 2
-    obj.a = obj.a + 1
+    set arg2[] to if arg2[-1] == 2: 1 elif arg2[-1] == 1: 3 else: 4 endif
+    set obj.a to obj.a + 1
     print(arg2)
+    return arg2
 endfn
 
-class : Test begin
+class
+A begin
 endclass
 
-lambda(3.14)
-lambda(3.14)
+class
+B : A begin
+endclass
+
+create rv as lambda(3.14)
+set rv to lambda(rv)
+print(rv)
 
 print(`a is `, obj.a)
 
@@ -41,7 +52,7 @@ endtry
 
 print([1, 2, 3])
 
-some_list := [`a`, `b`, `c`]
+create some_list as [`a`, `b`, `c`]
 print(some_list[0])
 
 print(`abc` <=> `abcd`)
@@ -50,94 +61,94 @@ print()
 print()
 print()
 
-graph := [
-    [18,34,42],
-    [13,21,44],
-    [7,17],
-    [28,37,41],
-    [25,29,39],
+create graph as [
+    [18, 34, 42],
+    [13, 21, 44],
+    [7, 17],
+    [28, 37, 41],
+    [25, 29, 39],
     [29],
-    [11,16,20,23,29],
-    [11,15,33,43],
-    [4,5,25,26],
-    [23,33],
-    [2,9,15,33,43],
-    [16,20,23,32],
-    [0,18],
+    [11, 16, 20, 23, 29],
+    [11, 15, 33, 43],
+    [4, 5, 25, 26],
+    [23, 33],
+    [2, 9, 15, 33, 43],
+    [16, 20, 23, 32],
+    [0, 18],
     [1],
-    [12,15,24,42],
-    [2,9,20],
-    [19,31,36],
-    [9,21,30],
-    [0,24,37,42],
-    [6,32],
-    [6,16,36],
+    [12, 15, 24, 42],
+    [2, 9, 20],
+    [19, 31, 36],
+    [9, 21, 30],
+    [0, 24, 37, 42],
+    [6, 32],
+    [6, 16, 36],
     [44],
-    [27,33],
-    [8,11],
+    [27, 33],
+    [8, 11],
     [14],
-    [4,5,26],
-    [4,5,38],
-    [3,28,37],
-    [22,34,40],
-    [4,5,26,39],
-    [7,15,17,33,43],
-    [4,13,23,36],
-    [16,20,36],
-    [7,10,15],
-    [3,41],
+    [4, 5, 26],
+    [4, 5, 38],
+    [3, 28, 37],
+    [22, 34, 40],
+    [4, 5, 26, 39],
+    [7, 15, 17, 33, 43],
+    [4, 13, 23, 36],
+    [16, 20, 36],
+    [7, 10, 15],
+    [3, 41],
     [26],
-    [6,35],
-    [3,28,34,40,41],
-    [4,8,29],
-    [35,38],
-    [3,37],
-    [3,22,27,28,40],
-    [14,18,24],
-    [2,16,33],
-    [1,21],
+    [6, 35],
+    [3, 28, 34, 40, 41],
+    [4, 8, 29],
+    [35, 38],
+    [3, 37],
+    [3, 22, 27, 28, 40],
+    [14, 18, 24],
+    [2, 16, 33],
+    [1, 21],
 ]
 
-nodes := []
+create nodes as []
 "nodes.pop()"
 for i in range(#graph) do
-    nodes[] = true
+    set nodes[] to true
 endfor
 
-auto_increment := 0
+create auto_increment as 0
 
-dfs := fn (start_node)
-    stack := [start_node]
+create dfs as fn (start_node)
+    create stack as [start_node]
     while #stack > 0 before
-        top := stack[-1]
-        white_neighbour := null
+        create top as stack[-1]
+        create white_neighbour as null
         "print(`Processing ` + str(top))"
         "print(`Neighbours of ` + str(top) + `:`)"
         "print(graph[top])"
         for neighbour in graph[top] do
             "print(`Checking neighbour ` + str(neighbour))"
-            is_grey := false
+            create is_grey as false
             for n in stack do
                 if n == neighbour then
                     "print(str(n) + ` is in stack and is therefore grey`)"
-                    is_grey = true
+                    set is_grey to true
                     break
                 endif
             endfor
-            is_black := not nodes[neighbour]
+            create is_black as not nodes[neighbour]
             if not is_grey and not is_black then
                 "print(`Yes, ` + str(top) + ` has white neighbour ` + str(neighbour))"
-                white_neighbour = neighbour
+                set white_neighbour to neighbour
                 break
             endif
         endfor
         if white_neighbour == null then
             print(str(auto_increment) + `,` + str(stack.pop()))
-            auto_increment = auto_increment + 1
-            nodes[top] = false
+            set auto_increment to auto_increment + 1
+            set nodes[top] to false
         otherwise
             "print(`Adding ` + str(white_neighbour) + ` to stack`)"
-            stack[] = white_neighbour
+            set stack[] to white_neighbour
         endif
     loop
     print()

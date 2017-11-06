@@ -15,6 +15,7 @@ public enum TokenType {
 
     T_KEYWORD_FUNCTION,
     T_KEYWORD_FUNCTION_END,
+    T_KEYWORD_VARIABLE,
     T_KEYWORD_METHOD,
     T_KEYWORD_METHOD_END,
     T_KEYWORD_CONSTRUCTOR,
@@ -27,6 +28,10 @@ public enum TokenType {
     T_KEYWORD_SUPER,
     T_KEYWORD_FINAL,
     T_KEYWORD_SEALED,
+
+    T_KEYWORD_CREATE,
+    T_KEYWORD_SET,
+    T_KEYWORD_TO,
 
     T_KEYWORD_THROW,
 
@@ -108,9 +113,6 @@ public enum TokenType {
     T_DIVIDE,
     T_MODULO,
     T_EXPONENTIATE,
-
-    T_INITIALISE,
-    T_ASSIGNMENT,
 
     T_EQ,
     T_NEQ,

@@ -1,5 +1,6 @@
 package in.wilsonl.nanoscript.Syntax.Class;
 
+import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassConstructor;
@@ -16,14 +17,15 @@ import java.util.List;
 import static in.wilsonl.nanoscript.Parsing.TokenType.*;
 
 public class Class {
+    private static final AcceptableTokenTypes MODIFIER_TOKENS = new AcceptableTokenTypes(T_KEYWORD_STATIC, T_KEYWORD_FINAL);
     // Don't use a Set, as ordering matters
     private final List<ClassVariable> memberVariables = new ROList<>();
     private final List<ClassMethod> memberMethods = new ROList<>();
     private final List<Reference> parents = new ROList<>();
     private final SetOnce<Identifier> name = new SetOnce<>();
     private final SetOnce<ClassConstructor> constructor = new SetOnce<>(true); // Can be null if using default constructor
+    // TODO final, static
     private final Position position;
-    // TODO final, sealed, static
 
     public Class(Position position) {
         this.position = position;
@@ -33,7 +35,10 @@ public class Class {
         Position position = tokens.require(T_KEYWORD_CLASS).getPosition();
         Class nanoscriptClass = new Class(position);
 
-        tokens.require(T_COLON);
+        if (tokens.skipIfNext(T_COLON)) {
+            // TODO
+            tokens.require(MODIFIER_TOKENS);
+        }
 
         nanoscriptClass.setName(Identifier.requireIdentifier(tokens));
 

@@ -30,7 +30,7 @@ public class VMError extends RuntimeException {
         this.position = position;
     }
 
-    public static VMError from(BuiltinClass type, Object... raw_args) {
+    public static VMError from(Position position, BuiltinClass type, Object... raw_args) {
         if (!type.getNSClass().isOrIsDescendantOf(RuntimeError.getNSClass())) {
             throw new InternalStateError("Invalid type");
         }
@@ -54,11 +54,11 @@ public class VMError extends RuntimeException {
         }
 
         NSData nsError = type.getNSClass().nsCall(args);
-        return new VMError(nsError);
+        return new VMError(nsError, position);
     }
 
-    public boolean hasPosition() {
-        return position != null;
+    public static VMError from(BuiltinClass type, Object... raw_args) {
+        return from(null, type, raw_args);
     }
 
     private static String buildMessage(NSData value, Position position) {
@@ -75,6 +75,10 @@ public class VMError extends RuntimeException {
         }
 
         return message;
+    }
+
+    public boolean hasPosition() {
+        return position != null;
     }
 
     public NSData getValue() {

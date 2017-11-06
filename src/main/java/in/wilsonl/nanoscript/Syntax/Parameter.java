@@ -30,7 +30,7 @@ public class Parameter {
         boolean variableLength = tokens.skipIfNext(T_ELLIPSIS);
         Identifier name = Identifier.requireIdentifier(tokens);
         Expression defaultValue = null;
-        if (tokens.skipIfNext(T_INITIALISE)) {
+        if (tokens.skipIfNext(T_NULL_COALESCING)) {
             defaultValue = Expression.parseExpression(tokens, new AcceptableTokenTypes(T_COMMA, T_PARENTHESIS_RIGHT));
         }
         try {

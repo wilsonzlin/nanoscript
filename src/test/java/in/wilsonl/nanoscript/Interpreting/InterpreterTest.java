@@ -21,8 +21,7 @@ public class InterpreterTest {
         Lexer lexer = new Lexer(code);
         Tokens tokens = new Tokens(lexer);
         Chunk parsed = Parser.parse(tokens);
-        Interpreter interpreter = new Interpreter(parsed);
-        interpreter.interpret();
+        Interpreter.interpret(null, parsed);
     }
 
     @Test
