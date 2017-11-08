@@ -22,11 +22,13 @@ public class NSDataHelperMethods {
         private final Method javaMethod;
         private final ArgumentsValidator nsParams;
         private final String[] nsParamToJavaParam;
+        private final String nsVarLenParam;
 
-        private HelperMethod(Method javaMethod, ArgumentsValidator nsParams, String[] nsParamToJavaParam) {
+        private HelperMethod(Method javaMethod, ArgumentsValidator nsParams, String[] nsParamToJavaParam, String nsVarLenParam) {
             this.javaMethod = javaMethod;
             this.nsParams = nsParams;
             this.nsParamToJavaParam = nsParamToJavaParam;
+            this.nsVarLenParam = nsVarLenParam;
         }
 
         public Method getJavaMethod() {
@@ -39,6 +41,10 @@ public class NSDataHelperMethods {
 
         public String[] getNsParamToJavaParam() {
             return nsParamToJavaParam;
+        }
+
+        public String getNsVarLenParam() {
+            return nsVarLenParam;
         }
     }
 
@@ -62,6 +68,7 @@ public class NSDataHelperMethods {
                 int nsParamsCount = method.getParameterCount() - 1;
                 NSParameter[] nsParamConstraints = new NSParameter[nsParamsCount];
                 String[] nsParamToJavaParam = new String[nsParamsCount];
+                String nsVarLenParam = null;
 
                 for (int i = 0; i < nsParamsCount; i++) {
                     if (methodParamAnnotations[i + 1].length == 1) {
@@ -72,13 +79,16 @@ public class NSDataHelperMethods {
                         BuiltinMethodParameter nsParam = (BuiltinMethodParameter) paramAnno;
                         nsParamConstraints[i] = new NSParameter(nsParam.optional(), nsParam.variableLength(), nsParam.name(), nsParam.types(), null);
                         nsParamToJavaParam[i] = nsParam.name();
+                        if (nsParam.variableLength()) {
+                            nsVarLenParam = nsParam.name();
+                        }
 
                     } else if (methodParamAnnotations[i + 1].length != 0) {
                         throw new InternalStateError("Helper methods class method has more than one annotation for a parameter");
                     }
                 }
 
-                methods.put(methodAnnotation.name(), new HelperMethod(method, new ArgumentsValidator(null, nsParamConstraints), nsParamToJavaParam));
+                methods.put(methodAnnotation.name(), new HelperMethod(method, new ArgumentsValidator(null, nsParamConstraints), nsParamToJavaParam, nsVarLenParam));
             }
         }
     }
@@ -94,7 +104,13 @@ public class NSDataHelperMethods {
             Object[] javaMethodArgs = new Object[nsParamToJavaParam.length + 1];
             javaMethodArgs[0] = selfValue;
             for (int i = 0; i < nsParamToJavaParam.length; i++) {
-                javaMethodArgs[i + 1] = arguments.get(nsParamToJavaParam[i]);
+                String nsParamName = nsParamToJavaParam[i];
+                NSData nsParamValue = arguments.get(nsParamName);
+                if (nsParamName.equals(method.getNsVarLenParam())) {
+                    javaMethodArgs[i + 1] = ((NSList) nsParamValue).getRawList();
+                } else {
+                    javaMethodArgs[i + 1] = nsParamValue;
+                }
             }
             try {
                 return (NSData) javaMethod.invoke(null, javaMethodArgs);
