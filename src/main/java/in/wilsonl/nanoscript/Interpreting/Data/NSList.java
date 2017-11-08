@@ -1,7 +1,7 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
-import in.wilsonl.nanoscript.Interpreting.Arguments.ArgumentsValidator;
 import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
+import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinNSListMethods;
 import in.wilsonl.nanoscript.Interpreting.VMError;
 import in.wilsonl.nanoscript.Utils.ROList;
 import in.wilsonl.nanoscript.Utils.Utils;
@@ -11,18 +11,24 @@ import java.util.Iterator;
 import java.util.List;
 
 import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.KeyError;
+import static in.wilsonl.nanoscript.Interpreting.Data.NSData.Type.LIST;
+import static in.wilsonl.nanoscript.Interpreting.Data.NSData.Type.NUMBER;
 
 public class NSList extends NSData {
+    private static final NSDataHelperMethods helperMethods = new NSDataHelperMethods(NSList.class, BuiltinNSListMethods.class);
     private final List<NSData> rawList;
-    private final NSDataHelperMethods helperMethods = createMemberMethods();
 
     private NSList(List<NSData> initialList) {
-        super(Type.LIST);
+        super(LIST);
         rawList = initialList;
     }
 
     public static NSList from(List<NSData> initialList) {
         return new NSList(new ArrayList<>(initialList));
+    }
+
+    public static NSList fromEmpty() {
+        return new NSList(new ArrayList<>());
     }
 
     // Equality of lists is only if they are the same instance, not based on the contents
@@ -42,30 +48,8 @@ public class NSList extends NSData {
         return rawList;
     }
 
-    // Create a new set of methods for every instance
-    // Alternative is to pass in the instance, but that would be tricky
-    // and involve creating new interfaces; also, a new NSNativeFunction
-    // instance would need to be created every time anyway
-    private NSDataHelperMethods createMemberMethods() {
-        NSDataHelperMethods methods = new NSDataHelperMethods();
-
-        methods.addMethod("pop", ArgumentsValidator.ZERO, arguments -> {
-            try {
-                return rawList.remove(rawList.size() - 1);
-            } catch (ArrayIndexOutOfBoundsException aioobe) {
-                throw VMError.from(BuiltinClass.NoSuchElementError, "List is empty");
-            }
-        });
-
-        return methods;
-    }
-
-    private int getValidKeyFromTerms(List<NSData> terms) {
-        if (terms.size() != 1) {
-            throw VMError.from(KeyError, "No index provided");
-        }
-        NSData index = terms.get(0);
-        if (index.getType() != Type.NUMBER) {
+    public int getValidIndex(NSData index, boolean canBeAtLength) {
+        if (index.getType() != NUMBER) {
             throw VMError.from(KeyError, "Index is not a number");
         }
         // Will throw exception if not an integer
@@ -80,11 +64,19 @@ public class NSList extends NSData {
             rawIdx = rawList.size() + rawIdx;
         }
 
-        if (rawIdx < 0 || rawIdx >= rawList.size()) {
+        if (rawIdx < 0 || rawIdx > rawList.size() || (!canBeAtLength && rawIdx == rawList.size())) {
             throw VMError.from(BuiltinClass.OutOfBoundsError, "Index is out of bounds");
         }
 
         return (int) rawIdx;
+    }
+
+    private int getValidIndexFromTerms(List<NSData> terms) {
+        if (terms.size() != 1) {
+            throw VMError.from(KeyError, "No index provided");
+        }
+        NSData index = terms.get(0);
+        return getValidIndex(index, false);
     }
 
     @Override
@@ -95,7 +87,7 @@ public class NSList extends NSData {
     @Override
     public NSData nsAccess(String member) {
         try {
-            return helperMethods.getMethod(member);
+            return helperMethods.getMethod(this, member);
         } catch (NoSuchMethodException e) {
             throw VMError.from(BuiltinClass.ReferenceError, String.format("Member `%s` does not exist", member));
         }
@@ -103,7 +95,7 @@ public class NSList extends NSData {
 
     @Override
     public NSData nsLookup(List<NSData> terms) {
-        int idx = getValidKeyFromTerms(terms);
+        int idx = getValidIndexFromTerms(terms);
         return rawList.get(idx);
     }
 
@@ -112,7 +104,7 @@ public class NSList extends NSData {
         if (terms.isEmpty()) {
             rawList.add(value);
         } else {
-            int idx = getValidKeyFromTerms(terms);
+            int idx = getValidIndexFromTerms(terms);
             rawList.set(idx, value);
         }
     }

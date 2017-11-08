@@ -1,4 +1,4 @@
-from `syntax.nanoscript` import self
+"from `syntax.nanoscript` import self"
 
 create five as 1 + 1
 
@@ -14,8 +14,6 @@ create obj as {
     a as 1,
     b as 2,
 }
-
-throw RuntimeError(`astr`)
 
 create lambda as fn (arg1, optional arg2 ?? [obj.a])
     print(arg1)
@@ -110,7 +108,7 @@ create graph as [
 ]
 
 create nodes as []
-"nodes.pop()"
+nodes.pop()
 for i in range(#graph) do
     set nodes[] to true
 endfor

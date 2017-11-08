@@ -50,6 +50,10 @@ public class NSParameter {
         }
     }
 
+    public NSParameter(boolean optional, boolean variableLength, String name, NSData.Type type) {
+        this(optional, variableLength, name, new NSData.Type[]{type}, null);
+    }
+
     public NSParameter(boolean optional, boolean variableLength, String name) {
         this(optional, variableLength, name, null, null);
     }

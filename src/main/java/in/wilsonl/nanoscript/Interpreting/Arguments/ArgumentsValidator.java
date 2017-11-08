@@ -21,7 +21,8 @@ import static java.lang.String.format;
 
 public class ArgumentsValidator {
     public static final ArgumentsValidator ANY = new ArgumentsValidator(null, new NSParameter(true, true, "values"));
-    public static final ArgumentsValidator ZERO = new ArgumentsValidator(null);
+    public static final ArgumentsValidator ZERO = new ArgumentsValidator();
+    public static final ArgumentsValidator ONE = new ArgumentsValidator(null, new NSParameter(false, false, "value"));
     private final NSParameter[] parameters;
     private final Context defaultValuesContext; // Can be null
     private boolean hasOptional = false;
@@ -88,6 +89,10 @@ public class ArgumentsValidator {
 
     public ArgumentsValidator(Context defaultValuesContext, NSParameter parameter) {
         this(defaultValuesContext, new NSParameter[]{parameter});
+    }
+
+    public ArgumentsValidator(NSParameter... parameters) {
+        this(null, parameters);
     }
 
     public ArgumentsValidator(Context defaultValuesContext) {
