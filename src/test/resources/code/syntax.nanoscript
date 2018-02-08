@@ -108,7 +108,7 @@ create graph as [
 ]
 
 create nodes as []
-nodes.pop()
+"nodes.pop()"
 for i in range(#graph) do
     set nodes[] to true
 endfor

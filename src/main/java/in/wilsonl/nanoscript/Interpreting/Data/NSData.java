@@ -1,11 +1,11 @@
 package in.wilsonl.nanoscript.Interpreting.Data;
 
 import in.wilsonl.nanoscript.Interpreting.Arguments.NSArgument;
-import in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass;
 import in.wilsonl.nanoscript.Interpreting.VMError;
 
 import java.util.List;
 
+import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.TypeError;
 import static in.wilsonl.nanoscript.Interpreting.Builtin.BuiltinClass.UnsupportedOperationError;
 
 public abstract class NSData {
@@ -84,11 +84,12 @@ public abstract class NSData {
             return NSBoolean.from(other.equals(this));
         }
         if (other.getType() != getType()) {
-            throw VMError.from(BuiltinClass.TypeError, String.format("Attempted to test equality between types %s and %s", other.getFriendlyTypeName(), getFriendlyTypeName()));
+            throw VMError.from(TypeError, String.format("Attempted to test equality between types %s and %s", other.getFriendlyTypeName(), getFriendlyTypeName()));
         }
         return NSBoolean.from(equals(other));
     }
 
+    // WARNING: nsCompare must return an integer that is either -1, 0, or 1
     public NSNumber nsCompare(NSData other) {
         throw VMError.from(UnsupportedOperationError, String.format("%s values cannot be compared", getFriendlyTypeName(true)));
     }

@@ -87,7 +87,7 @@ public class NSList extends NSData {
     @Override
     public NSData nsAccess(String member) {
         try {
-            return helperMethods.getMethod(this, member);
+            return helperMethods.buildMethod(this, member);
         } catch (NoSuchMethodException e) {
             throw VMError.from(BuiltinClass.ReferenceError, String.format("Member `%s` does not exist", member));
         }

@@ -93,7 +93,7 @@ public class NSDataHelperMethods {
         }
     }
 
-    public NSNativeCallable getMethod(NSData selfValue, String name) throws NoSuchMethodException {
+    public NSNativeCallable buildMethod(NSData selfValue, String name) throws NoSuchMethodException {
         HelperMethod method = methods.get(name);
         if (method == null) {
             throw new NoSuchMethodException("No such method");
