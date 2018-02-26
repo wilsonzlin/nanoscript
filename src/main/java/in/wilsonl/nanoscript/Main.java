@@ -27,10 +27,11 @@ public class Main {
     public static void main(String[] args) {
         String filePath;
         try {
-            filePath = args[1];
+            filePath = args[0];
         } catch (ArrayIndexOutOfBoundsException aioobe) {
             throw new IllegalArgumentException("No file provided as first argument");
         }
+        // WARNING: user.dir is the working directory, NOT the user's home directory
         String cwd = System.getProperty("user.dir");
 
         Environment env = new Environment();

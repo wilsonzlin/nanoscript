@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public abstract class LiteralExpression<T> extends Expression {
-    public static final Map<TokenType, Function<Tokens, LiteralExpression>> PARSERS = _createParsersMap();
+    public static final Map<TokenType, Function<Tokens, LiteralExpression<?>>> PARSERS = _createParsersMap();
     private final Type type;
     private final T value;
 
@@ -20,8 +20,8 @@ public abstract class LiteralExpression<T> extends Expression {
         this.value = value;
     }
 
-    private static Map<TokenType, Function<Tokens, LiteralExpression>> _createParsersMap() {
-        Map<TokenType, Function<Tokens, LiteralExpression>> map = new HashMap<>();
+    private static Map<TokenType, Function<Tokens, LiteralExpression<?>>> _createParsersMap() {
+        Map<TokenType, Function<Tokens, LiteralExpression<?>>> map = new HashMap<>();
 
         map.put(TokenType.T_LITERAL_BOOLEAN, LiteralBooleanExpression::parseLiteralBooleanExpression);
         map.put(TokenType.T_LITERAL_NULL, LiteralNullExpression::parseLiteralNullExpression);

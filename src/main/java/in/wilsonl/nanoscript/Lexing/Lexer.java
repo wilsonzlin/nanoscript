@@ -242,6 +242,10 @@ public class Lexer {
                             break;
                     }
                     break;
+
+                default:
+                    // No action necessary
+                    break;
             }
         }
 

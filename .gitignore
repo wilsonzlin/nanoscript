@@ -1,6 +1,11 @@
 /.idea/
 *.iml
 
+/.vscode/
+/.classpath
+/.project
+/.settings/
+
 /lib/
 /out/
 /target/

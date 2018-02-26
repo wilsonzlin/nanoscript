@@ -5,6 +5,6 @@ import org.junit.Test;
 public class MainTest {
     @Test
     public void test() {
-        Main.main(new String[]{null, "src/test/resources/code/syntax.nanoscript"});
+        Main.main(new String[]{"src/test/resources/code/syntax.nanoscript"});
     }
 }
