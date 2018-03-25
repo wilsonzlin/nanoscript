@@ -65,7 +65,7 @@ public class Class {
                     nanoscriptClass.addMemberMethod(ClassMethod.parseClassMethod(tokens));
                     break;
 
-                case T_IDENTIFIER:
+                case T_KEYWORD_VARIABLE:
                     nanoscriptClass.addMemberVariable(ClassVariable.parseClassVariable(tokens));
                     break;
 

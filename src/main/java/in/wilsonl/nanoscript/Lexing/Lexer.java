@@ -323,7 +323,6 @@ public class Lexer {
                     switch (c2) {
                         case '`':
                         case '\\':
-                        case '{':
                             value.append(c2);
                             break;
 
