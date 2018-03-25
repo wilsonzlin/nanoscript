@@ -23,6 +23,11 @@ Yes it does, but don't expect amazing performance (it might have, but I have nei
 
 ## Getting started
 
-Right now, it's a Maven project, so you'll need JDK and Maven. Once installed, just run the `compile.sh` script, which will output `nanoscript-MAJOR-MINOR-PATCH.jar` in `/out/`. Run it using `java`, and provide the path to a nanoscript file as an argument.
+Right now, it's a Maven project, so you'll need JDK and Maven. Once installed, just run the `compile.sh` script, which will output `nanoscript-VERSION.jar` in `/target/`.
+Run it using `java -jar`, and provide the path to a nanoscript file as an argument:
+
+```sh
+java -jar nanoscript-VERSION.jar /path/to/nanoscript.ns
+```
 
 A [quick start](https://wilsonl.in/docs/nanoscript/1/0/General/Quick-start/) article is available in the documentation.
