@@ -180,7 +180,7 @@ public class ExpressionEvaluator {
             case NOT:
                 return operand.nsToBoolean().invert();
 
-            case HASH:
+            case MEASURE:
                 return operand.nsApplyHashOperator();
 
             default:

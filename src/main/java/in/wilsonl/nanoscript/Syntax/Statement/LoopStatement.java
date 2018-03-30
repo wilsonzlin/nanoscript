@@ -28,12 +28,12 @@ public class LoopStatement extends Statement {
         switch (initialToken) {
             case T_KEYWORD_WHILE:
                 testType = TestType.POSITIVE;
-                bodyEndDelimiter = TokenType.T_KEYWORD_LOOP;
+                bodyEndDelimiter = TokenType.T_KEYWORD_WHILE_END;
                 break;
 
             case T_KEYWORD_UNTIL:
                 testType = TestType.NEGATIVE;
-                bodyEndDelimiter = TokenType.T_KEYWORD_REPEAT;
+                bodyEndDelimiter = TokenType.T_KEYWORD_UNTIL_END;
                 break;
 
             default:
