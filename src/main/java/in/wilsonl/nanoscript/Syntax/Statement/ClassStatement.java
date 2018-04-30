@@ -4,18 +4,18 @@ import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Class.Class;
 
 public class ClassStatement extends Statement {
-    private final Class nsClass;
+  private final Class nsClass;
 
-    public ClassStatement(Class nsClass) {
-        super(nsClass.getPosition());
-        this.nsClass = nsClass;
-    }
+  public ClassStatement (Class nsClass) {
+    super(nsClass.getPosition());
+    this.nsClass = nsClass;
+  }
 
-    public static ClassStatement parseClassStatement(Tokens tokens) {
-        return new ClassStatement(Class.parseClass(tokens));
-    }
+  public static ClassStatement parseClassStatement (Tokens tokens) {
+    return new ClassStatement(Class.parseClass(tokens));
+  }
 
-    public Class getNSClass() {
-        return nsClass;
-    }
+  public Class getNSClass () {
+    return nsClass;
+  }
 }

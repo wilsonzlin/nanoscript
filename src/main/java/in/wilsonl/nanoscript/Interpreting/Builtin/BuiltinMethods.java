@@ -7,5 +7,5 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BuiltinMethods {
-    Class<? extends NSData> target();
+  Class<? extends NSData> target ();
 }

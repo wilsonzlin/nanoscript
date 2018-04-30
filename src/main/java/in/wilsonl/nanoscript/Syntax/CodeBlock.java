@@ -30,75 +30,75 @@ import java.util.function.Function;
 import static in.wilsonl.nanoscript.Parsing.TokenType.*;
 
 public class CodeBlock {
-    private static final Map<TokenType, Function<Tokens, Statement>> PARSERS = _createParsersMap();
-    // <body> is popped
-    private final List<Statement> body = new ArrayList<>();
+  private static final Map<TokenType, Function<Tokens, Statement>> PARSERS = _createParsersMap();
+  // <body> is popped
+  private final List<Statement> body = new ArrayList<>();
 
-    private static Map<TokenType, Function<Tokens, Statement>> _createParsersMap() {
-        Map<TokenType, Function<Tokens, Statement>> map = new HashMap<>();
+  private static Map<TokenType, Function<Tokens, Statement>> _createParsersMap () {
+    Map<TokenType, Function<Tokens, Statement>> map = new HashMap<>();
 
-        map.put(T_KEYWORD_BREAK, BreakStatement::parseBreakStatement);
-        map.put(T_KEYWORD_CASE, CaseStatement::parseCaseStatement);
-        map.put(T_KEYWORD_CLASS, ClassStatement::parseClassStatement);
-        map.put(T_KEYWORD_IF, ConditionalBranchesStatement::parseConditionalBranchesStatement);
-        map.put(T_KEYWORD_CREATE, CreateStatement::parseCreateStatement);
-        map.put(T_KEYWORD_EXPORT, ExportStatement::parseExportStatement);
-        map.put(T_KEYWORD_FOR, ForStatement::parseForStatement);
-        map.put(T_KEYWORD_WHILE, LoopStatement::parseWhileStatement);
-        map.put(T_KEYWORD_UNTIL, LoopStatement::parseUntilStatement);
-        map.put(T_KEYWORD_NEXT, NextStatement::parseNextStatement);
-        map.put(T_KEYWORD_RETURN, ReturnStatement::parseReturnStatement);
-        map.put(T_KEYWORD_SET, SetStatement::parseSetStatement);
-        map.put(T_KEYWORD_SUPER, SuperStatement::parseSuperStatement);
-        map.put(T_KEYWORD_THROW, ThrowStatement::parseThrowStatement);
-        map.put(T_KEYWORD_TRY, TryStatement::parseTryStatement);
+    map.put(T_KEYWORD_BREAK, BreakStatement::parseBreakStatement);
+    map.put(T_KEYWORD_CASE, CaseStatement::parseCaseStatement);
+    map.put(T_KEYWORD_CLASS, ClassStatement::parseClassStatement);
+    map.put(T_KEYWORD_IF, ConditionalBranchesStatement::parseConditionalBranchesStatement);
+    map.put(T_KEYWORD_CREATE, CreateStatement::parseCreateStatement);
+    map.put(T_KEYWORD_EXPORT, ExportStatement::parseExportStatement);
+    map.put(T_KEYWORD_FOR, ForStatement::parseForStatement);
+    map.put(T_KEYWORD_WHILE, LoopStatement::parseWhileStatement);
+    map.put(T_KEYWORD_UNTIL, LoopStatement::parseUntilStatement);
+    map.put(T_KEYWORD_NEXT, NextStatement::parseNextStatement);
+    map.put(T_KEYWORD_RETURN, ReturnStatement::parseReturnStatement);
+    map.put(T_KEYWORD_SET, SetStatement::parseSetStatement);
+    map.put(T_KEYWORD_SUPER, SuperStatement::parseSuperStatement);
+    map.put(T_KEYWORD_THROW, ThrowStatement::parseThrowStatement);
+    map.put(T_KEYWORD_TRY, TryStatement::parseTryStatement);
 
-        return map;
+    return map;
+  }
+
+  public static CodeBlock parseCodeBlock (Tokens tokens, TokenType breakOn) {
+    return parseCodeBlock(tokens, new AcceptableTokenTypes(breakOn));
+  }
+
+  public static CodeBlock parseCodeBlock (Tokens tokens, AcceptableTokenTypes breakOn) {
+    CodeBlock codeBlock = new CodeBlock();
+
+    while (true) {
+      TokenType nextTokenType;
+      try {
+        nextTokenType = tokens.peekType();
+      } catch (UnexpectedEndOfCodeException ueoce) {
+        break;
+      }
+
+      if (breakOn.has(nextTokenType)) {
+        break;
+      }
+
+      Statement statement;
+
+      if (PARSERS.containsKey(nextTokenType)) {
+        statement = PARSERS.get(nextTokenType).apply(tokens);
+      } else {
+        // Handles all other possibilities, and throws when unknown
+        statement = ExpressionStatement.parseExpressionStatement(tokens);
+      }
+
+      codeBlock.pushStatement(statement);
     }
 
-    public static CodeBlock parseCodeBlock(Tokens tokens, TokenType breakOn) {
-        return parseCodeBlock(tokens, new AcceptableTokenTypes(breakOn));
-    }
+    return codeBlock;
+  }
 
-    public static CodeBlock parseCodeBlock(Tokens tokens, AcceptableTokenTypes breakOn) {
-        CodeBlock codeBlock = new CodeBlock();
+  public void pushStatement (Statement statement) {
+    body.add(statement);
+  }
 
-        while (true) {
-            TokenType nextTokenType;
-            try {
-                nextTokenType = tokens.peekType();
-            } catch (UnexpectedEndOfCodeException ueoce) {
-                break;
-            }
+  public List<Statement> getBody () {
+    return body;
+  }
 
-            if (breakOn.has(nextTokenType)) {
-                break;
-            }
-
-            Statement statement;
-
-            if (PARSERS.containsKey(nextTokenType)) {
-                statement = PARSERS.get(nextTokenType).apply(tokens);
-            } else {
-                // Handles all other possibilities, and throws when unknown
-                statement = ExpressionStatement.parseExpressionStatement(tokens);
-            }
-
-            codeBlock.pushStatement(statement);
-        }
-
-        return codeBlock;
-    }
-
-    public void pushStatement(Statement statement) {
-        body.add(statement);
-    }
-
-    public List<Statement> getBody() {
-        return body;
-    }
-
-    public boolean isEmpty() {
-        return body.isEmpty();
-    }
+  public boolean isEmpty () {
+    return body.isEmpty();
+  }
 }

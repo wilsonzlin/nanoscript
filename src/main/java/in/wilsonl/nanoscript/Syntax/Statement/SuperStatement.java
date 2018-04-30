@@ -7,39 +7,39 @@ import in.wilsonl.nanoscript.Syntax.Reference;
 import in.wilsonl.nanoscript.Utils.Position;
 
 public class SuperStatement extends Statement {
-    private final Reference parent; // Can be null
-    private final CallExpression.Arguments arguments;
+  private final Reference parent; // Can be null
+  private final CallExpression.Arguments arguments;
 
-    public SuperStatement(Position position, Reference parent, CallExpression.Arguments arguments) {
-        super(position);
-        this.parent = parent;
-        this.arguments = arguments;
+  public SuperStatement (Position position, Reference parent, CallExpression.Arguments arguments) {
+    super(position);
+    this.parent = parent;
+    this.arguments = arguments;
+  }
+
+  public static SuperStatement parseSuperStatement (Tokens tokens) {
+    Position position = tokens.require(TokenType.T_KEYWORD_SUPER).getPosition();
+
+    Reference parent;
+    if (tokens.isNext(TokenType.T_IDENTIFIER)) {
+      parent = Reference.parseReference(tokens);
+    } else {
+      parent = null;
     }
 
-    public static SuperStatement parseSuperStatement(Tokens tokens) {
-        Position position = tokens.require(TokenType.T_KEYWORD_SUPER).getPosition();
+    tokens.require(TokenType.T_LEFT_PARENTHESIS);
 
-        Reference parent;
-        if (tokens.isNext(TokenType.T_IDENTIFIER)) {
-            parent = Reference.parseReference(tokens);
-        } else {
-            parent = null;
-        }
+    CallExpression.Arguments arguments = CallExpression.parseCallExpressionArguments(tokens);
 
-        tokens.require(TokenType.T_PARENTHESIS_LEFT);
+    tokens.require(TokenType.T_RIGHT_PARENTHESIS);
 
-        CallExpression.Arguments arguments = CallExpression.parseCallExpressionArguments(tokens);
+    return new SuperStatement(position, parent, arguments);
+  }
 
-        tokens.require(TokenType.T_PARENTHESIS_RIGHT);
+  public Reference getParent () {
+    return parent;
+  }
 
-        return new SuperStatement(position, parent, arguments);
-    }
-
-    public Reference getParent() {
-        return parent;
-    }
-
-    public CallExpression.Arguments getArguments() {
-        return arguments;
-    }
+  public CallExpression.Arguments getArguments () {
+    return arguments;
+  }
 }

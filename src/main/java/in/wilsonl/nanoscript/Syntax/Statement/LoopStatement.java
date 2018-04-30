@@ -9,86 +9,86 @@ import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 import in.wilsonl.nanoscript.Utils.Position;
 
 public class LoopStatement extends Statement {
-    private final Expression condition;
-    private final CodeBlock body;
-    private final TestStage testStage;
-    private final TestType testType;
+  private final Expression condition;
+  private final CodeBlock body;
+  private final TestStage testStage;
+  private final TestType testType;
 
-    public LoopStatement(Position position, Expression condition, CodeBlock body, TestStage testStage, TestType testType) {
-        super(position);
-        this.condition = condition;
-        this.body = body;
-        this.testStage = testStage;
-        this.testType = testType;
+  public LoopStatement (Position position, Expression condition, CodeBlock body, TestStage testStage, TestType testType) {
+    super(position);
+    this.condition = condition;
+    this.body = body;
+    this.testStage = testStage;
+    this.testType = testType;
+  }
+
+  private static LoopStatement parseWhileOrUntilStatement (Tokens tokens, TokenType initialToken) {
+    TestType testType;
+    TokenType bodyEndDelimiter;
+    switch (initialToken) {
+    case T_KEYWORD_WHILE:
+      testType = TestType.POSITIVE;
+      bodyEndDelimiter = TokenType.T_KEYWORD_WHILE_END;
+      break;
+
+    case T_KEYWORD_UNTIL:
+      testType = TestType.NEGATIVE;
+      bodyEndDelimiter = TokenType.T_KEYWORD_UNTIL_END;
+      break;
+
+    default:
+      throw new InternalStateError("Unknown loop statement initial token: " + initialToken);
     }
+    Position position = tokens.require(initialToken).getPosition();
+    Expression condition = Expression.parseExpression(tokens, new AcceptableTokenTypes(TokenType.T_KEYWORD_BEFORE, TokenType.T_KEYWORD_AFTER));
+    TestStage testStage;
+    switch (tokens.accept().getType()) {
+    case T_KEYWORD_BEFORE:
+      testStage = TestStage.PRE;
+      break;
 
-    private static LoopStatement parseWhileOrUntilStatement(Tokens tokens, TokenType initialToken) {
-        TestType testType;
-        TokenType bodyEndDelimiter;
-        switch (initialToken) {
-            case T_KEYWORD_WHILE:
-                testType = TestType.POSITIVE;
-                bodyEndDelimiter = TokenType.T_KEYWORD_WHILE_END;
-                break;
+    case T_KEYWORD_AFTER:
+      testStage = TestStage.POST;
+      break;
 
-            case T_KEYWORD_UNTIL:
-                testType = TestType.NEGATIVE;
-                bodyEndDelimiter = TokenType.T_KEYWORD_UNTIL_END;
-                break;
-
-            default:
-                throw new InternalStateError("Unknown loop statement initial token: " + initialToken);
-        }
-        Position position = tokens.require(initialToken).getPosition();
-        Expression condition = Expression.parseExpression(tokens, new AcceptableTokenTypes(TokenType.T_KEYWORD_BEFORE, TokenType.T_KEYWORD_AFTER));
-        TestStage testStage;
-        switch (tokens.accept().getType()) {
-            case T_KEYWORD_BEFORE:
-                testStage = TestStage.PRE;
-                break;
-
-            case T_KEYWORD_AFTER:
-                testStage = TestStage.POST;
-                break;
-
-            default:
-                throw tokens.constructRequiredSyntaxNotFoundException("Loop test stage not specified");
-        }
-        CodeBlock body = CodeBlock.parseCodeBlock(tokens, bodyEndDelimiter);
-        tokens.require(bodyEndDelimiter);
-
-        return new LoopStatement(position, condition, body, testStage, testType);
+    default:
+      throw tokens.constructRequiredSyntaxNotFoundException("Loop test stage not specified");
     }
+    CodeBlock body = CodeBlock.parseCodeBlock(tokens, bodyEndDelimiter);
+    tokens.require(bodyEndDelimiter);
 
-    public static LoopStatement parseWhileStatement(Tokens tokens) {
-        return parseWhileOrUntilStatement(tokens, TokenType.T_KEYWORD_WHILE);
-    }
+    return new LoopStatement(position, condition, body, testStage, testType);
+  }
 
-    public static LoopStatement parseUntilStatement(Tokens tokens) {
-        return parseWhileOrUntilStatement(tokens, TokenType.T_KEYWORD_UNTIL);
-    }
+  public static LoopStatement parseWhileStatement (Tokens tokens) {
+    return parseWhileOrUntilStatement(tokens, TokenType.T_KEYWORD_WHILE);
+  }
 
-    public Expression getCondition() {
-        return condition;
-    }
+  public static LoopStatement parseUntilStatement (Tokens tokens) {
+    return parseWhileOrUntilStatement(tokens, TokenType.T_KEYWORD_UNTIL);
+  }
 
-    public CodeBlock getBody() {
-        return body;
-    }
+  public Expression getCondition () {
+    return condition;
+  }
 
-    public TestStage getTestStage() {
-        return testStage;
-    }
+  public CodeBlock getBody () {
+    return body;
+  }
 
-    public TestType getTestType() {
-        return testType;
-    }
+  public TestStage getTestStage () {
+    return testStage;
+  }
 
-    public enum TestStage {
-        PRE, POST
-    }
+  public TestType getTestType () {
+    return testType;
+  }
 
-    public enum TestType {
-        POSITIVE, NEGATIVE
-    }
+  public enum TestStage {
+    PRE, POST
+  }
+
+  public enum TestType {
+    POSITIVE, NEGATIVE
+  }
 }

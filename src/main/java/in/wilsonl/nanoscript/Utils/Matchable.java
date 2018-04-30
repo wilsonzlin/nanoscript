@@ -1,7 +1,7 @@
 package in.wilsonl.nanoscript.Utils;
 
 public interface Matchable<M> {
-    M matcherConsume();
+  M matcherConsume ();
 
-    void matcherReverse();
+  void matcherReverse ();
 }

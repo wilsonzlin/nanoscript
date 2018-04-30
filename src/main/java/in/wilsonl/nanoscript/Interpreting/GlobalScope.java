@@ -8,22 +8,22 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class GlobalScope extends BlockScope {
-    private final Map<String, NSData> exports = new TreeMap<>();
+  private final Map<String, NSData> exports = new TreeMap<>();
 
-    public GlobalScope() {
-        super(null, Type.GLOBAL);
-    }
+  public GlobalScope () {
+    super(null, Type.GLOBAL);
+  }
 
-    public void addExport(String name, NSData value) {
-        if (exports.containsKey(name)) {
-            throw VMError.from(BuiltinClass.ReferenceError, String.format("An export called `%s` already exists", name));
-        }
-        exports.put(name, value);
+  public void addExport (String name, NSData value) {
+    if (exports.containsKey(name)) {
+      throw VMError.from(BuiltinClass.ReferenceError, String.format("An export called `%s` already exists", name));
     }
+    exports.put(name, value);
+  }
 
-    public Exports consumeExports() {
-        Map<String, NSData> rv = new HashMap<>(exports);
-        exports.clear();
-        return new Exports(rv);
-    }
+  public Exports consumeExports () {
+    Map<String, NSData> rv = new HashMap<>(exports);
+    exports.clear();
+    return new Exports(rv);
+  }
 }

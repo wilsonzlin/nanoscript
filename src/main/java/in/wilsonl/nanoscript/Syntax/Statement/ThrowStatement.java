@@ -7,26 +7,26 @@ import in.wilsonl.nanoscript.Utils.Position;
 import in.wilsonl.nanoscript.Utils.SetOnce;
 
 public class ThrowStatement extends Statement {
-    private final SetOnce<Expression> value = new SetOnce<>();
+  private final SetOnce<Expression> value = new SetOnce<>();
 
-    public ThrowStatement(Position position) {
-        super(position);
-    }
+  public ThrowStatement (Position position) {
+    super(position);
+  }
 
-    public static Statement parseThrowStatement(Tokens tokens) {
-        Position position = tokens.require(TokenType.T_KEYWORD_THROW).getPosition();
-        ThrowStatement throwStatement = new ThrowStatement(position);
+  public static Statement parseThrowStatement (Tokens tokens) {
+    Position position = tokens.require(TokenType.T_KEYWORD_THROW).getPosition();
+    ThrowStatement throwStatement = new ThrowStatement(position);
 
-        throwStatement.setValue(Expression.parseExpression(tokens));
+    throwStatement.setValue(Expression.parseExpression(tokens));
 
-        return throwStatement;
-    }
+    return throwStatement;
+  }
 
-    public Expression getValue() {
-        return value.get();
-    }
+  public Expression getValue () {
+    return value.get();
+  }
 
-    public void setValue(Expression value) {
-        this.value.set(value);
-    }
+  public void setValue (Expression value) {
+    this.value.set(value);
+  }
 }

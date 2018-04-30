@@ -15,77 +15,77 @@ import static in.wilsonl.nanoscript.Interpreting.Data.NSData.Type.STRING;
 import static in.wilsonl.nanoscript.Interpreting.Data.NSNull.NULL;
 
 public enum BuiltinClass {
-    RuntimeError(new ClassBuilder()
-            .setConstructor(new ArgumentsValidator(null, new NSParameter("message", STRING)), (self, arguments) -> {
-                self.nsAssign("message", arguments.get("message").nsToString());
-                return NULL;
-            })
-            .addInstanceVariable("message", NSString.EMPTY)
-    ),
+  RuntimeError(new ClassBuilder()
+    .setConstructor(new ArgumentsValidator(null, new NSParameter("message", STRING)), (self, arguments) -> {
+      self.nsAssign("message", arguments.get("message").nsToString());
+      return NULL;
+    })
+    .addInstanceVariable("message", NSString.EMPTY)
+  ),
 
-    ArgumentsError(new ClassBuilder()
-            .addParent(RuntimeError)
-            .matchParentConstructor()
-    ),
+  ArgumentsError(new ClassBuilder()
+    .addParent(RuntimeError)
+    .matchParentConstructor()
+  ),
 
-    EndOfIterationError(new ClassBuilder()
-            .addParent(RuntimeError)
-            .setConstructor(ZERO, (self, arguments) -> {
-                List<NSArgument> args = new ROList<>();
-                args.add(new NSArgument(NSString.from("Iterator has no more values")));
-                RuntimeError.getNSClass().applyConstructor(self, args);
-                return NULL;
-            })
-    ),
+  EndOfIterationError(new ClassBuilder()
+    .addParent(RuntimeError)
+    .setConstructor(ZERO, (self, arguments) -> {
+      List<NSArgument> args = new ROList<>();
+      args.add(new NSArgument(NSString.from("Iterator has no more values")));
+      RuntimeError.getNSClass().applyConstructor(self, args);
+      return NULL;
+    })
+  ),
 
-    ReferenceError(new ClassBuilder()
-            .addParent(RuntimeError)
-            .matchParentConstructor()
-    ),
+  ReferenceError(new ClassBuilder()
+    .addParent(RuntimeError)
+    .matchParentConstructor()
+  ),
 
-    SyntaxError(new ClassBuilder()
-            .addParent(RuntimeError)
-            .matchParentConstructor()
-    ),
+  SyntaxError(new ClassBuilder()
+    .addParent(RuntimeError)
+    .matchParentConstructor()
+  ),
 
-    TypeError(new ClassBuilder()
-            .addParent(RuntimeError)
-            .matchParentConstructor()
-    ),
+  TypeError(new ClassBuilder()
+    .addParent(RuntimeError)
+    .matchParentConstructor()
+  ),
 
-    UnsupportedOperationError(new ClassBuilder()
-            .addParent(RuntimeError)
-            .matchParentConstructor()
-    ),
+  UnsupportedOperationError(new ClassBuilder()
+    .addParent(RuntimeError)
+    .matchParentConstructor()
+  ),
 
-    OutOfBoundsError(new ClassBuilder()
-            .addParent(RuntimeError)
-            .matchParentConstructor()
-    ),
+  OutOfBoundsError(new ClassBuilder()
+    .addParent(RuntimeError)
+    .matchParentConstructor()
+  ),
 
-    NoSuchElementError(new ClassBuilder()
-            .addParent(RuntimeError)
-            .matchParentConstructor()
-    ),
+  NoSuchElementError(new ClassBuilder()
+    .addParent(RuntimeError)
+    .matchParentConstructor()
+  ),
 
-    KeyError(new ClassBuilder()
-            .addParent(RuntimeError)
-            .matchParentConstructor()
-    ),
+  KeyError(new ClassBuilder()
+    .addParent(RuntimeError)
+    .matchParentConstructor()
+  ),
 
-    ValueError(new ClassBuilder()
-            .addParent(RuntimeError)
-            .matchParentConstructor()
-    ),;
+  ValueError(new ClassBuilder()
+    .addParent(RuntimeError)
+    .matchParentConstructor()
+  ),;
 
-    private final NSNativeClass nativeClass;
+  private final NSNativeClass nativeClass;
 
-    BuiltinClass(ClassBuilder builder) {
-        this.nativeClass = NSNativeClass.from(this.name(), builder);
-    }
+  BuiltinClass (ClassBuilder builder) {
+    this.nativeClass = NSNativeClass.from(this.name(), builder);
+  }
 
-    public NSNativeClass getNSClass() {
-        return nativeClass;
-    }
+  public NSNativeClass getNSClass () {
+    return nativeClass;
+  }
 
 }

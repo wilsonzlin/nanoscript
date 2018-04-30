@@ -10,69 +10,69 @@ import java.util.List;
 import static in.wilsonl.nanoscript.Parsing.TokenType.*;
 
 public class Parameter {
-    private final Identifier name;
-    private final boolean optional;
-    private final boolean variableLength;
-    private final Expression defaultValue; // Can be null
+  private final Identifier name;
+  private final boolean optional;
+  private final boolean variableLength;
+  private final Expression defaultValue; // Can be null
 
-    public Parameter(Identifier name, boolean optional, boolean variableLength, Expression defaultValue) {
-        this.name = name;
-        this.optional = optional;
-        this.variableLength = variableLength;
-        this.defaultValue = defaultValue;
-        if (defaultValue != null && !optional) {
-            throw new IllegalStateException("Non-optional parameters cannot have default values");
-        }
+  public Parameter (Identifier name, boolean optional, boolean variableLength, Expression defaultValue) {
+    this.name = name;
+    this.optional = optional;
+    this.variableLength = variableLength;
+    this.defaultValue = defaultValue;
+    if (defaultValue != null && !optional) {
+      throw new IllegalStateException("Non-optional parameters cannot have default values");
     }
+  }
 
-    public static Parameter parseParameter(Tokens tokens) {
-        boolean optional = tokens.skipIfNext(T_KEYWORD_OPTIONAL);
-        boolean variableLength = tokens.skipIfNext(T_ELLIPSIS);
-        Identifier name = Identifier.requireIdentifier(tokens);
-        Expression defaultValue = null;
-        if (tokens.skipIfNext(T_NULL_COALESCING)) {
-            defaultValue = Expression.parseExpression(tokens, new AcceptableTokenTypes(T_COMMA, T_PARENTHESIS_RIGHT));
-        }
-        try {
-            return new Parameter(name, optional, variableLength, defaultValue);
-        } catch (IllegalStateException ise) {
-            throw tokens.constructMalformedSyntaxException(ise.getMessage());
-        }
+  public static Parameter parseParameter (Tokens tokens) {
+    boolean optional = tokens.skipIfNext(T_KEYWORD_OPTIONAL);
+    boolean variableLength = tokens.skipIfNext(T_ELLIPSIS);
+    Identifier name = Identifier.requireIdentifier(tokens);
+    Expression defaultValue = null;
+    if (tokens.skipIfNext(T_QUESTION_AND_QUESTION)) {
+      defaultValue = Expression.parseExpression(tokens, new AcceptableTokenTypes(T_COMMA, T_RIGHT_PARENTHESIS));
     }
-
-    public static List<Parameter> parseParametersList(Tokens tokens) {
-        List<Parameter> parameters = new ROList<>();
-
-        tokens.require(T_PARENTHESIS_LEFT);
-
-        do {
-            // Allow parameters to end with comma
-            // No arguments is valid
-            if (tokens.peekType() == T_PARENTHESIS_RIGHT) {
-                break;
-            }
-
-            parameters.add(parseParameter(tokens));
-        } while (tokens.skipIfNext(T_COMMA));
-
-        tokens.require(T_PARENTHESIS_RIGHT);
-
-        return parameters;
+    try {
+      return new Parameter(name, optional, variableLength, defaultValue);
+    } catch (IllegalStateException ise) {
+      throw tokens.constructMalformedSyntaxException(ise.getMessage());
     }
+  }
 
-    public Identifier getName() {
-        return name;
-    }
+  public static List<Parameter> parseParametersList (Tokens tokens) {
+    List<Parameter> parameters = new ROList<>();
 
-    public boolean isOptional() {
-        return optional;
-    }
+    tokens.require(T_LEFT_PARENTHESIS);
 
-    public boolean isVariableLength() {
-        return variableLength;
-    }
+    do {
+      // Allow parameters to end with comma
+      // No arguments is valid
+      if (tokens.peekType() == T_RIGHT_PARENTHESIS) {
+        break;
+      }
 
-    public Expression getDefaultValue() {
-        return defaultValue;
-    }
+      parameters.add(parseParameter(tokens));
+    } while (tokens.skipIfNext(T_COMMA));
+
+    tokens.require(T_RIGHT_PARENTHESIS);
+
+    return parameters;
+  }
+
+  public Identifier getName () {
+    return name;
+  }
+
+  public boolean isOptional () {
+    return optional;
+  }
+
+  public boolean isVariableLength () {
+    return variableLength;
+  }
+
+  public Expression getDefaultValue () {
+    return defaultValue;
+  }
 }

@@ -7,8 +7,11 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BuiltinMethodParameter {
-    boolean variableLength() default false;
-    boolean optional() default false;
-    String name();
-    NSData.Type[] types() default {};
+  boolean variableLength () default false;
+
+  boolean optional () default false;
+
+  String name ();
+
+  NSData.Type[] types () default {};
 }

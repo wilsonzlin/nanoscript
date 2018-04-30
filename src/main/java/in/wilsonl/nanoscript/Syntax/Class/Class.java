@@ -1,6 +1,5 @@
 package in.wilsonl.nanoscript.Syntax.Class;
 
-import in.wilsonl.nanoscript.Parsing.AcceptableTokenTypes;
 import in.wilsonl.nanoscript.Parsing.TokenType;
 import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Class.Member.ClassConstructor;
@@ -17,113 +16,111 @@ import java.util.List;
 import static in.wilsonl.nanoscript.Parsing.TokenType.*;
 
 public class Class {
-    private static final AcceptableTokenTypes MODIFIER_TOKENS = new AcceptableTokenTypes(T_KEYWORD_STATIC, T_KEYWORD_FINAL);
-    // Don't use a Set, as ordering matters
-    private final List<ClassVariable> memberVariables = new ROList<>();
-    private final List<ClassMethod> memberMethods = new ROList<>();
-    private final List<Reference> parents = new ROList<>();
-    private final SetOnce<Identifier> name = new SetOnce<>();
-    private final SetOnce<ClassConstructor> constructor = new SetOnce<>(true); // Can be null if using default constructor
-    // TODO final, static
-    private final Position position;
+  // Don't use a Set, as ordering matters
+  private final List<ClassVariable> memberVariables = new ROList<>();
+  private final List<ClassMethod> memberMethods = new ROList<>();
+  private final List<Reference> parents = new ROList<>();
+  private final SetOnce<Identifier> name = new SetOnce<>();
+  private final SetOnce<ClassConstructor> constructor = new SetOnce<>(true); // Can be null if using default constructor
+  // TODO final, static
+  private final Position position;
 
-    public Class(Position position) {
-        this.position = position;
+  public Class (Position position) {
+    this.position = position;
+  }
+
+  public static Class parseClass (Tokens tokens) {
+    Position position = tokens.require(T_KEYWORD_CLASS).getPosition();
+    Class nanoscriptClass = new Class(position);
+
+    nanoscriptClass.setName(Identifier.requireIdentifier(tokens));
+
+    if (tokens.skipIfNext(T_COLON)) {
+      do {
+        nanoscriptClass.addParent(Reference.parseReference(tokens));
+      } while (tokens.skipIfNext(T_PLUS));
     }
 
-    public static Class parseClass(Tokens tokens) {
-        Position position = tokens.require(T_KEYWORD_CLASS).getPosition();
-        Class nanoscriptClass = new Class(position);
+    tokens.require(T_KEYWORD_BEGIN);
 
-        if (tokens.skipIfNext(T_COLON)) {
-            // TODO
-            tokens.require(MODIFIER_TOKENS);
+    TokenType nextTokenType;
+
+    while ((nextTokenType = tokens.peekType()) != T_KEYWORD_CLASS_END) {
+      switch (nextTokenType) {
+      case T_KEYWORD_CONSTRUCTOR:
+        if (nanoscriptClass.constructor.isSet()) {
+          throw tokens.constructMalformedSyntaxException("A constructor already exists");
         }
+        nanoscriptClass.setConstructor(ClassConstructor.parseConstructor(tokens));
+        break;
 
-        nanoscriptClass.setName(Identifier.requireIdentifier(tokens));
+      case T_KEYWORD_METHOD:
+        nanoscriptClass.addMemberMethod(ClassMethod.parseClassMethod(tokens));
+        break;
 
-        if (tokens.skipIfNext(T_COLON)) {
-            do {
-                nanoscriptClass.addParent(Reference.parseReference(tokens));
-            } while (tokens.skipIfNext(T_PLUS));
-        }
+      case T_KEYWORD_VARIABLE:
+        nanoscriptClass.addMemberVariable(ClassVariable.parseClassVariable(tokens));
+        break;
 
-        tokens.require(T_KEYWORD_BEGIN);
+      case T_KEYWORD_SHARED:
+        // TODO
+        break;
 
-        TokenType nextTokenType;
-
-        while ((nextTokenType = tokens.peekType()) != T_KEYWORD_CLASS_END) {
-            switch (nextTokenType) {
-                case T_KEYWORD_CONSTRUCTOR:
-                    if (nanoscriptClass.constructor.isSet()) {
-                        throw tokens.constructMalformedSyntaxException("A constructor already exists");
-                    }
-                    nanoscriptClass.setConstructor(ClassConstructor.parseConstructor(tokens));
-                    break;
-
-                case T_KEYWORD_METHOD:
-                    nanoscriptClass.addMemberMethod(ClassMethod.parseClassMethod(tokens));
-                    break;
-
-                case T_KEYWORD_VARIABLE:
-                    nanoscriptClass.addMemberVariable(ClassVariable.parseClassVariable(tokens));
-                    break;
-
-                default:
-                    throw tokens.constructMalformedSyntaxException("Expected a class body unit, got " + nextTokenType);
-            }
-        }
-
-        if (!nanoscriptClass.constructor.isSet()) {
-            nanoscriptClass.constructor.set(null);
-        }
-
-        tokens.require(T_KEYWORD_CLASS_END);
-
-        return nanoscriptClass;
+      default:
+        throw tokens.constructMalformedSyntaxException("Expected a class body unit, got " + nextTokenType);
+      }
     }
 
-    public Identifier getName() {
-        return name.get();
+    if (!nanoscriptClass.constructor.isSet()) {
+      nanoscriptClass.constructor.set(null);
     }
 
-    public void setName(Identifier name) {
-        this.name.set(name);
-    }
+    tokens.require(T_KEYWORD_CLASS_END);
 
-    public void addParent(Reference parent) {
-        this.parents.add(parent);
-    }
+    return nanoscriptClass;
+  }
 
-    public void addMemberVariable(ClassVariable variable) {
-        memberVariables.add(variable);
-    }
+  public Identifier getName () {
+    return name.get();
+  }
 
-    public void addMemberMethod(ClassMethod method) {
-        memberMethods.add(method);
-    }
+  public void setName (Identifier name) {
+    this.name.set(name);
+  }
 
-    public List<Reference> getParents() {
-        return parents;
-    }
+  public void addParent (Reference parent) {
+    this.parents.add(parent);
+  }
 
-    public List<ClassMethod> getMethods() {
-        return memberMethods;
-    }
+  public void addMemberVariable (ClassVariable variable) {
+    memberVariables.add(variable);
+  }
 
-    public List<ClassVariable> getVariables() {
-        return memberVariables;
-    }
+  public void addMemberMethod (ClassMethod method) {
+    memberMethods.add(method);
+  }
 
-    public ClassConstructor getConstructor() {
-        return constructor.get();
-    }
+  public List<Reference> getParents () {
+    return parents;
+  }
 
-    public void setConstructor(ClassConstructor constructor) {
-        this.constructor.set(constructor);
-    }
+  public List<ClassMethod> getMethods () {
+    return memberMethods;
+  }
 
-    public Position getPosition() {
-        return position;
-    }
+  public List<ClassVariable> getVariables () {
+    return memberVariables;
+  }
+
+  public ClassConstructor getConstructor () {
+    return constructor.get();
+  }
+
+  public void setConstructor (ClassConstructor constructor) {
+    this.constructor.set(constructor);
+  }
+
+  public Position getPosition () {
+    return position;
+  }
 }

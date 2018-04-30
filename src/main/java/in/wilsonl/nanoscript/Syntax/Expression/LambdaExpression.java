@@ -10,50 +10,52 @@ import in.wilsonl.nanoscript.Utils.SetOnce;
 
 import java.util.List;
 
-import static in.wilsonl.nanoscript.Parsing.TokenType.*;
+import static in.wilsonl.nanoscript.Parsing.TokenType.T_KEYWORD_FUNCTION;
+import static in.wilsonl.nanoscript.Parsing.TokenType.T_KEYWORD_FUNCTION_END;
+import static in.wilsonl.nanoscript.Parsing.TokenType.T_RIGHT_ARROW;
 
 public class LambdaExpression extends Expression {
-    private final List<Parameter> parameters = new ROList<>();
-    private final SetOnce<CodeBlock> body = new SetOnce<>();
+  private final List<Parameter> parameters = new ROList<>();
+  private final SetOnce<CodeBlock> body = new SetOnce<>();
 
-    public LambdaExpression(Position position) {
-        super(position);
+  public LambdaExpression (Position position) {
+    super(position);
+  }
+
+  public static LambdaExpression parseLambdaExpression (Tokens tokens) {
+    Position position = tokens.require(T_KEYWORD_FUNCTION).getPosition();
+    LambdaExpression lambda = new LambdaExpression(position);
+
+    lambda.addAllParameters(Parameter.parseParametersList(tokens));
+
+    CodeBlock body;
+    if (tokens.skipIfNext(T_RIGHT_ARROW)) {
+      Expression expr = Expression.parseExpression(tokens);
+      body = new CodeBlock();
+      body.pushStatement(new ReturnStatement(expr.getPosition(), expr));
+    } else {
+      body = CodeBlock.parseCodeBlock(tokens, T_KEYWORD_FUNCTION_END);
+      tokens.require(T_KEYWORD_FUNCTION_END);
     }
 
-    public static LambdaExpression parseLambdaExpression(Tokens tokens) {
-        Position position = tokens.require(T_KEYWORD_FUNCTION).getPosition();
-        LambdaExpression lambda = new LambdaExpression(position);
+    lambda.setBody(body);
 
-        lambda.addAllParameters(Parameter.parseParametersList(tokens));
+    return lambda;
+  }
 
-        CodeBlock body;
-        if (tokens.skipIfNext(T_ARROW_RIGHT)) {
-            Expression expr = Expression.parseExpression(tokens);
-            body = new CodeBlock();
-            body.pushStatement(new ReturnStatement(expr.getPosition(), expr));
-        } else {
-            body = CodeBlock.parseCodeBlock(tokens, T_KEYWORD_FUNCTION_END);
-            tokens.require(T_KEYWORD_FUNCTION_END);
-        }
+  public List<Parameter> getParameters () {
+    return parameters;
+  }
 
-        lambda.setBody(body);
+  public void addAllParameters (List<Parameter> params) {
+    parameters.addAll(params);
+  }
 
-        return lambda;
-    }
+  public CodeBlock getBody () {
+    return body.get();
+  }
 
-    public List<Parameter> getParameters() {
-        return parameters;
-    }
-
-    public void addAllParameters(List<Parameter> params) {
-        parameters.addAll(params);
-    }
-
-    public CodeBlock getBody() {
-        return body.get();
-    }
-
-    public void setBody(CodeBlock b) {
-        body.set(b);
-    }
+  public void setBody (CodeBlock b) {
+    body.set(b);
+  }
 }

@@ -4,18 +4,18 @@ import in.wilsonl.nanoscript.Parsing.Tokens;
 import in.wilsonl.nanoscript.Syntax.Expression.Expression;
 
 public class ExpressionStatement extends Statement {
-    private final Expression expression;
+  private final Expression expression;
 
-    public ExpressionStatement(Expression expression) {
-        super(expression.getPosition());
-        this.expression = expression;
-    }
+  public ExpressionStatement (Expression expression) {
+    super(expression.getPosition());
+    this.expression = expression;
+  }
 
-    public static ExpressionStatement parseExpressionStatement(Tokens tokens) {
-        return new ExpressionStatement(Expression.parseExpression(tokens));
-    }
+  public static ExpressionStatement parseExpressionStatement (Tokens tokens) {
+    return new ExpressionStatement(Expression.parseExpression(tokens));
+  }
 
-    public Expression getExpression() {
-        return expression;
-    }
+  public Expression getExpression () {
+    return expression;
+  }
 }

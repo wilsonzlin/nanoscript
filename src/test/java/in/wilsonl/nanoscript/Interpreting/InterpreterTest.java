@@ -10,22 +10,22 @@ import org.junit.Test;
 import java.io.InputStream;
 
 public class InterpreterTest {
-    private InputStream getUTF8TextResource(String path) {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        return classLoader.getResourceAsStream(path);
-    }
+  private InputStream getUTF8TextResource (String path) {
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    return classLoader.getResourceAsStream(path);
+  }
 
-    private void testInterpreter(InputStream testCode) {
-        Code code = new Code(testCode);
+  private void testInterpreter (InputStream testCode) {
+    Code code = new Code(testCode);
 
-        Lexer lexer = new Lexer(code);
-        Tokens tokens = new Tokens(lexer);
-        Chunk parsed = Parser.parse(tokens);
-        Interpreter.interpret(null, parsed);
-    }
+    Lexer lexer = new Lexer(code);
+    Tokens tokens = new Tokens(lexer);
+    Chunk parsed = Parser.parse(tokens);
+    Interpreter.interpret(null, parsed);
+  }
 
-    @Test
-    public void testSyntaxInterpreting() {
-        testInterpreter(getUTF8TextResource("code/syntax.nanoscript"));
-    }
+  @Test
+  public void testSyntaxInterpreting () {
+    testInterpreter(getUTF8TextResource("code/syntax.nanoscript"));
+  }
 }

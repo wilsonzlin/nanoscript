@@ -168,6 +168,7 @@ public class CodeBlockEvaluator {
         .getTerms()
         .getTerms());
       source.nsUpdate(terms, value);
+
     } else if (st_lhs instanceof BinaryExpression && ((BinaryExpression) st_lhs).getOperator() == Operator.ACCESSOR) {
       Expression st_source = ((BinaryExpression) st_lhs).getLHS();
       Expression st_member = ((BinaryExpression) st_lhs).getRHS();
@@ -180,6 +181,7 @@ public class CodeBlockEvaluator {
         .getName();
       value = evaluateExpression(context, st_rhs);
       source.nsAssign(member, value);
+
     } else if (st_lhs instanceof IdentifierExpression) {
       String symbol = ((IdentifierExpression) st_lhs)
         .getIdentifier()
@@ -188,6 +190,7 @@ public class CodeBlockEvaluator {
       if (!context.setContextSymbol(symbol, value)) {
         throw VMError.from(BuiltinClass.ReferenceError, String.format("The variable `%s` does not exist", symbol));
       }
+
     } else {
       throw VMError.from(BuiltinClass.SyntaxError, "Invalid assignment target");
     }
@@ -197,7 +200,7 @@ public class CodeBlockEvaluator {
 
   private static EvaluationResult evaluateClassStatement (Context context, ClassStatement statement) {
     if (!(context instanceof GlobalScope)) {
-      throw VMError.from(SyntaxError, "Classes must be declared at the top level");
+      throw VMError.from(SyntaxError, "Classes must be declared at the chunk level");
     }
 
     NSClass nsClass = NSVirtualClass.from(context, statement.getNSClass());
@@ -208,7 +211,7 @@ public class CodeBlockEvaluator {
 
   private static EvaluationResult evaluateExportStatement (Context context, ExportStatement statement) {
     if (!(context instanceof GlobalScope)) {
-      throw VMError.from(SyntaxError, "Exports must be declared at the top level");
+      throw VMError.from(SyntaxError, "Exports must be declared at the chunk level");
     }
 
     String name = statement

@@ -43,47 +43,48 @@ public class Lexer {
     Map<String, TokenType> sequences = new HashMap<>();
 
     sequences.put("...", T_ELLIPSIS);
-    sequences.put("#", T_MEASURE);
-    sequences.put("(", T_PARENTHESIS_LEFT);
-    sequences.put(")", T_PARENTHESIS_RIGHT);
-    sequences.put("[", T_SQUARE_BRACKET_LEFT);
-    sequences.put("]", T_SQUARE_BRACKET_RIGHT);
-    sequences.put("<", T_CHEVRON_LEFT);
-    sequences.put(">", T_CHEVRON_RIGHT);
-    sequences.put("{", T_BRACE_LEFT);
-    sequences.put("}", T_BRACE_RIGHT);
+    sequences.put("#", T_HASH);
+    sequences.put("(", T_LEFT_PARENTHESIS);
+    sequences.put(")", T_RIGHT_PARENTHESIS);
+    sequences.put("[", T_LEFT_SQUARE_BRACKET);
+    sequences.put("]", T_RIGHT_SQUARE_BRACKET);
+    sequences.put("<", T_LEFT_CHEVRON);
+    sequences.put(">", T_RIGHT_CHEVRON);
+    sequences.put("@{", T_OBJ_LITERAL_PREFIX);
+    sequences.put("{", T_LEFT_BRACE);
+    sequences.put("}", T_RIGHT_BRACE);
 
-    sequences.put("<-", T_ARROW_LEFT);
-    sequences.put("->", T_ARROW_RIGHT);
-    sequences.put(".", T_ACCESSOR);
-    sequences.put("?.", T_NULL_ACCESSOR);
-    sequences.put("?[", T_NULL_LOOKUP);
-    sequences.put("?(", T_NULL_CALL);
-    sequences.put("??", T_NULL_COALESCING);
+    sequences.put("<-", T_LEFT_ARROW);
+    sequences.put("->", T_RIGHT_ARROW);
+    sequences.put(".", T_DOT);
+    sequences.put("?.", T_QUESTION_AND_DOT);
+    sequences.put("?[", T_QUESTION_AND_LEFT_SQUARE_BRACKET);
+    sequences.put("?(", T_QUESTION_AND_LEFT_PARENTHESIS);
+    sequences.put("??", T_QUESTION_AND_QUESTION);
 
     // Arithmetic
     sequences.put("+", T_PLUS);
-    sequences.put("-", T_MINUS);
-    sequences.put("*", T_MULTIPLY);
-    sequences.put("/", T_DIVIDE);
-    sequences.put("^", T_EXPONENTIATE);
-    sequences.put("%", T_MODULO);
+    sequences.put("-", T_HYPHEN_MINUS);
+    sequences.put("*", T_ASTERISK);
+    sequences.put("/", T_FORWARD_SLASH);
+    sequences.put("^", T_CARET);
+    sequences.put("%", T_PERCENT);
 
     // Bitwise
-    sequences.put("~", T_BIT_NOT);
-    sequences.put("&", T_BIT_AND);
-    sequences.put("|", T_BIT_OR);
-    sequences.put("\\", T_BIT_XOR);
-    sequences.put("<<", T_BIT_LSHIFT);
-    sequences.put(">>", T_BIT_ARSHIFT);
-    sequences.put(">>>", T_BIT_RSHIFT);
+    sequences.put("~", T_TILDE);
+    sequences.put("&", T_AMPERSAND);
+    sequences.put("|", T_PIPE);
+    sequences.put("\\", T_BACKSLASH);
+    sequences.put("<<", T_LEFT_CHEVRON_AND_LEFT_CHEVRON);
+    sequences.put(">>", T_RIGHT_CHEVRON_AND_RIGHT_CHEVRON);
+    sequences.put(">>>", T_RIGHT_CHEVRON_AND_RIGHT_CHEVRON_AND_RIGHT_CHEVRON);
 
     // Relation
-    sequences.put("==", T_EQ);
-    sequences.put("~=", T_NEQ);
-    sequences.put("<=", T_LEQ);
-    sequences.put(">=", T_GEQ);
-    sequences.put("<=>", T_SPACESHIP);
+    sequences.put("==", T_EQUALS_AND_EQUALS);
+    sequences.put("~=", T_TILDE_AND_EQUALS);
+    sequences.put("<=", T_LEFT_CHEVRON_AND_EQUALS);
+    sequences.put(">=", T_RIGHT_CHEVRON_AND_EQUALS);
+    sequences.put("<=>", T_LEFT_CHEVRON_AND_EQUALS_AND_RIGHT_CHEVRON);
 
     sequences.put("?", T_QUESTION);
     sequences.put(":", T_COLON);
@@ -233,9 +234,9 @@ public class Lexer {
 
     if (t != null) {
       switch (t.getType()) {
-      case T_SQUARE_BRACKET_RIGHT:
+      case T_RIGHT_SQUARE_BRACKET:
       case T_LITERAL_STRING:
-      case T_PARENTHESIS_RIGHT:
+      case T_RIGHT_PARENTHESIS:
       case T_IDENTIFIER:
         // Note that it's not the next token type, but rather the direct
         // character adjacent to the current character, including whitespace
