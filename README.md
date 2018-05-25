@@ -15,7 +15,7 @@ Documentation available at [wilsonl.in/docs/nanoscript](https://wilsonl.in/docs/
 
 ## Purpose
 
-This was just a small side project to try out parts of [ooml-lang](https://github.com/lerouche/ooml-lang).
+This started off as a small side project to experiment with language design.
 Use it for learning, embed it into your project, or check out its syntax.
 
 ## Does it work
