@@ -27,7 +27,7 @@ Yes it does, but it has yet to be benchmarked or optimised.
 Right now, it's a Maven project, so you'll need JDK 1.8+ and Maven 3.5+.
 
 Once installed, just run the `compile.sh` script, which will output `nanoscript-VERSION.jar`
-in the same directory as the script.
+in the same directory as the script, where `VERSION` is the version.
 
 Run it using `java -jar`, and provide the path to a nanoscript file as an argument:
 
