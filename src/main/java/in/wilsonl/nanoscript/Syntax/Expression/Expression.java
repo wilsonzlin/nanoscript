@@ -13,7 +13,6 @@ import in.wilsonl.nanoscript.Utils.Position;
 import static in.wilsonl.nanoscript.Parsing.ShuntingYard.UnitType.EXPRESSION;
 import static in.wilsonl.nanoscript.Parsing.ShuntingYard.UnitType.OPERATOR;
 import static in.wilsonl.nanoscript.Parsing.TokenType.T_LEFT_PARENTHESIS;
-import static in.wilsonl.nanoscript.Parsing.TokenType.T_PARENTHESIS_LEFT;
 import static in.wilsonl.nanoscript.Parsing.TokenType.T_RIGHT_PARENTHESIS;
 import static in.wilsonl.nanoscript.Parsing.TokenType.T_RIGHT_SQUARE_BRACKET;
 import static in.wilsonl.nanoscript.Syntax.Operator.Arity.UNARY;

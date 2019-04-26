@@ -11,16 +11,16 @@ endfor
 print(five, 4, 3, `two`)
 
 "objects (even anonymous ones) have stricter member access and assignment rules than maps (also keys must be strings)"
-create obj as {
+create obj as @{
     a as 1,
     b as 2,
 }
 
 create shorthand as []
 
-create map as @{
+create map as {
   "obj as any_value,"
-  three as 4,
+  "three as 4,"
   `ho ho ho` as {},
   "shorthand,"
 }

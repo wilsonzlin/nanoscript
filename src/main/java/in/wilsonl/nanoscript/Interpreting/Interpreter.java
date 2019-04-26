@@ -54,7 +54,7 @@ public class Interpreter {
         String importAs;
 
         if (importable == null) {
-          value = NSMap.from(importables.map());
+          value = importables.nsMap();
           if (alias == null) {
             throw VMError.from(st_impstmt.getPosition(), BuiltinClass.SyntaxError, "A self import needs an alias");
           }
